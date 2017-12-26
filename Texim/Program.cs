@@ -31,6 +31,7 @@ namespace Texim
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using DevilSurvivor;
+    using MetalMax;
     using Media.Image;
     using Media.Image.Processing;
 
@@ -38,7 +39,43 @@ namespace Texim
     {
         public static void Main(string[] args)
         {
-            DevilSurvivor(args);
+            //DevilSurvivor(args);
+            MetalMax(args);
+        }
+
+        static void MetalMax(string[] args)
+        {
+            if (args.Length != 3)
+                return;
+
+            string oldImagePath = args[0];
+            string newImagePath = args[1];
+            string outPath = args[2];
+
+            // Load palette to force colors when importing
+            BinaryFormat currentTex = new BinaryFormat(oldImagePath);
+            (Palette palette, PixelArray oldPixels) =
+                currentTex.ConvertWith<ValueTuple<Palette, PixelArray>>(new MmTex2Image());
+            currentTex.Dispose();
+
+            // To see the image:
+            //oldPixels.CreateBitmap(palette, 0).Save("img.png");
+
+            // Import the new PNG file
+            Bitmap newImage = (Bitmap)Image.FromFile(newImagePath);
+            var quantization = new FixedPaletteQuantization(palette.GetPalette(0));
+            Media.Image.ImageConverter importer = new Media.Image.ImageConverter {
+                Format = ColorFormat.Indexed_A5I3,
+                PixelEncoding = PixelEncoding.Lineal,
+                Quantization = quantization
+            };
+            (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
+
+            // Save the texture
+            Format.ConvertWith<BinaryFormat>(
+                new ValueTuple<Palette, PixelArray>(palette, pixelInfo),
+                new MmTex2Image())
+                  .Stream.WriteTo(outPath);
         }
 
         static void DevilSurvivor(string[] args)
@@ -67,7 +104,7 @@ namespace Texim
             //    .CreateBitmap(palette.GetFormatAs<Palette>(), 0).Save("img.png");
 
             // Import the new PNG file
-            Bitmap newImage = (Bitmap)System.Drawing.Image.FromFile(newImagePath);
+            Bitmap newImage = (Bitmap)Image.FromFile(newImagePath);
             var quantization = new FixedPaletteQuantization(actualPalette) {
                 TransparentIndex = 0x15
             };
