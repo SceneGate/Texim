@@ -31,17 +31,17 @@ namespace Texim.DevilSurvivor
     using Media.Image;
 
     public class DsTex2Image :
-        IConverter<BinaryFormat, Image>,
-        IConverter<Image, BinaryFormat>
+        IConverter<BinaryFormat, PixelArray>,
+        IConverter<PixelArray, BinaryFormat>
     {
-        public Image Convert(BinaryFormat source)
+        public PixelArray Convert(BinaryFormat source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
             DataReader reader = new DataReader(source.Stream);
 
-            Image image = new Image { Width = 128, Height = 128 };
+            PixelArray image = new PixelArray { Width = 128, Height = 128 };
             image.SetData(
                 reader.ReadBytes((int)source.Stream.Length),
                 PixelEncoding.Lineal,
@@ -50,7 +50,7 @@ namespace Texim.DevilSurvivor
             return image;
         }
 
-        public BinaryFormat Convert(Image source)
+        public BinaryFormat Convert(PixelArray source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));

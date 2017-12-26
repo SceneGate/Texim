@@ -29,7 +29,7 @@ namespace Texim.Media.Image
     using System.Drawing;
     using Yarhl.FileFormat;
 
-    public class Image : Format
+    public class PixelArray : Format
     {
         // Image data will be independent of the value of "format" and "pixelEnc" doing a conversion to lineal pixel
         // encoding and to 24BPP index + 8 bits of alpha component if the image is indexed and to ABGR32 otherwise.
@@ -39,21 +39,21 @@ namespace Texim.Media.Image
         uint[] data;
         uint[] original;    // Original data, without decoding it
 
-        public Image()
+        public PixelArray()
         {
             Format   = ColorFormat.Unknown;
             PixelEncoding = PixelEncoding.Unknown;
             TileSize = new Size(8, 8);
         }
 
-        public Image(Pixel[] pixels, int width, int height, PixelEncoding pxEnc, ColorFormat format, Size tileSize)
+        public PixelArray(Pixel[] pixels, int width, int height, PixelEncoding pxEnc, ColorFormat format, Size tileSize)
         {
             Width = width;
             Height = height;
             SetData(pixels, pxEnc, format, tileSize);
         }
 
-        Image(Image img, uint[] data, int width, int height)
+        PixelArray(PixelArray img, uint[] data, int width, int height)
         {
             Width  = width;
             Height = height;

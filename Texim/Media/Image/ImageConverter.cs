@@ -27,11 +27,12 @@ namespace Texim.Media.Image
 {
     using System;
     using System.Drawing;
+    using Yarhl.FileFormat;
     using Processing;
 
-    public class Importer
+    public class ImageConverter : IConverter<Bitmap, Tuple<Palette, PixelArray>>
     {
-        public Importer()
+        public ImageConverter()
         {
             // Default parameters: 
             // + Image will be HorizontalTiled
@@ -63,7 +64,7 @@ namespace Texim.Media.Image
             set;
         }
 
-        public void Import(Bitmap bitmap, out Palette palette, out Image image)
+        public Tuple<Palette, PixelArray> Convert(Bitmap bitmap)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap));
@@ -80,15 +81,17 @@ namespace Texim.Media.Image
                 throw new FormatException($"The image has more than {maxColors} colors");
 
             // Create palette format
-            palette = new Palette(colors);
+            Palette palette = new Palette(colors);
 
             // Create image format
-            image = new Image();
+            PixelArray image = new PixelArray();
             image.Width  = (pixels.Length > 256) ? 256 : pixels.Length;
             image.Height = (int)Math.Ceiling(pixels.Length / (double)image.Width);
             if (image.Height % TileSize.Height != 0)
                 image.Height += TileSize.Height - (image.Height % TileSize.Height);
             image.SetData(pixels, PixelEncoding, Format, TileSize);
+
+            return new Tuple<Palette, PixelArray>(palette, image);
         }
     }
 }

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 namespace Texim
 {
+    using System;
     using System.Drawing;
     using System.Linq;
     using Yarhl.FileFormat;
@@ -42,6 +43,9 @@ namespace Texim
 
         static void DevilSurvivor(string[] args)
         {
+            if (args.Length != 3)
+                return;
+
             string palettePath = args[0];
             string newImagePath = args[1];
             string outPath = args[2];
@@ -58,8 +62,8 @@ namespace Texim
 
             // To see the image:
             //Node pixels = NodeFactory.FromFile("auction_price.cmp.decompressed");
-            //pixels.Transform<BinaryFormat, Image, DsTex2Image>();
-            //pixels.GetFormatAs<Image>()
+            //pixels.Transform<BinaryFormat, PixelArray, DsTex2Image>();
+            //pixels.GetFormatAs<PixelArray>()
             //    .CreateBitmap(palette.GetFormatAs<Palette>(), 0).Save("img.png");
 
             // Import the new PNG file
@@ -67,16 +71,16 @@ namespace Texim
             var quantization = new FixedPaletteQuantization(actualPalette) {
                 TransparentIndex = 0x15
             };
-            Importer importer = new Importer {
+            Media.Image.ImageConverter importer = new Media.Image.ImageConverter {
                 Format = ColorFormat.Indexed_A3I5,
                 PixelEncoding = PixelEncoding.Lineal,
                 Quantization = quantization
             };
-            importer.Import(newImage, out Palette _, out Media.Image.Image newTiles);
+            (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
 
             // Save the new pixel info
-            Node newPixels = new Node("pxInfo", newTiles);
-            newPixels.Transform<Media.Image.Image, BinaryFormat, DsTex2Image>();
+            Node newPixels = new Node("pxInfo", pixelInfo);
+            newPixels.Transform<PixelArray, BinaryFormat, DsTex2Image>();
             newPixels.GetFormatAs<BinaryFormat>().Stream.WriteTo(outPath);
         }
     }
