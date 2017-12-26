@@ -29,8 +29,11 @@ namespace Texim
     using System.Linq;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
+    using DevilSurvivor;
+    using Media.Image;
+    using Media.Image.Processing;
 
-    class MainClass
+    public class Program
     {
         public static void Main(string[] args)
         {
@@ -69,11 +72,11 @@ namespace Texim
                 PixelEncoding = PixelEncoding.Lineal,
                 Quantization = quantization
             };
-            importer.Import(newImage, out Palette _, out Image newTiles);
+            importer.Import(newImage, out Palette _, out Media.Image.Image newTiles);
 
             // Save the new pixel info
             Node newPixels = new Node("pxInfo", newTiles);
-            newPixels.Transform<Image, BinaryFormat, DsTex2Image>();
+            newPixels.Transform<Media.Image.Image, BinaryFormat, DsTex2Image>();
             newPixels.GetFormatAs<BinaryFormat>().Stream.WriteTo(outPath);
         }
     }

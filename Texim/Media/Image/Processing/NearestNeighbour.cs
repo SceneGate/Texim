@@ -1,5 +1,5 @@
-﻿//
-// DsTex2Image.cs
+//
+// NearestNeighbour.cs
 //
 // Author:
 //       Benito Palacios Sanchez <benito356@gmail.com>
@@ -23,40 +23,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim
+namespace Texim.Media.Image.Processing
 {
-    using System;
-    using Yarhl.FileFormat;
-    using Yarhl.IO;
-
-    public class DsTex2Image : IConverter<BinaryFormat, Image>, IConverter<Image, BinaryFormat>
+    public abstract class NearestNeighbour<T>
     {
-        public Image Convert(BinaryFormat source)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+        protected T[] vertex;
 
-            DataReader reader = new DataReader(source.Stream);
+        public abstract void Initialize(T[] vertex);
 
-            Image image = new Image { Width = 128, Height = 128 };
-            image.SetData(
-                reader.ReadBytes((int)source.Stream.Length),
-                PixelEncoding.Lineal,
-                ColorFormat.Indexed_A3I5);
-            
-            return image;
-        }
-
-        public BinaryFormat Convert(Image source)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            BinaryFormat binary = new BinaryFormat();
-            DataWriter writer = new DataWriter(binary.Stream);
-
-            writer.Write(source.GetData());
-            return binary;
-        }
+        public abstract int Search(T point);
     }
 }

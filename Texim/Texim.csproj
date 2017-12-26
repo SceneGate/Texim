@@ -41,21 +41,26 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DsTex2Palette.cs" />
-    <Compile Include="Image.cs" />
-    <Compile Include="ColorFormat.cs" />
-    <Compile Include="PixelEncoding.cs" />
-    <Compile Include="Pixel.cs" />
-    <Compile Include="Palette.cs" />
-    <Compile Include="ByteArrayExtension.cs" />
-    <Compile Include="ColorExtension.cs" />
-    <Compile Include="DsTex2Image.cs" />
-    <Compile Include="Importer.cs" />
-    <Compile Include="ColorQuantization.cs" />
-    <Compile Include="BasicQuantization.cs" />
-    <Compile Include="NearestNeighbour.cs" />
-    <Compile Include="ExhaustiveSearch.cs" />
-    <Compile Include="FixedPaletteQuantization.cs" />
+    <Compile Include="Media\Image\Processing\BasicQuantization.cs" />
+    <Compile Include="Media\Image\ColorFormat.cs" />
+    <Compile Include="Media\Image\ColorExtension.cs" />
+    <Compile Include="Media\Image\Processing\ColorQuantization.cs" />
+    <Compile Include="Media\Image\Processing\ExhaustiveSearch.cs" />
+    <Compile Include="Media\Image\Processing\FixedPaletteQuantization.cs" />
+    <Compile Include="Media\Image\Image.cs" />
+    <Compile Include="Media\Image\Importer.cs" />
+    <Compile Include="Media\Image\Processing\NearestNeighbour.cs" />
+    <Compile Include="Media\Image\Palette.cs" />
+    <Compile Include="Media\Image\Pixel.cs" />
+    <Compile Include="Media\Image\PixelEncoding.cs" />
+    <Compile Include="DevilSurvivor\DsTex2Image.cs" />
+    <Compile Include="DevilSurvivor\DsTex2Palette.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Media\" />
+    <Folder Include="Media\Image\" />
+    <Folder Include="Media\Image\Processing\" />
+    <Folder Include="DevilSurvivor\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -1,5 +1,5 @@
-//
-// ByteArrayExtension.cs
+﻿//
+// DsTex2Palette.cs
 //
 // Author:
 //       Benito Palacios Sanchez <benito356@gmail.com>
@@ -23,48 +23,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim
+namespace Texim.DevilSurvivor
 {
     using System;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
+    using Media.Image;
 
-    static class ByteArrayExtension
+    public class DsTex2Palette : IConverter<BinaryFormat, Palette>
     {
-        public static uint GetBits(this byte[] data, ref int bitPos, int size)
+        public Palette Convert(BinaryFormat source)
         {
-            if (size < 0 || size > 32)
-                throw new ArgumentOutOfRangeException(nameof(size));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-            if (bitPos + size > data.Length * 8)
-                throw new IndexOutOfRangeException();
-
-            uint value = 0;
-            for (int s = 0; s < size; s++, bitPos++) {
-                uint bit = data[bitPos / 8];
-                bit >>= (bitPos % 8);
-                bit &= 1;
-
-                value |= bit << s;
-            }
-
-            return value;
-        }
-
-        public static void SetBits(this byte[] data, ref int bitPos, int size, uint value)
-        {
-            if (size < 0 || size > 32)
-                throw new ArgumentOutOfRangeException(nameof(size));
-
-            if (bitPos + size > data.Length * 8)
-                throw new IndexOutOfRangeException();
-
-            for (int s = 0; s < size; s++, bitPos++) {
-                uint bit = (value >> s) & 1;
-
-                uint val = data[bitPos / 8];
-                val |= bit << (bitPos % 8);
-                data[bitPos / 8] = (byte)val;
-            }
+            DataReader reader = new DataReader(source.Stream);
+            return new Palette(reader.ReadBytes(512).ToBgr555Colors());
         }
     }
 }
-

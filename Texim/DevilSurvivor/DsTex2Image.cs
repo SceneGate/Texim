@@ -1,5 +1,5 @@
-//
-// FixedPaletteQuantization.cs
+﻿//
+// DsTex2Image.cs
 //
 // Author:
 //       Benito Palacios Sanchez <benito356@gmail.com>
@@ -23,47 +23,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim
+namespace Texim.DevilSurvivor
 {
-    using System.Drawing;
+    using System;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
+    using Media.Image;
 
-    public class FixedPaletteQuantization : ColorQuantization
+    public class DsTex2Image :
+        IConverter<BinaryFormat, Image>,
+        IConverter<Image, BinaryFormat>
     {
-        NearestNeighbour<Color> nearestNeighbour;
-        Bitmap image;
-
-        public FixedPaletteQuantization(Color[] fixedPalette)
+        public Image Convert(BinaryFormat source)
         {
-            nearestNeighbour = new ExhaustivePaletteSearch();
-            Palette = fixedPalette;
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            DataReader reader = new DataReader(source.Stream);
+
+            Image image = new Image { Width = 128, Height = 128 };
+            image.SetData(
+                reader.ReadBytes((int)source.Stream.Length),
+                PixelEncoding.Lineal,
+                ColorFormat.Indexed_A3I5);
+            
+            return image;
         }
 
-        public uint TransparentIndex {
-            get;
-            set;
-        }
-
-        protected override void PreQuantization(Bitmap image)
+        public BinaryFormat Convert(Image source)
         {
-            this.image = image;
-            nearestNeighbour.Initialize(Palette);
-        }
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-        protected override Pixel QuantizatePixel(int x, int y)
-        {
-            Color imgColor = image.GetPixel(x, y);
+            BinaryFormat binary = new BinaryFormat();
+            DataWriter writer = new DataWriter(binary.Stream);
 
-            // If it's a transparent color, set the first palette color
-            if (imgColor.A == 0)
-                return new Pixel(TransparentIndex, 0, true);
-
-            // Get nearest color from palette
-            int colorIndex = nearestNeighbour.Search(imgColor);
-            return new Pixel((uint)colorIndex, imgColor.A, true);
-        }
-
-        protected override void PostQuantization()
-        {
+            writer.Write(source.GetData());
+            return binary;
         }
     }
 }

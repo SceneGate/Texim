@@ -23,7 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim
+namespace Texim.Media.Image
 {
     using System;
     using System.Drawing;
@@ -160,7 +160,7 @@ namespace Texim
 
             int rawPos = 0;
             for (int i = 0; i < original.Length; i++) {
-                uint info = raw.GetBits(ref rawPos, Format.Bpp()); // Get pixel info from raw data
+                uint info = GetBits(raw, ref rawPos, Format.Bpp()); // Get pixel info from raw data
                 original[i] = Format.UnpackColor(info);            // Get color from pixel info (unpack info)
             }
 
@@ -196,7 +196,7 @@ namespace Texim
 
             for (int i = 0; i < original.Length; i++) {
                 uint info = Format.PackColor(original[i]);
-                buffer.SetBits(ref bufferPos, Format.Bpp(), info);
+                SetBits(buffer, ref bufferPos, Format.Bpp(), info);
             }
 
             return buffer;
@@ -246,6 +246,43 @@ namespace Texim
             color = Color.FromArgb((int)alpha, color);
 
             return color;
+        }
+
+        static uint GetBits(byte[] data, ref int bitPos, int size)
+        {
+            if (size < 0 || size > 32)
+                throw new ArgumentOutOfRangeException(nameof(size));
+
+            if (bitPos + size > data.Length * 8)
+                throw new IndexOutOfRangeException();
+
+            uint value = 0;
+            for (int s = 0; s < size; s++, bitPos++) {
+                uint bit = data[bitPos / 8];
+                bit >>= (bitPos % 8);
+                bit &= 1;
+
+                value |= bit << s;
+            }
+
+            return value;
+        }
+
+        static void SetBits(byte[] data, ref int bitPos, int size, uint value)
+        {
+            if (size < 0 || size > 32)
+                throw new ArgumentOutOfRangeException(nameof(size));
+
+            if (bitPos + size > data.Length * 8)
+                throw new IndexOutOfRangeException();
+
+            for (int s = 0; s < size; s++, bitPos++) {
+                uint bit = (value >> s) & 1;
+
+                uint val = data[bitPos / 8];
+                val |= bit << (bitPos % 8);
+                data[bitPos / 8] = (byte)val;
+            }
         }
     }
 }

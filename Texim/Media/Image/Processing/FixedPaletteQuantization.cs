@@ -1,5 +1,5 @@
-﻿//
-// DsTex2Palette.cs
+//
+// FixedPaletteQuantization.cs
 //
 // Author:
 //       Benito Palacios Sanchez <benito356@gmail.com>
@@ -23,21 +23,47 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim
+namespace Texim.Media.Image.Processing
 {
-    using System;
-    using Yarhl.FileFormat;
-    using Yarhl.IO;
+    using System.Drawing;
 
-    public class DsTex2Palette : IConverter<BinaryFormat, Palette>
+    public class FixedPaletteQuantization : ColorQuantization
     {
-        public Palette Convert(BinaryFormat source)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+        NearestNeighbour<Color> nearestNeighbour;
+        Bitmap image;
 
-            DataReader reader = new DataReader(source.Stream);
-            return new Palette(reader.ReadBytes(512).ToBgr555Colors());
+        public FixedPaletteQuantization(Color[] fixedPalette)
+        {
+            nearestNeighbour = new ExhaustivePaletteSearch();
+            Palette = fixedPalette;
+        }
+
+        public uint TransparentIndex {
+            get;
+            set;
+        }
+
+        protected override void PreQuantization(Bitmap image)
+        {
+            this.image = image;
+            nearestNeighbour.Initialize(Palette);
+        }
+
+        protected override Pixel QuantizatePixel(int x, int y)
+        {
+            Color imgColor = image.GetPixel(x, y);
+
+            // If it's a transparent color, set the first palette color
+            if (imgColor.A == 0)
+                return new Pixel(TransparentIndex, 0, true);
+
+            // Get nearest color from palette
+            int colorIndex = nearestNeighbour.Search(imgColor);
+            return new Pixel((uint)colorIndex, imgColor.A, true);
+        }
+
+        protected override void PostQuantization()
+        {
         }
     }
 }
