@@ -1,5 +1,5 @@
 ﻿//
-// AssemblyInfo.cs
+// MmTex.cs
 //
 // Author:
 //       Benito Palacios Sanchez <benito356@gmail.com>
@@ -23,11 +23,48 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Reflection;
+namespace Texim.MetalMax
+{
+    using Yarhl.FileFormat;
+    using Media.Image;
 
-[assembly: AssemblyTitle("Texim")]
-[assembly: AssemblyDescription("Texture import for some NDS games")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Benito Palacios Sanchez")]
-[assembly: AssemblyVersion("1.0.0.*")]
+    public class MmTex : Format
+    {
+        public override string Name => "texim.metalmax.texture";
+
+        public PixelArray Pixels {
+            get;
+            set;
+        }
+
+        public Palette Palette {
+            get;
+            set;
+        }
+
+        public ushort Width {
+            get;
+            set;
+        }
+
+        public ushort Height {
+            get;
+            set;
+        }
+
+        public int NumImages {
+            get;
+            set;
+        }
+
+        public uint UnknownSize {
+            get;
+            set;
+        }
+
+        public uint Unknown {
+            get;
+            set;
+        }
+    }
+}

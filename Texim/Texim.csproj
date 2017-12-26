@@ -55,7 +55,8 @@
     <Compile Include="Media\Image\PixelEncoding.cs" />
     <Compile Include="DevilSurvivor\DsTex2Image.cs" />
     <Compile Include="DevilSurvivor\DsTex2Palette.cs" />
-    <Compile Include="MetalMax\MmTex2Image.cs" />
+    <Compile Include="MetalMax\Binary2MmTex.cs" />
+    <Compile Include="MetalMax\MmTex.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Media\" />

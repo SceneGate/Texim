@@ -28,6 +28,7 @@ namespace Texim
     using System;
     using System.Drawing;
     using System.Linq;
+    using System.Reflection;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using DevilSurvivor;
@@ -39,53 +40,94 @@ namespace Texim
     {
         public static void Main(string[] args)
         {
-            //DevilSurvivor(args);
-            MetalMax(args);
+            Console.WriteLine("Texim -- Experimental library for game images");
+            Console.WriteLine("v{0} ~~ by pleonex ~~", Assembly.GetExecutingAssembly().GetName().Version);
+            Console.WriteLine();
+
+            string format;
+            if (args.Length < 1) {
+                Console.Write("Game (devilsurvivor|metalmax): ");
+                format = Console.ReadLine();
+            } else {
+                format = args[0];
+                args = args.Skip(1).ToArray();
+            }
+
+            if (format == "devilsurvivor")
+                DevilSurvivor(args);
+            else if (format == "metalmax")
+                MetalMax(args);
+            else
+                Console.WriteLine("Game is not supported");
+
+            Console.WriteLine("Done!");
         }
 
         static void MetalMax(string[] args)
         {
-            if (args.Length != 3)
-                return;
+            string oldImagePath;
+            string newImagePath;
+            string outPath;
 
-            string oldImagePath = args[0];
-            string newImagePath = args[1];
-            string outPath = args[2];
+            if (args.Length == 3) {
+                oldImagePath = args[0];
+                newImagePath = args[1];
+                outPath = args[2];
+            } else {
+                Console.Write("Input file: ");
+                oldImagePath = Console.ReadLine();
+
+                Console.Write("Image to import: ");
+                newImagePath = Console.ReadLine();
+
+                Console.Write("Output file: ");
+                outPath = Console.ReadLine();
+            }
 
             // Load palette to force colors when importing
             BinaryFormat currentTex = new BinaryFormat(oldImagePath);
-            (Palette palette, PixelArray oldPixels) =
-                currentTex.ConvertWith<ValueTuple<Palette, PixelArray>>(new MmTex2Image());
+            MmTex texture = currentTex.ConvertWith<MmTex>(new Binary2MmTex());
             currentTex.Dispose();
 
-            // To see the image:
+            // To export the image:
             //oldPixels.CreateBitmap(palette, 0).Save("img.png");
 
             // Import the new PNG file
             Bitmap newImage = (Bitmap)Image.FromFile(newImagePath);
-            var quantization = new FixedPaletteQuantization(palette.GetPalette(0));
+            var quantization = new FixedPaletteQuantization(texture.Palette.GetPalette(0));
             Media.Image.ImageConverter importer = new Media.Image.ImageConverter {
                 Format = ColorFormat.Indexed_A5I3,
                 PixelEncoding = PixelEncoding.Lineal,
                 Quantization = quantization
             };
             (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
+            texture.Pixels = pixelInfo;
 
             // Save the texture
-            Format.ConvertWith<BinaryFormat>(
-                new ValueTuple<Palette, PixelArray>(palette, pixelInfo),
-                new MmTex2Image())
+            texture.ConvertWith<BinaryFormat>(new Binary2MmTex())
                   .Stream.WriteTo(outPath);
         }
 
         static void DevilSurvivor(string[] args)
         {
-            if (args.Length != 3)
-                return;
+            string palettePath;
+            string newImagePath;
+            string outPath;
 
-            string palettePath = args[0];
-            string newImagePath = args[1];
-            string outPath = args[2];
+            if (args.Length == 3) {
+                palettePath = args[0];
+                newImagePath = args[1];
+                outPath = args[2];
+            } else {
+                Console.Write("Palette file: ");
+                palettePath = Console.ReadLine();
+
+                Console.Write("Image to import: ");
+                newImagePath = Console.ReadLine();
+
+                Console.Write("Output file: ");
+                outPath = Console.ReadLine();
+            }
 
             // Load palette to force colors when importing
             Node palette = NodeFactory.FromFile(palettePath);
@@ -97,7 +139,7 @@ namespace Texim
                    .Take(32)
                    .ToArray();
 
-            // To see the image:
+            // To export the image:
             //Node pixels = NodeFactory.FromFile("auction_price.cmp.decompressed");
             //pixels.Transform<BinaryFormat, PixelArray, DsTex2Image>();
             //pixels.GetFormatAs<PixelArray>()

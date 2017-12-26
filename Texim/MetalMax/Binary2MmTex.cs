@@ -30,20 +30,18 @@ namespace Texim.MetalMax
     using Yarhl.IO;
     using Media.Image;
 
-    public class MmTex2Image :
-        IConverter<BinaryFormat, ValueTuple<Palette, PixelArray>>,
-        IConverter<ValueTuple<Palette, PixelArray>, BinaryFormat>
+    public class Binary2MmTex :
+        IConverter<BinaryFormat, MmTex>,
+        IConverter<MmTex, BinaryFormat>
     {
-        public (Palette, PixelArray) Convert(BinaryFormat source)
+        public MmTex Convert(BinaryFormat source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
             DataReader reader = new DataReader(source.Stream);
 
-            Palette palette = new Palette();
-            PixelArray pixels = new PixelArray();
-
+            MmTex texture = new MmTex();
             while (!source.Stream.EndOfStream) {
                 reader.ReadString(4); // CHNK
                 reader.ReadUInt32(); // unknown
@@ -52,40 +50,49 @@ namespace Texim.MetalMax
 
                 switch (header) {
                     case "TXIF":
-                        reader.ReadUInt32(); // unknown, some sort of size
+                        texture.UnknownSize = reader.ReadUInt32();
                         reader.ReadUInt32(); // num pixels
-                        reader.ReadUInt32(); // unknown / reserved
+                        texture.Unknown = reader.ReadUInt32();
                         reader.ReadUInt32(); // palette size
-                        ushort width = reader.ReadUInt16();
-                        ushort height = reader.ReadUInt16();
-                        int numImgs = reader.ReadInt32();
-                        pixels.Width = width;
-                        pixels.Height = numImgs * height;
+                        texture.Width = reader.ReadUInt16();
+                        texture.Height = reader.ReadUInt16();
+                        texture.NumImages = reader.ReadInt32();
+                        texture.Pixels = new PixelArray {
+                            Width = texture.Width,
+                            Height = texture.NumImages * texture.Height
+                        };
                         break;
 
                     case "TXIM":
-                        pixels.SetData(
+                        texture.Pixels.SetData(
                             reader.ReadBytes(size),
                             PixelEncoding.Lineal,
                             ColorFormat.Indexed_A5I3);
                         break;
 
                     case "TXPL":
-                        palette.SetPalette(reader.ReadBytes(size).ToBgr555Colors());
+                        texture.Palette = new Palette(
+                            reader.ReadBytes(size).ToBgr555Colors());
                         break;
+
+                    default:
+                        throw new FormatException("Unknown chunk");
                 }
             }
 
-            return (palette, pixels);
+            return texture;
         }
 
-        public BinaryFormat Convert(ValueTuple<Palette, PixelArray> source)
+        public BinaryFormat Convert(MmTex texture)
         {
+            if (texture == null)
+                throw new ArgumentNullException(nameof(texture));
+
             BinaryFormat binary = new BinaryFormat();
             DataWriter writer = new DataWriter(binary.Stream);
 
-            var colorsData = source.Item1.GetPalette(0).ToBgr555();
-            var imgData = source.Item2.GetData();
+            var colorsData = texture.Palette.GetPalette(0).ToBgr555();
+            var imgData = texture.Pixels.GetData();
 
             // First texture info
             writer.Write("CHNK", false);
@@ -93,13 +100,13 @@ namespace Texim.MetalMax
             writer.Write("TXIF", false);
             writer.Write(0x18);
 
-            writer.Write(0xD16);
+            writer.Write(texture.UnknownSize);
             writer.Write(imgData.Length);
-            writer.Write(0x00);
+            writer.Write(texture.Unknown);
             writer.Write(colorsData.Length);
-            writer.Write((ushort)0x20); // TODO: Make configurable
-            writer.Write((ushort)0x0E); // TODO: Make configurable
-            writer.Write(0x05); // TODO: Make configurable
+            writer.Write(texture.Width);
+            writer.Write(texture.Height);
+            writer.Write(texture.NumImages);
 
             // Image data
             writer.Write("CHNK", false);
