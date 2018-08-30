@@ -57,8 +57,8 @@
     <Compile Include="DevilSurvivor\DsTex2Palette.cs" />
     <Compile Include="MetalMax\Binary2MmTex.cs" />
     <Compile Include="MetalMax\MmTex.cs" />
-    <Compile Include="BlackRockShooter\Ptp.cs" />
-    <Compile Include="BlackRockShooter\Binary2Ptp.cs" />
+    <Compile Include="BlackRockShooter\Ptmd.cs" />
+    <Compile Include="BlackRockShooter\Binary2Ptmd.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Media\" />

@@ -83,7 +83,7 @@ namespace Texim
             }
 
             using (var binaryFormat = new BinaryFormat(binaryFile)) {
-                Ptp ptp = binaryFormat.ConvertWith<Binary2Ptp, BinaryFormat, Ptp>();
+                Ptmd ptp = binaryFormat.ConvertWith<Binary2Ptmd, BinaryFormat, Ptmd>();
                 ptp.Pixels.CreateBitmap(ptp.Palette, 0).Save(imageFile);
             }
         }

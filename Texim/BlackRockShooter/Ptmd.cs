@@ -1,5 +1,5 @@
 //
-// Ptp.cs
+// Ptmd.cs
 //
 // Author:
 //       Benito Palacios Sanchez <benito356@gmail.com>
@@ -28,8 +28,8 @@ namespace Texim.BlackRockShooter
     using Yarhl.FileFormat;
     using Media.Image;
 
-    [Format("Texim.BlackRockShooter.Ptp")]
-    public class Ptp : Format
+    [Format("Texim.BlackRockShooter.Ptmd")]
+    public class Ptmd : Format
     {
         public PixelArray Pixels { get; set; }
 

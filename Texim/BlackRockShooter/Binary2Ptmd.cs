@@ -1,5 +1,5 @@
 //
-// Binary2Ptp.cs
+// Binary2Ptmd.cs
 //
 // Author:
 //       Benito Palacios Sanchez <benito356@gmail.com>
@@ -31,9 +31,9 @@ namespace Texim.BlackRockShooter
     using Yarhl.IO;
     using Media.Image;
 
-    public class Binary2Ptp : IConverter<BinaryFormat, Ptp>
+    public class Binary2Ptmd : IConverter<BinaryFormat, Ptmd>
     {
-        public Ptp Convert(BinaryFormat source)
+        public Ptmd Convert(BinaryFormat source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -42,16 +42,10 @@ namespace Texim.BlackRockShooter
             if (reader.ReadString(4) != "PTMD")
                 throw new FormatException("Invalid magic header");
 
-            Ptp ptp = new Ptp();
-            // ptp.TilesX = reader.ReadByte();
-            // ptp.TilesY = reader.ReadByte();
-            // ptp.TileWidth = reader.ReadByte();
-            // ptp.TileHeight = reader.ReadByte();
+            Ptmd ptp = new Ptmd();
             reader.ReadUInt32(); // unknown
-
-            // int dataSize = reader.ReadInt32();
-            // uint paletteOffset = reader.ReadUInt32();
-            reader.ReadBytes(8); // unknown
+            reader.ReadUInt32(); // unknown
+            reader.ReadUInt32(); // unknown
 
             ptp.Pixels = new PixelArray {
                 Width = 256,
@@ -63,13 +57,22 @@ namespace Texim.BlackRockShooter
                 ColorFormat.Indexed_4bpp,
                 new Size(32, 8));
 
+            // It isn't the palette but it could work for now
             reader.Stream.Position = 0x2010;
             ptp.Palette = new Palette(reader.ReadBytes(0x20).ToBgr555Colors());
 
+            // Maybe they are coords? Let's try again with big endian shorts
+            Console.WriteLine("Coordinates1");
             reader.Endianness = EndiannessMode.BigEndian;
             reader.Stream.Position = 0x2010;
             for (int i = 0; i < 16; i++)
                 Console.WriteLine(reader.ReadInt16());
+
+            // Or maybe coordinates with signed bytes?
+            Console.WriteLine("Coordinates2:");
+            reader.Stream.Position = 0x2010;
+            for (int i = 0; i < 32; i++)
+                Console.WriteLine(reader.ReadSByte());
 
             return ptp;
         }
