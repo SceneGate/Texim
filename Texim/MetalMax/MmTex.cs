@@ -28,10 +28,9 @@ namespace Texim.MetalMax
     using Yarhl.FileFormat;
     using Media.Image;
 
+    [Format("Texim.Metalmax.Texture")]
     public class MmTex : Format
     {
-        public override string Name => "texim.metalmax.texture";
-
         public PixelArray Pixels {
             get;
             set;

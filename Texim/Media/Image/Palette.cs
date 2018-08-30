@@ -31,6 +31,7 @@ namespace Texim.Media.Image
     using System.Drawing;
     using Yarhl.FileFormat;
 
+    [Format("Media.Image.Palette")]
     public class Palette : Format
     {
         Color[][] palette;
@@ -49,8 +50,6 @@ namespace Texim.Media.Image
         {
             SetPalette(palette);
         }
-
-        public override string Name => "ninoimager.palette";
 
         public int NumPalettes {
             get { return palette.Length; }

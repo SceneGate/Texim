@@ -1,4 +1,4 @@
-﻿//
+//
 // Program.cs
 //
 // Author:
@@ -86,7 +86,7 @@ namespace Texim
 
             // Load palette to force colors when importing
             BinaryFormat currentTex = new BinaryFormat(oldImagePath);
-            MmTex texture = currentTex.ConvertWith<MmTex>(new Binary2MmTex());
+            MmTex texture = currentTex.ConvertWith<Binary2MmTex, BinaryFormat, MmTex>();
             currentTex.Dispose();
 
             // To export the image:
@@ -104,7 +104,7 @@ namespace Texim
             texture.Pixels = pixelInfo;
 
             // Save the texture
-            texture.ConvertWith<BinaryFormat>(new Binary2MmTex())
+            texture.ConvertWith<Binary2MmTex, MmTex, BinaryFormat>()
                   .Stream.WriteTo(outPath);
         }
 
@@ -131,7 +131,7 @@ namespace Texim
 
             // Load palette to force colors when importing
             Node palette = NodeFactory.FromFile(palettePath);
-            palette.Transform<BinaryFormat, Palette, DsTex2Palette>();
+            palette.Transform<DsTex2Palette, BinaryFormat, Palette>();
 
             // The palette may have more colors than needed.
             // Since the format is A3I5 only 32 colors are used
@@ -159,7 +159,7 @@ namespace Texim
 
             // Save the new pixel info
             Node newPixels = new Node("pxInfo", pixelInfo);
-            newPixels.Transform<PixelArray, BinaryFormat, DsTex2Image>();
+            newPixels.Transform<DsTex2Image, PixelArray, BinaryFormat>();
             newPixels.GetFormatAs<BinaryFormat>().Stream.WriteTo(outPath);
         }
     }

@@ -29,6 +29,7 @@ namespace Texim.Media.Image
     using System.Drawing;
     using Yarhl.FileFormat;
 
+    [Format("Media.Image.PixelArray")]
     public class PixelArray : Format
     {
         // Image data will be independent of the value of "format" and "pixelEnc" doing a conversion to lineal pixel
@@ -65,8 +66,6 @@ namespace Texim.Media.Image
             data = new uint[data.Length];
             PixelEncoding.Codec(original, data, true, width, height, TileSize); 
         }
-
-        public override string Name => "ninoimager.image";
 
         public int Width {
             get;

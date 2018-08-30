@@ -32,10 +32,10 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="Mono.Addins">
-      <HintPath>..\Yarhl\yarhl\bin\Debug\Mono.Addins.dll</HintPath>
+      <HintPath>..\Yarhl\Yarhl\bin\Debug\Mono.Addins.dll</HintPath>
     </Reference>
     <Reference Include="yarhl">
-      <HintPath>..\Yarhl\yarhl\bin\Debug\yarhl.dll</HintPath>
+      <HintPath>..\Yarhl\Yarhl\bin\Debug\Yarhl.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
