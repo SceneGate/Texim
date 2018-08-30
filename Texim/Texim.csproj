@@ -57,6 +57,8 @@
     <Compile Include="DevilSurvivor\DsTex2Palette.cs" />
     <Compile Include="MetalMax\Binary2MmTex.cs" />
     <Compile Include="MetalMax\MmTex.cs" />
+    <Compile Include="BlackRockShooter\Ptp.cs" />
+    <Compile Include="BlackRockShooter\Binary2Ptp.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Media\" />
@@ -64,6 +66,7 @@
     <Folder Include="Media\Image\Processing\" />
     <Folder Include="DevilSurvivor\" />
     <Folder Include="MetalMax\" />
+    <Folder Include="BlackRockShooter\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

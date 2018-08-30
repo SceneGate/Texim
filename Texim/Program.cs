@@ -1,4 +1,4 @@
-//
+﻿//
 // Program.cs
 //
 // Author:
@@ -31,6 +31,7 @@ namespace Texim
     using System.Reflection;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
+    using BlackRockShooter;
     using DevilSurvivor;
     using MetalMax;
     using Media.Image;
@@ -46,7 +47,7 @@ namespace Texim
 
             string format;
             if (args.Length < 1) {
-                Console.Write("Game (devilsurvivor|metalmax): ");
+                Console.Write("Game (devilsurvivor|metalmax|brs): ");
                 format = Console.ReadLine();
             } else {
                 format = args[0];
@@ -57,10 +58,34 @@ namespace Texim
                 DevilSurvivor(args);
             else if (format == "metalmax")
                 MetalMax(args);
+            else if (format == "brs")
+                Brs(args);
             else
                 Console.WriteLine("Game is not supported");
 
             Console.WriteLine("Done!");
+        }
+
+        static void Brs(string[] args)
+        {
+            string binaryFile;
+            string imageFile;
+
+            if (args.Length == 2) {
+                binaryFile = args[0];
+                imageFile = args[1];
+            } else {
+                Console.Write("Input file: ");
+                binaryFile = Console.ReadLine();
+
+                Console.Write("Output file: ");
+                imageFile = Console.ReadLine();
+            }
+
+            using (var binaryFormat = new BinaryFormat(binaryFile)) {
+                Ptp ptp = binaryFormat.ConvertWith<Binary2Ptp, BinaryFormat, Ptp>();
+                ptp.Pixels.CreateBitmap(ptp.Palette, 0).Save(imageFile);
+            }
         }
 
         static void MetalMax(string[] args)
