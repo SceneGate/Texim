@@ -31,7 +31,6 @@ namespace Texim.Media.Image
     using System.Drawing;
     using Yarhl.FileFormat;
 
-    [Format("Media.Image.Palette")]
     public class Palette : Format
     {
         Color[][] palette;

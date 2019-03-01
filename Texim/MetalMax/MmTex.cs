@@ -28,7 +28,6 @@ namespace Texim.MetalMax
     using Yarhl.FileFormat;
     using Media.Image;
 
-    [Format("Texim.Metalmax.Texture")]
     public class MmTex : Format
     {
         public PixelArray Pixels {
