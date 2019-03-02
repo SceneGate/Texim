@@ -23,7 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim.Media.Image
+namespace Texim
 {
     using System;
     using System.Drawing;
@@ -114,6 +114,23 @@ namespace Texim.Media.Image
             var colors = InfoToIndexedColors(data, palette.GetPalette(paletteIndex));
             for (int i = 0; i < colors.Length; i++)
                 bmp.SetPixel(i % Width, i / Width, colors[i]);
+
+            return bmp;
+        }
+
+        public Bitmap CreateBitmap(Palette palette, uint[] paletteIndex)
+        {
+            if (!Format.IsIndexed())
+            {
+                Console.WriteLine("##WARNING## The palette is not required.");
+                return CreateBitmap();
+            }
+
+            Bitmap bmp = new Bitmap(Width, Height);
+            Color[] indexedColors = InfoToIndexedColors(this.data, palette.GetPalettes(), paletteIndex);
+
+            for (int i = 0; i < indexedColors.Length; i++)
+                bmp.SetPixel(i % Width, i / Width, indexedColors[i]);
 
             return bmp;
         }

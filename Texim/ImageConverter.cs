@@ -23,12 +23,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim.Media.Image
+namespace Texim
 {
     using System;
     using System.Drawing;
     using Yarhl.FileFormat;
-    using Processing;
+    using Texim.Processing;
 
     public class ImageConverter : IConverter<Bitmap, Tuple<Palette, PixelArray>>
     {

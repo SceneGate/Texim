@@ -5,7 +5,7 @@
 // without express written permission.  Any such copies, or
 // revisions thereof, must display this notice unaltered.
 // This code contains trade secrets of Real-Time Innovations, Inc.
-namespace Texim.Media.Image.Processing
+namespace Texim.Processing
 {
     using System.Collections.Generic;
     using System.Drawing;

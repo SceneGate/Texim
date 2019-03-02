@@ -67,6 +67,12 @@
     <Compile Include="Pixel.cs" />
     <Compile Include="PixelArray.cs" />
     <Compile Include="PixelEncoding.cs" />
+    <Compile Include="Map.cs" />
+    <Compile Include="Mapable.cs" />
+    <Compile Include="MapInfo.cs" />
+    <Compile Include="BgMode.cs" />
+    <Compile Include="CompressMapping.cs" />
+    <Compile Include="MatchMapping.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Processing\" />
