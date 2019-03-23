@@ -20,13 +20,13 @@
 // <date>15/08/2013</date>
 // -----------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
 using System.Drawing;
+using Yarhl.FileFormat;
 using Size = System.Drawing.Size;
 
 namespace Texim
 {
-	public class Map
+	public class Map : Format
 	{
 		private MapInfo[] info;
 		private Mapable mapping;
