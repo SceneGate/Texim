@@ -29,7 +29,6 @@ namespace Texim.Media.Image
     using System.Drawing;
     using Yarhl.FileFormat;
 
-    [Format("Media.Image.PixelArray")]
     public class PixelArray : Format
     {
         // Image data will be independent of the value of "format" and "pixelEnc" doing a conversion to lineal pixel
