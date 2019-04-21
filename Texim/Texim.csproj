@@ -13,7 +13,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\..\JUSToolkit\JUSToolkit\lib\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -21,7 +21,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\..\JUSToolkit\JUSToolkit\lib\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ExternalConsole>true</ExternalConsole>
@@ -62,7 +62,6 @@
     <Compile Include="Processing\NearestNeighbour.cs" />
     <Compile Include="ColorExtension.cs" />
     <Compile Include="ColorFormat.cs" />
-    <Compile Include="ImageConverter.cs" />
     <Compile Include="Palette.cs" />
     <Compile Include="Pixel.cs" />
     <Compile Include="PixelArray.cs" />
@@ -73,9 +72,12 @@
     <Compile Include="BgMode.cs" />
     <Compile Include="CompressMapping.cs" />
     <Compile Include="MatchMapping.cs" />
+    <Compile Include="Converters\ImageConverter.cs" />
+    <Compile Include="Converters\ImageMapConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Processing\" />
+    <Folder Include="Converters\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,10 +1,10 @@
-//
-// Importer.cs
+﻿//
+// ImageMapConverter.cs
 //
 // Author:
-//       Benito Palacios Sanchez <benito356@gmail.com>
+//       Priverop <Github!>
 //
-// Copyright (c) 2017 Benito Palacios Sanchez
+// Copyright (c) 2019 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,59 +23,70 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+
 namespace Texim
 {
     using System;
     using System.Drawing;
     using Yarhl.FileFormat;
     using Texim.Processing;
-
-    public class ImageConverter : IConverter<Bitmap, Tuple<Palette, PixelArray>>
+    public class ImageMapConverter : IConverter<Bitmap, Tuple<Palette, PixelArray, MapInfo[]>>
     {
-        public ImageConverter()
+        public ImageMapConverter()
         {
-            // Default parameters: 
+            // Default parameters:
             // + Image will be HorizontalTiled
             // + Depth will be 8bpp (256/1).
-            // + Transparent color will be magenta: (R:248, G:0, B:248) 
-            Format        = ColorFormat.Indexed_8bpp;
-            TileSize      = new Size(8, 8);
+            // + Transparent color will be magenta: (R:248, G:0, B:248)
+            Format = ColorFormat.Indexed_8bpp;
+            TileSize = new Size(8, 8);
             PixelEncoding = PixelEncoding.HorizontalTiles;
-            Quantization  = new BasicQuantization();
+            Quantization = new BasicQuantization();
         }
 
-        public ColorQuantization Quantization {
+        public ColorQuantization Quantization
+        {
             get;
             set;
         }
 
-        public ColorFormat Format {
+        public ColorFormat Format
+        {
             get;
             set;
         }
 
-        public PixelEncoding PixelEncoding {
+        public PixelEncoding PixelEncoding
+        {
             get;
             set;
         }
 
-        public Size TileSize {
+        public Size TileSize
+        {
             get;
             set;
         }
 
-        public Tuple<Palette, PixelArray> Convert(Bitmap bitmap)
+        public BgMode BgMode
+        {
+            get;
+            set;
+        }
+
+        public Tuple<Palette, PixelArray, MapInfo[]> Convert(Bitmap bitmap)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap));
 
-            int width  = bitmap.Width;
+            int width = bitmap.Width;
             int height = bitmap.Height;
             int maxColors = Format.MaxColors();
 
             // Quantizate image -> get pixels and palette
             Quantization.Quantizate(bitmap);
-            Pixel[] pixels  = Quantization.GetPixels(this.PixelEncoding);
+            Pixel[] pixels = Quantization.GetPixels(PixelEncoding);
             Color[] colors = Quantization.Palette;
             if (colors.Length > maxColors)
                 throw new FormatException($"The image has more than {maxColors} colors");
@@ -83,16 +94,31 @@ namespace Texim
             // Create palette format
             Palette palette = new Palette(colors);
 
+            // Create map from pixels
+            Map map = new Map()
+            {
+                TileSize = TileSize,
+                Width = width,
+                Height = height,
+                BgMode = BgMode
+            };
+
+
+
+            pixels = map.CreateMap(pixels);
+
             // Create image format
-            PixelArray image = new PixelArray();
-            image.Width  = (pixels.Length > 256) ? 256 : pixels.Length;
+            PixelArray image = new PixelArray
+            {
+                Width = (pixels.Length > 256) ? 256 : pixels.Length
+            };
+
             image.Height = (int)Math.Ceiling(pixels.Length / (double)image.Width);
             if (image.Height % TileSize.Height != 0)
                 image.Height += TileSize.Height - (image.Height % TileSize.Height);
             image.SetData(pixels, PixelEncoding, Format, TileSize);
 
-            return new Tuple<Palette, PixelArray>(palette, image);
+            return new Tuple<Palette, PixelArray, MapInfo[]>(palette, image, map.GetMapInfo());
         }
     }
 }
-
