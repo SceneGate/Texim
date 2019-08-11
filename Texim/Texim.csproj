@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -29,13 +29,13 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Addins">
+      <HintPath>..\..\Yarhl\Yarhl.Media\bin\Debug\Mono.Addins.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
-    <Reference Include="Mono.Addins">
-      <HintPath>..\Yarhl\Yarhl\bin\Debug\Mono.Addins.dll</HintPath>
-    </Reference>
-    <Reference Include="yarhl">
-      <HintPath>..\Yarhl\Yarhl\bin\Debug\Yarhl.dll</HintPath>
+    <Reference Include="Yarhl">
+      <HintPath>..\..\Yarhl\Yarhl.Media\bin\Debug\Yarhl.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +53,8 @@
     <Compile Include="Media\Image\Palette.cs" />
     <Compile Include="Media\Image\Pixel.cs" />
     <Compile Include="Media\Image\PixelEncoding.cs" />
+    <Compile Include="Disgaea\Binary2Ykcmp.cs" />
+    <Compile Include="Disgaea\Ykcmp.cs" />
     <Compile Include="DevilSurvivor\DsTex2Image.cs" />
     <Compile Include="DevilSurvivor\DsTex2Palette.cs" />
     <Compile Include="MetalMax\Binary2MmTex.cs" />
@@ -60,14 +62,7 @@
     <Compile Include="BlackRockShooter\Ptmd.cs" />
     <Compile Include="BlackRockShooter\Binary2Ptmd.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Media\" />
-    <Folder Include="Media\Image\" />
-    <Folder Include="Media\Image\Processing\" />
-    <Folder Include="DevilSurvivor\" />
-    <Folder Include="MetalMax\" />
-    <Folder Include="BlackRockShooter\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <MonoDevelop>

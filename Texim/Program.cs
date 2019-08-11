@@ -33,6 +33,7 @@ namespace Texim
     using Yarhl.FileSystem;
     using BlackRockShooter;
     using DevilSurvivor;
+    using Disgaea;
     using MetalMax;
     using Media.Image;
     using Media.Image.Processing;
@@ -47,7 +48,7 @@ namespace Texim
 
             string format;
             if (args.Length < 1) {
-                Console.Write("Game (devilsurvivor|metalmax|brs): ");
+                Console.Write("Game (devilsurvivor|metalmax|brs|disgaea): ");
                 format = Console.ReadLine();
             } else {
                 format = args[0];
@@ -60,10 +61,34 @@ namespace Texim
                 MetalMax(args);
             else if (format == "brs")
                 Brs(args);
+            else if (format == "disgaea")
+                Disgaea(args);
             else
                 Console.WriteLine("Game is not supported");
 
             Console.WriteLine("Done!");
+        }
+
+        static void Disgaea(string[] args)
+        {
+            string binaryFile;
+            string imageFile;
+
+            if (args.Length == 2) {
+                binaryFile = args[0];
+                imageFile = args[1];
+            } else {
+                Console.Write("Input file: ");
+                binaryFile = Console.ReadLine();
+
+                Console.Write("Output file: ");
+                imageFile = Console.ReadLine();
+            }
+
+            using (var binaryFormat = new BinaryFormat(binaryFile)) {
+                Ykcmp ykcmp = binaryFormat.ConvertWith<Binary2Ykcmp, BinaryFormat, Ykcmp>();
+                ykcmp.Pixels.CreateBitmap(ykcmp.Palette, 0).Save(imageFile);
+            }
         }
 
         static void Brs(string[] args)
