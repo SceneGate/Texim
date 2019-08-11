@@ -20,11 +20,11 @@
 namespace Texim.Disgaea
 {
     using System;
-    using Yarhl.FileFormat;
-    using Yarhl.IO;
-    using Media.Image;
     using System.Collections.Generic;
     using System.Drawing;
+    using Media.Image;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
 
     public class Binary2Ykcmp :
         IConverter<BinaryFormat, Ykcmp>

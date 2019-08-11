@@ -242,7 +242,12 @@ namespace Texim.Media.Image
                 throw new IndexOutOfRangeException("Color index out of palette");
 
             Color color = palette[colorIndex];
-            color = Color.FromArgb((int)alpha, color);
+
+            // Dirty hack to know if we take the transparency from the palette
+            // color or from the pixel info.
+            if (color.A != 0x00) {
+                color = Color.FromArgb((int)alpha, color);
+            }
 
             return color;
         }
