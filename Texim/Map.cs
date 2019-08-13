@@ -88,9 +88,6 @@ namespace Texim
 
 		public Bitmap CreateBitmap(PixelArray image, Palette palette)
 		{
-			// UNDONE: Support Text mode and pixel areas
-			if (this.bgMode == BgMode.Text && (this.width > 256 || this.height > 256))
-				throw new NotSupportedException("Text modes with multiple pixel ares not supported.");
 
 			// TODO: Try to change the tile size of the image
 			if (this.tileSize != image.TileSize)

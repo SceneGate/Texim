@@ -14,4 +14,7 @@ Global
 		{7FC4966D-6D69-42CD-A47B-C60ABA21A030}.Release|x86.ActiveCfg = Release|x86
 		{7FC4966D-6D69-42CD-A47B-C60ABA21A030}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		version = 1.0
+	EndGlobalSection
 EndGlobal
