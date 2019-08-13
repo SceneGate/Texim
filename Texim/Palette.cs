@@ -31,7 +31,7 @@ namespace Texim
     using System.Drawing;
     using Yarhl.FileFormat;
 
-    public class Palette : Format
+    public class Palette : IFormat
     {
         Color[][] palette;
 

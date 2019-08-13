@@ -48,10 +48,10 @@
       <HintPath>..\packages\System.Composition.TypedParts.1.2.0\lib\netstandard2.0\System.Composition.TypedParts.dll</HintPath>
     </Reference>
     <Reference Include="Yarhl">
-      <HintPath>..\packages\Yarhl.2.0.0.1\lib\netstandard2.0\Yarhl.dll</HintPath>
+      <HintPath>..\packages\Yarhl.3.0.0-alpha06\lib\net461\Yarhl.dll</HintPath>
     </Reference>
     <Reference Include="Yarhl.Media">
-      <HintPath>..\packages\Yarhl.Media.2.0.0.1\lib\netstandard2.0\Yarhl.Media.dll</HintPath>
+      <HintPath>..\packages\Yarhl.Media.3.0.0-alpha06\lib\net461\Yarhl.Media.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

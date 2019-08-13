@@ -29,7 +29,7 @@ namespace Texim
     using System.Drawing;
     using Yarhl.FileFormat;
 
-    public class PixelArray : Format
+    public class PixelArray : IFormat
     {
         // Image data will be independent of the value of "format" and "pixelEnc" doing a conversion to lineal pixel
         // encoding and to 24BPP index + 8 bits of alpha component if the image is indexed and to ABGR32 otherwise.

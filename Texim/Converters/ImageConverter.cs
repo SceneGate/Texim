@@ -69,8 +69,6 @@ namespace Texim
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap));
 
-            int width  = bitmap.Width;
-            int height = bitmap.Height;
             int maxColors = Format.MaxColors();
 
             // Quantizate image -> get pixels and palette

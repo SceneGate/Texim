@@ -26,7 +26,7 @@ using Size = System.Drawing.Size;
 
 namespace Texim
 {
-	public class Map : Format
+	public class Map : IFormat
 	{
 		private MapInfo[] info;
 		private Mapable mapping;
