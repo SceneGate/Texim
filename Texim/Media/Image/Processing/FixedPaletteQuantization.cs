@@ -58,6 +58,10 @@ namespace Texim.Media.Image.Processing
                 return new Pixel(TransparentIndex, 0, true);
 
             // Get nearest color from palette
+
+            // Fix to 0xFFFFFF color because the palette make it transparent color
+            if (imgColor.A == 0xFF && imgColor.B == 0xFF && imgColor.G == 0xFF) return new Pixel((uint)0xFF, imgColor.A, true);
+
             int colorIndex = nearestNeighbour.Search(imgColor);
             return new Pixel((uint)colorIndex, imgColor.A, true);
         }
