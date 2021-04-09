@@ -29,13 +29,29 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mono.Addins">
-      <HintPath>..\..\Yarhl\Yarhl.Media\bin\Debug\Mono.Addins.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Composition.AttributedModel">
+      <HintPath>..\packages\System.Composition.AttributedModel.1.2.0\lib\netstandard2.0\System.Composition.AttributedModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Convention">
+      <HintPath>..\packages\System.Composition.Convention.1.2.0\lib\netstandard2.0\System.Composition.Convention.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Runtime">
+      <HintPath>..\packages\System.Composition.Runtime.1.2.0\lib\netstandard2.0\System.Composition.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.Hosting">
+      <HintPath>..\packages\System.Composition.Hosting.1.2.0\lib\netstandard2.0\System.Composition.Hosting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Composition.TypedParts">
+      <HintPath>..\packages\System.Composition.TypedParts.1.2.0\lib\netstandard2.0\System.Composition.TypedParts.dll</HintPath>
+    </Reference>
     <Reference Include="Yarhl">
-      <HintPath>..\..\Yarhl\Yarhl.Media\bin\Debug\Yarhl.dll</HintPath>
+      <HintPath>..\packages\Yarhl.2.0.0.1\lib\netstandard2.0\Yarhl.dll</HintPath>
+    </Reference>
+    <Reference Include="Yarhl.Media">
+      <HintPath>..\packages\Yarhl.Media.2.0.0.1\lib\netstandard2.0\Yarhl.Media.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -62,7 +78,17 @@
     <Compile Include="BlackRockShooter\Ptmd.cs" />
     <Compile Include="BlackRockShooter\Binary2Ptmd.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Media\" />
+    <Folder Include="Media\Image\" />
+    <Folder Include="Media\Image\Processing\" />
+    <Folder Include="DevilSurvivor\" />
+    <Folder Include="MetalMax\" />
+    <Folder Include="BlackRockShooter\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <MonoDevelop>

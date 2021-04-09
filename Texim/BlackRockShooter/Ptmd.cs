@@ -28,7 +28,6 @@ namespace Texim.BlackRockShooter
     using Yarhl.FileFormat;
     using Media.Image;
 
-    [Format("Texim.BlackRockShooter.Ptmd")]
     public class Ptmd : Format
     {
         public PixelArray Pixels { get; set; }
