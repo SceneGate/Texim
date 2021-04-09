@@ -1,5 +1,15 @@
-bin/
+# Build outputs
 obj/
-*.userprefs
-*.csproj.user
-*.vs
+bin/
+artifacts/
+
+# Build system
+tools/
+
+# Test results
+test_results/
+
+# Documentation output
+docs/_site
+docs/api
+docs/_site_pdf

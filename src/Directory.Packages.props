@@ -1,0 +1,13 @@
+<Project>
+    <!-- Centralize dependency management -->
+    <ItemGroup>
+        <PackageVersion Include="Yarhl" Version="2.0.0.1" />
+        <PackageVersion Include="System.Drawing.Common" Version="5.0.2" />
+
+        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.0.0" />
+
+        <PackageVersion Include="StyleCop.Analyzers" Version="1.1.118" />
+        <PackageVersion Include="SonarAnalyzer.CSharp" Version="8.19.0.28253" />
+        <PackageVersion Include="Roslynator.Analyzers" Version="3.1.0" />
+    </ItemGroup>
+</Project>

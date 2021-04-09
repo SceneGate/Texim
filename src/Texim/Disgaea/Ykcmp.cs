@@ -22,7 +22,6 @@ namespace Texim.Disgaea
     using Yarhl.FileFormat;
     using Media.Image;
 
-    [Format("Texim.Disgaea.Ykcmp")]
     public class Ykcmp : Format
     {
         public PixelArray Pixels { get; set; }
