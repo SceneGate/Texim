@@ -6,8 +6,8 @@ Task("Define-Project")
 {
     info.WarningsAsErrors = false;
 
-    // info.AddLibraryProjects("Texim");
-    info.AddApplicationProjects("Texim");
+    info.AddLibraryProjects("Texim");
+    info.AddApplicationProjects("Texim.Tool");
 
     info.PreviewNuGetFeed = "https://pkgs.dev.azure.com/SceneGate/SceneGate/_packaging/SceneGate-Preview/nuget/v3/index.json";
     info.StableNuGetFeed = "";
