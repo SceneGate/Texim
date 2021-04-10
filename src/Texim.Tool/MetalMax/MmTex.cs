@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 namespace Texim.MetalMax
 {
+    using Texim.Palettes;
     using Yarhl.FileFormat;
 
     public class MmTex : IFormat

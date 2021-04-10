@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 namespace Texim.Disgaea
 {
+    using Texim.Palettes;
     using Yarhl.FileFormat;
 
     public class Ykcmp : IFormat

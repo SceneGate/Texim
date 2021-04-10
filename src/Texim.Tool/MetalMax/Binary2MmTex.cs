@@ -26,6 +26,7 @@
 namespace Texim.MetalMax
 {
     using System;
+    using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
@@ -70,8 +71,8 @@ namespace Texim.MetalMax
                         break;
 
                     case "TXPL":
-                        texture.Palette = new Palette(
-                            reader.ReadBytes(size).ToBgr555Colors());
+                        byte[] paletteData = reader.ReadBytes(size);
+                        texture.Palette = new Palette(Bgr555.Instance.Decode(paletteData));
                         break;
 
                     default:
@@ -90,7 +91,7 @@ namespace Texim.MetalMax
             BinaryFormat binary = new BinaryFormat();
             DataWriter writer = new DataWriter(binary.Stream);
 
-            var colorsData = texture.Palette.GetPalette(0).ToBgr555();
+            var colorsData = Bgr555.Instance.Encode(texture.Palette.Colors);
             var imgData = texture.Pixels.GetData();
 
             // First texture info
