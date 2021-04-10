@@ -25,7 +25,7 @@ namespace Texim.Tool.LondonLife
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class BinaryAcl2PaletteCollection : IConverter<IBinary, IPaletteCollection>
+    public class Acl2PaletteCollection : IConverter<IBinary, IPaletteCollection>
     {
         private const string Stamp = "ACL ";
 
