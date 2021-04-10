@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim", "Texim\Texim.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.Tool", "Texim.Tool\Texim.Tool.csproj", "{DC42B751-8302-400F-8528-9BB79DAE6B9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.PerformanceTest", "Texim.PerformanceTest\Texim.PerformanceTest.csproj", "{748619CD-2836-4E4C-BAD7-DD000737D0E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{DC42B751-8302-400F-8528-9BB79DAE6B9D}.Release|x64.Build.0 = Release|Any CPU
 		{DC42B751-8302-400F-8528-9BB79DAE6B9D}.Release|x86.ActiveCfg = Release|Any CPU
 		{DC42B751-8302-400F-8528-9BB79DAE6B9D}.Release|x86.Build.0 = Release|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Debug|x64.Build.0 = Debug|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Debug|x86.Build.0 = Debug|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Release|x64.ActiveCfg = Release|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Release|x64.Build.0 = Release|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{748619CD-2836-4E4C-BAD7-DD000737D0E6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
