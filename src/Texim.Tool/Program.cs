@@ -85,10 +85,10 @@ namespace Texim
                 imageFile = Console.ReadLine();
             }
 
-            using (var binaryFormat = new BinaryFormat(binaryFile)) {
-                Ykcmp ykcmp = (Ykcmp)ConvertFormat.With<Binary2Ykcmp>(binaryFormat);
-                ykcmp.Pixels.CreateBitmap(ykcmp.Palette, 0).Save(imageFile);
-            }
+            using Node node = NodeFactory.FromFile(binaryFile)
+                .TransformWith<Binary2Ykcmp>();
+            Ykcmp ykcmp = node.GetFormatAs<Ykcmp>();
+            ykcmp.Pixels.CreateBitmap(ykcmp.Palette, 0).Save(imageFile);
         }
 
         static void Brs(string[] args)
@@ -107,10 +107,10 @@ namespace Texim
                 imageFile = Console.ReadLine();
             }
 
-            using (var binaryFormat = new BinaryFormat(binaryFile)) {
-                Ptmd ptp = (Ptmd)ConvertFormat.With<Binary2Ptmd>(binaryFormat);
-                ptp.Pixels.CreateBitmap(ptp.Palette, 0).Save(imageFile);
-            }
+            using Node node = NodeFactory.FromFile(binaryFile)
+                .TransformWith<Binary2Ptmd>();
+            Ptmd ptp = node.GetFormatAs<Ptmd>();
+            ptp.Pixels.CreateBitmap(ptp.Palette, 0).Save(imageFile);
         }
 
         static void MetalMax(string[] args)
@@ -135,9 +135,9 @@ namespace Texim
             }
 
             // Load palette to force colors when importing
-            BinaryFormat currentTex = new BinaryFormat(oldImagePath);
-            MmTex texture = (MmTex)ConvertFormat.With<Binary2MmTex>(currentTex);
-            currentTex.Dispose();
+            using Node oldImage = NodeFactory.FromFile(oldImagePath)
+                .TransformWith<Binary2MmTex>();
+            MmTex texture = oldImage.GetFormatAs<MmTex>();
 
             // To export the image:
             //oldPixels.CreateBitmap(palette, 0).Save("img.png");
