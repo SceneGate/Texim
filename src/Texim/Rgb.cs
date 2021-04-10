@@ -23,6 +23,14 @@ namespace Texim
 
     public readonly struct Rgb
     {
+        public Rgb(byte red, byte green, byte blue)
+        {
+            Alpha = 255;
+            Red = red;
+            Green = green;
+            Blue = blue;
+        }
+
         public Rgb(byte red, byte green, byte blue, byte alpha)
         {
             Alpha = alpha;
