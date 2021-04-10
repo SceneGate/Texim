@@ -31,8 +31,8 @@ namespace Texim.Palettes
 
         Rgb[] Decode(Span<byte> data);
 
-        void Encode(Stream stream, Rgb color);
+        byte[] Encode(Rgb color);
 
-        void Encode(Stream stream, IEnumerable<Rgb> colors);
+        byte[] Encode(IEnumerable<Rgb> colors);
     }
 }

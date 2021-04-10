@@ -17,72 +17,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 namespace Texim.Palettes
 {
-    public class Rgb32 : IColorEncoding
+    public class Rgb32 : Rgba32
     {
-        public static int BytesPerColor => 4;
+        private static Rgb32 instance = new Rgb32();
 
-        public Rgb Decode(Stream stream)
+        public Rgb32() : base(hasAlpha: false)
         {
-            Span<byte> data = stackalloc byte[4];
-            int read = stream.Read(data);
-            if (read != 4) {
-                throw new EndOfStreamException();
-            }
-
-            return new Rgb(data[0], data[1], data[2]);
         }
 
-        public Rgb[] Decode(Stream stream, int numColors)
-        {
-            byte[] data = new byte[numColors * BytesPerColor];
-            int read = stream.Read(data, 0, data.Length);
-            if (read != data.Length) {
-                throw new EndOfStreamException();
-            }
-
-            return Decode(data);
-        }
-
-        public Rgb[] Decode(Span<byte> data)
-        {
-            var colors = new Rgb[data.Length / BytesPerColor];
-            for (int i = 0; i < colors.Length; i++) {
-                colors[i] = new Rgb(data[i * 4], data[(i * 4) + 1], data[(i * 4) + 2]);
-            }
-
-            return colors;
-        }
-
-        public void Encode(Stream stream, Rgb color)
-        {
-            Span<byte> data = stackalloc byte[4] {
-                color.Red,
-                color.Green,
-                color.Blue,
-                0
-            };
-
-            stream.Write(data);
-        }
-
-        public void Encode(Stream stream, IEnumerable<Rgb> colors)
-        {
-            var colorList = colors.ToArray();
-            byte[] data = new byte[colorList.Length];
-            for (int i = 0; i < colorList.Length; i++) {
-                data[i * 4] = colorList[i].Red;
-                data[(i * 4) + 1] = colorList[i].Green;
-                data[(i * 4) + 2] = colorList[i].Blue;
-            }
-
-            stream.Write(data, 0, data.Length);
-        }
+        public static new Rgb32 Instance => instance;
     }
 }

@@ -26,7 +26,10 @@ namespace Texim.Palettes
 
     public class Bgr555 : IColorEncoding
     {
-        private const int BytesPerColor = 2;
+        private static Bgr555 instance = new Bgr555();
+        public static int BytesPerColor => 2;
+
+        public static Bgr555 Instance => instance;
 
         public static Rgb FromUInt16(ushort value)
         {
@@ -82,20 +85,14 @@ namespace Texim.Palettes
             return colors;
         }
 
-        public void Encode(Stream stream, Rgb color)
+        public byte[] Encode(Rgb color)
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
-
             ushort data = ToUInt16(color);
-            stream.WriteByte((byte)(data & 0xFF));
-            stream.WriteByte((byte)(data >> 8));
+            return new[] { (byte)(data & 0xFF), (byte)(data >> 8) };
         }
 
-        public void Encode(Stream stream, IEnumerable<Rgb> colors)
+        public byte[] Encode(IEnumerable<Rgb> colors)
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
             if (colors == null)
                 throw new ArgumentNullException(nameof(colors));
 
@@ -108,7 +105,7 @@ namespace Texim.Palettes
                 buffer[(i * 2) + 1] = (byte)(data >> 8);
             }
 
-            stream.Write(buffer, 0, buffer.Length);
+            return buffer;
         }
     }
 }
