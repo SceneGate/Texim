@@ -9,6 +9,7 @@ tools/
 # Test results
 test_results/
 BenchmarkDotNet.Artifacts/
+resources/
 
 # Documentation output
 docs/_site

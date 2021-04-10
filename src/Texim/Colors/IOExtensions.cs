@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,39 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.DevilSurvivor
+namespace Texim.Colors
 {
-    using System;
-    using Texim.Colors;
-    using Texim.Palettes;
-    using Yarhl.FileFormat;
+    using System.Collections.Generic;
     using Yarhl.IO;
 
-    public class DsTex2Palette : IConverter<BinaryFormat, Palette>
+    public static class IOExtensions
     {
-        public Palette Convert(BinaryFormat source)
+        public static Rgb ReadColor<T>(this DataReader reader)
+            where T : IColorEncoding, new()
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            T encoding = new T();
+            return encoding.Decode(reader.Stream);
+        }
 
-            DataReader reader = new DataReader(source.Stream);
-            var palette = new Palette();
-            palette.Colors.Add(reader.ReadColors<Bgr555>(256));
+        public static Rgb[] ReadColors<T>(this DataReader reader, int numColors)
+            where T : IColorEncoding, new()
+        {
+            T encoding = new T();
+            return encoding.Decode(reader.Stream, numColors);
+        }
 
-            return palette;
+        public static void Write<T>(this DataWriter writer, Rgb color)
+            where T : IColorEncoding, new()
+        {
+            T encoding = new T();
+            writer.Write(encoding.Encode(color));
+        }
+
+        public static void Write<T>(this DataWriter writer, IEnumerable<Rgb> colors)
+            where T : IColorEncoding, new()
+        {
+            T encoding = new T();
+            writer.Write(encoding.Encode(colors));
         }
     }
 }

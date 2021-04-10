@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.DevilSurvivor
+namespace Texim.Colors
 {
-    using System;
-    using Texim.Colors;
-    using Texim.Palettes;
-    using Yarhl.FileFormat;
-    using Yarhl.IO;
+    using System.Drawing;
 
-    public class DsTex2Palette : IConverter<BinaryFormat, Palette>
+    public readonly struct Rgb
     {
-        public Palette Convert(BinaryFormat source)
+        public Rgb(byte red, byte green, byte blue)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            DataReader reader = new DataReader(source.Stream);
-            var palette = new Palette();
-            palette.Colors.Add(reader.ReadColors<Bgr555>(256));
-
-            return palette;
+            Alpha = 255;
+            Red = red;
+            Green = green;
+            Blue = blue;
         }
+
+        public Rgb(byte red, byte green, byte blue, byte alpha)
+        {
+            Alpha = alpha;
+            Red = red;
+            Green = green;
+            Blue = blue;
+        }
+
+        public byte Red { get; init; }
+
+        public byte Green { get; init; }
+
+        public byte Blue { get; init; }
+
+        public byte Alpha { get; init; }
+
+        public readonly Color ToColor() => Color.FromArgb(Alpha, Red, Green, Blue);
     }
 }

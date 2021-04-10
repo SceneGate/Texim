@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,42 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.DevilSurvivor
+namespace Texim.Formats
 {
     using System;
-    using Texim.Colors;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class DsTex2Palette : IConverter<BinaryFormat, Palette>
+    public class RawBinary2Palette :
+        IInitializer<RawPaletteParameters>, IConverter<BinaryFormat, Palette>
     {
+        private RawPaletteParameters parameters = RawPaletteParameters.Default;
+
+        public void Initialize(RawPaletteParameters parameters)
+        {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            this.parameters = parameters;
+        }
+
         public Palette Convert(BinaryFormat source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            DataReader reader = new DataReader(source.Stream);
-            var palette = new Palette();
-            palette.Colors.Add(reader.ReadColors<Bgr555>(256));
+            var reader = new DataReader(source.Stream);
+            source.Stream.Position = parameters.Offset;
 
-            return palette;
+            int size = parameters.Size > 0
+                ? parameters.Size
+                : (int)(source.Stream.Length - parameters.Offset);
+            var data = reader.ReadBytes(size);
+
+            var colors = parameters.ColorEncoding.Decode(data);
+
+            return new Palette(colors);
         }
     }
 }

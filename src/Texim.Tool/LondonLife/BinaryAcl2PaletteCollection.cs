@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,7 +17,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.DevilSurvivor
+namespace Texim.Tool.LondonLife
 {
     using System;
     using Texim.Colors;
@@ -25,18 +25,39 @@ namespace Texim.DevilSurvivor
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class DsTex2Palette : IConverter<BinaryFormat, Palette>
+    public class BinaryAcl2PaletteCollection : IConverter<IBinary, IPaletteCollection>
     {
-        public Palette Convert(BinaryFormat source)
+        private const string Stamp = "ACL ";
+
+        public IPaletteCollection Convert(IBinary source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            DataReader reader = new DataReader(source.Stream);
-            var palette = new Palette();
-            palette.Colors.Add(reader.ReadColors<Bgr555>(256));
+            source.Stream.Position = 0;
+            var reader = new DataReader(source.Stream);
 
-            return palette;
+            string stamp = reader.ReadString(4);
+            if (stamp != Stamp) {
+                throw new FormatException($"Invalid stamp: {stamp}");
+            }
+
+            var collection = new PaletteCollection();
+            int numPalettes = reader.ReadInt32();
+            for (int i = 0; i < numPalettes; i++) {
+                long pointerPos = source.Stream.Position;
+                long pointer = reader.ReadUInt16() + pointerPos;
+
+                source.Stream.PushToPosition(pointer);
+                int numColors = reader.ReadInt32();
+                var colors = reader.ReadColors<Bgr555>(numColors);
+                source.Stream.PopPosition();
+
+                var palette = new Palette(colors);
+                collection.Palettes.Add(palette);
+            }
+
+            return collection;
         }
     }
 }

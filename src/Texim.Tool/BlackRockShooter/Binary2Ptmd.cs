@@ -27,6 +27,8 @@ namespace Texim.BlackRockShooter
 {
     using System;
     using System.Drawing;
+    using Texim.Colors;
+    using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
@@ -58,7 +60,7 @@ namespace Texim.BlackRockShooter
 
             // It isn't the palette but it could work for now
             reader.Stream.Position = 0x2010;
-            ptp.Palette = new Palette(reader.ReadBytes(0x20).ToBgr555Colors());
+            ptp.Palette = new Palette(reader.ReadColors<Bgr555>(16));
 
             // Maybe they are coords? Let's try again with big endian shorts
             Console.WriteLine("Coordinates1");

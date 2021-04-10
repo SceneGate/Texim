@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.DevilSurvivor
+namespace Texim
 {
-    using System;
-    using Texim.Colors;
-    using Texim.Palettes;
-    using Yarhl.FileFormat;
-    using Yarhl.IO;
+    using System.Drawing;
 
-    public class DsTex2Palette : IConverter<BinaryFormat, Palette>
+    public static class PixelExtension
     {
-        public Palette Convert(BinaryFormat source)
+        public static void FlipX(this Pixel[] tile, Size tileSize)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            for (int y = 0; y < tileSize.Height; y++) {
+                for (int x = 0; x < tileSize.Width / 2; x++) {
+                    int t1 = y * tileSize.Width + x;
+                    int t2 = y * tileSize.Width + (tileSize.Width - 1 - x);
 
-            DataReader reader = new DataReader(source.Stream);
-            var palette = new Palette();
-            palette.Colors.Add(reader.ReadColors<Bgr555>(256));
+                    Pixel swap = tile[t1];
+                    tile[t1] = tile[t2];
+                    tile[t2] = swap;
+                }
+            }
+        }
 
-            return palette;
+        public static void FlipY(this Pixel[] tile, Size tileSize)
+        {
+            for (int x = 0; x < tileSize.Width; x++) {
+                for (int y = 0; y < tileSize.Height / 2; y++) {
+                    int t1 = x + tileSize.Width * y;
+                    int t2 = x + tileSize.Width * (tileSize.Height - 1 - y);
+
+                    Pixel swap = tile[t1];
+                    tile[t1] = tile[t2];
+                    tile[t2] = swap;
+                }
+            }
         }
     }
 }

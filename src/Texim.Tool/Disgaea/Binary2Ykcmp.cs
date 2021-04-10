@@ -20,8 +20,8 @@
 namespace Texim.Disgaea
 {
     using System;
-    using System.Collections.Generic;
-    using System.Drawing;
+    using Texim.Colors;
+    using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
@@ -37,17 +37,8 @@ namespace Texim.Disgaea
 
             Ykcmp image = new Ykcmp();
 
-            List<Color> palette = new List<Color>();
-            const int PaletteSize = 0x400 / 4;
-            for (int i = 0; i < PaletteSize; i++) {
-                byte red = reader.ReadByte();
-                byte green = reader.ReadByte();
-                byte blue = reader.ReadByte();
-                byte alpha = reader.ReadByte();
-                palette.Add(Color.FromArgb(alpha, red, green, blue));
-            }
-
-            image.Palette = new Palette(palette.ToArray());
+            var colors = reader.ReadColors<Rgba32>(256);
+            image.Palette = new Palette(colors);
 
             image.Pixels = new PixelArray {
                 Width = 256,

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,37 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.DevilSurvivor
+namespace Texim.Formats
 {
     using System;
-    using Texim.Colors;
+    using System.Drawing.Imaging;
     using Texim.Palettes;
     using Yarhl.FileFormat;
-    using Yarhl.IO;
+    using Yarhl.FileSystem;
 
-    public class DsTex2Palette : IConverter<BinaryFormat, Palette>
+    public class PaletteCollection2ContainerBitmap :
+        IInitializer<ImageFormat>, IConverter<PaletteCollection, NodeContainerFormat>
     {
-        public Palette Convert(BinaryFormat source)
+        private ImageFormat format = ImageFormat.Png;
+
+        public void Initialize(ImageFormat parameters)
+        {
+            format = parameters;
+        }
+
+        public NodeContainerFormat Convert(PaletteCollection source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            DataReader reader = new DataReader(source.Stream);
-            var palette = new Palette();
-            palette.Colors.Add(reader.ReadColors<Bgr555>(256));
+            var container = new NodeContainerFormat();
+            for (int i = 0; i < source.Palettes.Count; i++) {
+                var child = new Node($"Palette {i}", source.Palettes[i])
+                    .TransformWith<Palette2BinaryBitmap>();
+                container.Root.Add(child);
+            }
 
-            return palette;
+            return container;
         }
     }
 }
