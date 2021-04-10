@@ -31,7 +31,7 @@ namespace Texim.Formats
     {
         private const int ColorsPerRow = 16;
         private const int ZoomSize = 10;
-        private ImageFormat format = ImageFormat.Bmp;
+        private ImageFormat format = ImageFormat.Png;
 
         public void Initialize(ImageFormat parameters)
         {
