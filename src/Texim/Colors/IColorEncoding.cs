@@ -17,16 +17,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Palettes
+namespace Texim.Colors
 {
-    public class Rgb32 : Rgba32
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+
+    public interface IColorEncoding
     {
-        private static Rgb32 instance = new Rgb32();
+        Rgb Decode(Stream stream);
 
-        public Rgb32() : base(hasAlpha: false)
-        {
-        }
+        Rgb[] Decode(Stream stream, int numColors);
 
-        public static new Rgb32 Instance => instance;
+        Rgb[] Decode(Span<byte> data);
+
+        byte[] Encode(Rgb color);
+
+        byte[] Encode(IEnumerable<Rgb> colors);
     }
 }

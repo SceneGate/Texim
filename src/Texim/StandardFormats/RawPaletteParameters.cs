@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Texim.StandardFormats
 {
-    using Texim.Palettes;
+    using Texim.Colors;
 
     public class RawPaletteParameters
     {

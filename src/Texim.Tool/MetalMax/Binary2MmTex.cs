@@ -26,6 +26,7 @@
 namespace Texim.MetalMax
 {
     using System;
+    using Texim.Colors;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;

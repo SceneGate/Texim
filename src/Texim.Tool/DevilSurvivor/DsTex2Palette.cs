@@ -20,6 +20,7 @@
 namespace Texim.DevilSurvivor
 {
     using System;
+    using Texim.Colors;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;

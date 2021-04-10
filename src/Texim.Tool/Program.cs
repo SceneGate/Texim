@@ -37,6 +37,7 @@ namespace Texim
     using MetalMax;
     using Processing;
     using Yarhl.IO;
+    using Texim.Colors;
 
     public class Program
     {
@@ -88,7 +89,7 @@ namespace Texim
             using Node node = NodeFactory.FromFile(binaryFile)
                 .TransformWith<Binary2Ykcmp>();
             Ykcmp ykcmp = node.GetFormatAs<Ykcmp>();
-            ykcmp.Pixels.CreateBitmap(ykcmp.Palette, 0).Save(imageFile);
+            // ykcmp.Pixels.CreateBitmap(ykcmp.Palette, 0).Save(imageFile);
         }
 
         static void Brs(string[] args)
@@ -110,7 +111,7 @@ namespace Texim
             using Node node = NodeFactory.FromFile(binaryFile)
                 .TransformWith<Binary2Ptmd>();
             Ptmd ptp = node.GetFormatAs<Ptmd>();
-            ptp.Pixels.CreateBitmap(ptp.Palette, 0).Save(imageFile);
+            // ptp.Pixels.CreateBitmap(ptp.Palette, 0).Save(imageFile);
         }
 
         static void MetalMax(string[] args)
@@ -144,11 +145,11 @@ namespace Texim
 
             // Import the new PNG file
             Bitmap newImage = (Bitmap)Image.FromFile(newImagePath);
-            var quantization = new FixedPaletteQuantization(texture.Palette.GetPalette(0));
+            // var quantization = new FixedPaletteQuantization(texture.Palette.Colors);
             ImageConverter importer = new ImageConverter {
                 Format = ColorFormat.Indexed_A5I3,
                 PixelEncoding = PixelEncoding.Lineal,
-                Quantization = quantization
+                // Quantization = quantization
             };
             (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
             texture.Pixels = pixelInfo;
@@ -185,7 +186,7 @@ namespace Texim
 
             // The palette may have more colors than needed.
             // Since the format is A3I5 only 32 colors are used
-            Color[] actualPalette = palette.GetFormatAs<Palette>().GetPalette(0)
+            Rgb[] actualPalette = palette.GetFormatAs<Texim.Palettes.Palette>().Colors
                    .Take(32)
                    .ToArray();
 
@@ -197,13 +198,13 @@ namespace Texim
 
             // Import the new PNG file
             Bitmap newImage = (Bitmap)Image.FromFile(newImagePath);
-            var quantization = new FixedPaletteQuantization(actualPalette) {
-                TransparentIndex = 0x15
-            };
+            // var quantization = new FixedPaletteQuantization(actualPalette) {
+            //     TransparentIndex = 0x15
+            // };
             ImageConverter importer = new ImageConverter {
                 Format = ColorFormat.Indexed_A3I5,
                 PixelEncoding = PixelEncoding.Lineal,
-                Quantization = quantization
+                // Quantization = quantization
             };
             (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
 

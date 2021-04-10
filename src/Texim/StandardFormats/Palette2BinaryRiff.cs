@@ -23,6 +23,7 @@ namespace Texim.StandardFormats
     using Yarhl.IO;
     using Yarhl.FileFormat;
     using Texim.Palettes;
+    using Texim.Colors;
 
     public class Palette2BinaryRiff :
         IInitializer<bool>, IConverter<IPalette, BinaryFormat>

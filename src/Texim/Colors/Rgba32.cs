@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Texim.Palettes
+namespace Texim.Colors
 {
     public class Rgba32 : IColorEncoding
     {

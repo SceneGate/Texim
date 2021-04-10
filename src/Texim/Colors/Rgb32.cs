@@ -17,39 +17,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Palettes
+namespace Texim.Colors
 {
-    using System.Collections.Generic;
-    using Yarhl.IO;
-
-    public static class IOExtensions
+    public class Rgb32 : Rgba32
     {
-        public static Rgb ReadColor<T>(this DataReader reader)
-            where T : IColorEncoding, new()
+        private static Rgb32 instance = new Rgb32();
+
+        public Rgb32() : base(hasAlpha: false)
         {
-            T encoding = new T();
-            return encoding.Decode(reader.Stream);
         }
 
-        public static Rgb[] ReadColors<T>(this DataReader reader, int numColors)
-            where T : IColorEncoding, new()
-        {
-            T encoding = new T();
-            return encoding.Decode(reader.Stream, numColors);
-        }
-
-        public static void Write<T>(this DataWriter writer, Rgb color)
-            where T : IColorEncoding, new()
-        {
-            T encoding = new T();
-            writer.Write(encoding.Encode(color));
-        }
-
-        public static void Write<T>(this DataWriter writer, IEnumerable<Rgb> colors)
-            where T : IColorEncoding, new()
-        {
-            T encoding = new T();
-            writer.Write(encoding.Encode(colors));
-        }
+        public static new Rgb32 Instance => instance;
     }
 }

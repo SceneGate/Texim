@@ -27,6 +27,7 @@ namespace Texim.BlackRockShooter
 {
     using System;
     using System.Drawing;
+    using Texim.Colors;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
