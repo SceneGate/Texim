@@ -17,37 +17,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Formats
+namespace Texim.Tool.Nitro
 {
     using System;
-    using System.Drawing.Imaging;
+    using System.Collections.ObjectModel;
     using Texim.Palettes;
-    using Yarhl.FileFormat;
-    using Yarhl.FileSystem;
 
-    public class PaletteCollection2ContainerBitmap :
-        IInitializer<ImageFormat>, IConverter<IPaletteCollection, NodeContainerFormat>
+    public class Nclr : IPaletteCollection, INitroFormat
     {
-        private ImageFormat format = ImageFormat.Png;
+        public string Stamp => "NCLR";
 
-        public void Initialize(ImageFormat parameters)
-        {
-            format = parameters;
-        }
+        public Version Version { get; set; }
 
-        public NodeContainerFormat Convert(IPaletteCollection source)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+        public Collection<IPalette> Palettes { get; } = new Collection<IPalette>();
 
-            var container = new NodeContainerFormat();
-            for (int i = 0; i < source.Palettes.Count; i++) {
-                var child = new Node($"Palette {i}", source.Palettes[i])
-                    .TransformWith<Palette2BinaryBitmap>();
-                container.Root.Add(child);
-            }
+        public bool IsExtendedPalette { get; set; }
 
-            return container;
-        }
+        public NitroTextureFormat TextureFormat { get; set; }
     }
 }
