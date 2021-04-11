@@ -54,7 +54,7 @@ namespace Texim.PerformanceTest.ImageStructures
         {
             var image = new Pixel[Size];
             for (int i = 0; i < Size; i++) {
-                var color = new Pixel(index[0], index[1], true);
+                var color = new Pixel(index[0], index[1]);
                 image[i] = color;
             }
 
@@ -94,11 +94,11 @@ namespace Texim.PerformanceTest.ImageStructures
         {
             var image = new Pixel[Size];
             for (int i = 0; i < Size; i++) {
-                int info = (int)(
-                    ((colorBgr555[0] & 0xFF) << 3) |
-                    ((((colorBgr555[0] >> 5) & 0xFF) << 3) << 8) |
-                    ((((colorBgr555[0] >> 10) & 0xFF) << 3) << 16));
-                var color = new Pixel(info, (byte)((colorBgr555[0] >> 15) * 255), false);
+                var color = new Pixel(
+                    (byte)((colorBgr555[0] & 0xFF) << 3),
+                    (byte)(((colorBgr555[0] >> 5) & 0xFF) << 3),
+                    (byte)(((colorBgr555[0] >> 10) & 0xFF) << 3),
+                    (byte)((colorBgr555[0] >> 15) * 255));
                 image[i] = color;
             }
 
@@ -142,7 +142,7 @@ namespace Texim.PerformanceTest.ImageStructures
             var image = new Pixel[Size];
             for (int i = 0; i < Size; i++) {
                 var pixel = image[i];
-                ushort color = (ushort)pixel.Info;
+                ushort color = (ushort)pixel.Index;
                 sum += color;
             }
 
@@ -173,7 +173,7 @@ namespace Texim.PerformanceTest.ImageStructures
                 ushort color = (ushort)(((pixel & 0xFF) >> 3)
                     | ((((pixel >> 8) & 0xFF) >> 3) << 5)
                     | ((((pixel >> 16) & 0xFF) >> 3) << 10)
-                    | (1 << 15));
+                    | (((pixel >> 24) > 0 ? 1u : 0u) << 15));
                 sum += color;
             }
 
@@ -187,10 +187,10 @@ namespace Texim.PerformanceTest.ImageStructures
             var image = new Pixel[Size];
             for (int i = 0; i < Size; i++) {
                 var pixel = image[i];
-                ushort color = (ushort)(((pixel.Info & 0xFF) >> 3)
-                    | ((((pixel.Info >> 8) & 0xFF) >> 3) << 5)
-                    | ((((pixel.Info >> 16) & 0xFF) >> 3) << 10)
-                    | (1 << 15));
+                ushort color = (ushort)((pixel.Red >> 3)
+                    | ((pixel.Green >> 3) << 5)
+                    | ((pixel.Blue >> 3) << 10)
+                    | ((pixel.Alpha > 0 ? 1 : 0) << 15));
                 sum += color;
             }
 
@@ -207,7 +207,7 @@ namespace Texim.PerformanceTest.ImageStructures
                 ushort color = (ushort)((pixel.Red >> 3)
                     | ((pixel.Green >> 3) << 5)
                     | ((pixel.Blue >> 3) << 10)
-                    | (1 << 15));
+                    | ((pixel.Alpha > 0 ? 1 : 0) << 15));
                 sum += color;
             }
 
