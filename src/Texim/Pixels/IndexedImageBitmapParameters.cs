@@ -19,19 +19,15 @@
 // SOFTWARE.
 namespace Texim.Pixels
 {
-    public class IndexedImage : IIndexedImage
+    using System.Drawing.Imaging;
+    using Texim.Palettes;
+
+    public class IndexedImageBitmapParameters
     {
-        public IndexedImage(int width, int height)
-        {
-            Pixels = new IndexedPixel[width * height];
-            Width = width;
-            Height = height;
-        }
+        public ImageFormat Format { get; set; }
 
-        public int Width { get; init; }
+        public IPalette Palette { get; set; }
 
-        public int Height { get; init; }
-
-        public IndexedPixel[] Pixels { get; init; }
+        public IPaletteCollection Palettes { get; set; }
     }
 }
