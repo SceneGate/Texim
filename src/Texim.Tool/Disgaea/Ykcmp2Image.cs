@@ -21,6 +21,7 @@ namespace Texim.Tool.Disgaea
 {
     using System;
     using Texim.Colors;
+    using Texim.Images;
     using Texim.Palettes;
     using Texim.Pixels;
     using Yarhl.FileFormat;

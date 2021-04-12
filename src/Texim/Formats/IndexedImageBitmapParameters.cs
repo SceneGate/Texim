@@ -17,38 +17,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim
+namespace Texim.Formats
 {
-    using System.Drawing;
+    using System.Drawing.Imaging;
+    using Texim.Palettes;
 
-    public static class PixelExtension
+    public class IndexedImageBitmapParameters
     {
-        public static void FlipX(this Pixel[] tile, Size tileSize)
-        {
-            for (int y = 0; y < tileSize.Height; y++) {
-                for (int x = 0; x < tileSize.Width / 2; x++) {
-                    int t1 = y * tileSize.Width + x;
-                    int t2 = y * tileSize.Width + (tileSize.Width - 1 - x);
+        public ImageFormat Format { get; set; }
 
-                    Pixel swap = tile[t1];
-                    tile[t1] = tile[t2];
-                    tile[t2] = swap;
-                }
-            }
-        }
+        public IPalette Palette { get; set; }
 
-        public static void FlipY(this Pixel[] tile, Size tileSize)
-        {
-            for (int x = 0; x < tileSize.Width; x++) {
-                for (int y = 0; y < tileSize.Height / 2; y++) {
-                    int t1 = x + tileSize.Width * y;
-                    int t2 = x + tileSize.Width * (tileSize.Height - 1 - y);
-
-                    Pixel swap = tile[t1];
-                    tile[t1] = tile[t2];
-                    tile[t2] = swap;
-                }
-            }
-        }
+        public IPaletteCollection Palettes { get; set; }
     }
 }

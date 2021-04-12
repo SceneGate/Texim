@@ -17,12 +17,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Pixels
+namespace Texim.Formats
 {
     using System;
     using System.Drawing;
-    using System.Drawing.Imaging;
     using System.Linq;
+    using Texim.Images;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;

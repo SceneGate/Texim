@@ -17,23 +17,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using Texim.Colors;
-
-namespace Texim.Pixels
+namespace Texim.Images
 {
-    public class FullImage : IFullImage
+    using Texim.Colors;
+    using Yarhl.FileFormat;
+
+    public interface IFullImage : IFormat
     {
-        public FullImage(int width, int height)
-        {
-            Width = width;
-            Height = height;
-            Pixels = new Rgb[width * height];
-        }
+        int Width { get; }
 
-        public int Width { get; init; }
+        int Height { get; }
 
-        public int Height { get; init; }
-
-        public Rgb[] Pixels { get; init; }
+        Rgb[] Pixels { get; }
     }
 }

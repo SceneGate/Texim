@@ -22,6 +22,7 @@ namespace Texim.Tool.BlackRockShooter
     using System;
     using System.Drawing;
     using Texim.Colors;
+    using Texim.Images;
     using Texim.Palettes;
     using Texim.Pixels;
     using Yarhl.FileFormat;

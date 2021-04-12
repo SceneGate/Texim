@@ -26,6 +26,7 @@
 namespace Texim.Tool.DevilSurvivor
 {
     using System;
+    using Texim.Images;
     using Texim.Pixels;
     using Yarhl.FileFormat;
     using Yarhl.IO;
