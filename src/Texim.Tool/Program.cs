@@ -31,14 +31,12 @@ namespace Texim.Tool
     using System.Linq;
     using System.Reflection;
     using Texim.Colors;
-    using Texim.Images;
+    using Texim.Formats;
     using Texim.Palettes;
-    using Texim.Pixels;
     using Texim.Tool.BlackRockShooter;
     using Texim.Tool.DevilSurvivor;
     using Texim.Tool.Disgaea;
     using Texim.Tool.MetalMax;
-    using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using Yarhl.IO;
 
