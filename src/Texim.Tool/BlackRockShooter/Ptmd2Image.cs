@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,28 +17,53 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool.DevilSurvivor
+namespace Texim.Tool.BlackRockShooter
 {
     using System;
+    using System.Drawing;
     using Texim.Colors;
     using Texim.Palettes;
+    using Texim.Pixels;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class DsTex2Palette : IConverter<IBinary, Palette>
+    public class Ptmd2Image : IConverter<IBinary, FullImage>
     {
-        private const int NumColors = 256;
+        private const string Stamp = "PTMD";
+        private const int Width = 256;
+        private const int Height = 64;
+        private static readonly Size TileSize = new Size(32, 8);
 
-        public Palette Convert(IBinary source)
+        public FullImage Convert(IBinary source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
             source.Stream.Position = 0;
             DataReader reader = new DataReader(source.Stream);
+            string stamp = reader.ReadString(4);
+            if (stamp != Stamp) {
+                throw new FormatException($"Invalid stamp: {stamp}");
+            }
 
-            var colors = reader.ReadColors<Bgr555>(NumColors);
-            return new Palette(colors);
+            reader.Stream.Position += 0xC; // unknown
+
+            var tileSwizzling = new TileSwizzling<IndexedPixel>(TileSize, Width);
+            var pixels = reader.ReadPixels<Indexed4bpp>(Width * Height)
+                .UnswizzleWith(tileSwizzling);
+
+            var image = new IndexedImage {
+                Width = Width,
+                Height = Height,
+                Pixels = pixels,
+            };
+
+            // It isn't the palette but it could work for now
+            // Are they coordinates?
+            reader.Stream.Position = 0x2010;
+            var palette = new Palette(reader.ReadColors<Bgr555>(16));
+
+            return image.CreateFullImage(palette);
         }
     }
 }

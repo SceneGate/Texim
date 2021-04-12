@@ -38,6 +38,13 @@ namespace Texim.Colors
             return encoding.Decode(reader.Stream, numColors);
         }
 
+        public static Rgb[] DecodeColorsAs<T>(this byte[] data)
+            where T : IColorEncoding, new()
+        {
+            T decoder = new T();
+            return decoder.Decode(data);
+        }
+
         public static void Write<T>(this DataWriter writer, Rgb color)
             where T : IColorEncoding, new()
         {

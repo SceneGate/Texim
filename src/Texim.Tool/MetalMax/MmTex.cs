@@ -23,46 +23,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim.MetalMax
+namespace Texim.Tool.MetalMax
 {
+    using System.Collections.ObjectModel;
+    using Texim.Colors;
     using Texim.Palettes;
-    using Yarhl.FileFormat;
+    using Texim.Pixels;
 
-    public class MmTex : IFormat
+    public class MmTex : IPalette, IIndexedImage
     {
-        public PixelArray Pixels {
-            get;
-            set;
-        }
+        public Collection<Rgb> Colors { get; } = new Collection<Rgb>();
 
-        public Palette Palette {
-            get;
-            set;
-        }
+        public IndexedPixel[] Pixels { get; set; }
 
-        public ushort Width {
-            get;
-            set;
-        }
+        public int Width { get; set; }
 
-        public ushort Height {
-            get;
-            set;
-        }
+        public int Height { get; set; }
 
-        public int NumImages {
-            get;
-            set;
-        }
+        public int NumImages { get; set; }
 
-        public uint UnknownSize {
-            get;
-            set;
-        }
+        public uint UnknownSize { get; set; }
 
-        public uint Unknown {
-            get;
-            set;
-        }
+        public uint Unknown { get; set; }
     }
 }

@@ -23,21 +23,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim
+namespace Texim.Tool
 {
     using System;
     using System.Drawing;
+    using System.Drawing.Imaging;
     using System.Linq;
     using System.Reflection;
+    using Texim.Colors;
+    using Texim.Palettes;
+    using Texim.Pixels;
+    using Texim.Tool.BlackRockShooter;
+    using Texim.Tool.DevilSurvivor;
+    using Texim.Tool.Disgaea;
+    using Texim.Tool.MetalMax;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
-    using BlackRockShooter;
-    using DevilSurvivor;
-    using Disgaea;
-    using MetalMax;
-    using Processing;
     using Yarhl.IO;
-    using Texim.Colors;
 
     public class Program
     {
@@ -86,10 +88,10 @@ namespace Texim
                 imageFile = Console.ReadLine();
             }
 
-            using Node node = NodeFactory.FromFile(binaryFile)
-                .TransformWith<Binary2Ykcmp>();
-            Ykcmp ykcmp = node.GetFormatAs<Ykcmp>();
-            // ykcmp.Pixels.CreateBitmap(ykcmp.Palette, 0).Save(imageFile);
+            NodeFactory.FromFile(binaryFile, FileOpenMode.Read)
+                .TransformWith<Ykcmp2Image>()
+                .TransformWith<FullImage2BinaryBitmap, ImageFormat>(ImageFormat.Png)
+                .Stream.WriteTo(imageFile);
         }
 
         static void Brs(string[] args)
@@ -108,10 +110,10 @@ namespace Texim
                 imageFile = Console.ReadLine();
             }
 
-            using Node node = NodeFactory.FromFile(binaryFile)
-                .TransformWith<Binary2Ptmd>();
-            Ptmd ptp = node.GetFormatAs<Ptmd>();
-            // ptp.Pixels.CreateBitmap(ptp.Palette, 0).Save(imageFile);
+            NodeFactory.FromFile(binaryFile)
+                .TransformWith<Ptmd2Image>()
+                .TransformWith<FullImage2BinaryBitmap, ImageFormat>(ImageFormat.Png)
+                .Stream.WriteTo(imageFile);
         }
 
         static void MetalMax(string[] args)
@@ -141,22 +143,24 @@ namespace Texim
             MmTex texture = oldImage.GetFormatAs<MmTex>();
 
             // To export the image:
-            //oldPixels.CreateBitmap(palette, 0).Save("img.png");
+            var exporterParams = new IndexedImageBitmapParameters { Palette = texture };
+            oldImage.TransformWith<IndexedImage2BinaryBitmap, IndexedImageBitmapParameters>(exporterParams)
+                .Stream.WriteTo("img.png");
 
             // Import the new PNG file
             Bitmap newImage = (Bitmap)Image.FromFile(newImagePath);
             // var quantization = new FixedPaletteQuantization(texture.Palette.Colors);
-            ImageConverter importer = new ImageConverter {
-                Format = ColorFormat.Indexed_A5I3,
-                PixelEncoding = PixelEncoding.Lineal,
-                // Quantization = quantization
-            };
-            (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
-            texture.Pixels = pixelInfo;
+            // ImageConverter importer = new ImageConverter {
+            //     Format = ColorFormat.Indexed_A5I3,
+            //     PixelEncoding = PixelEncoding.Lineal,
+            //     // Quantization = quantization
+            // };
+            // (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
+            // texture.Pixels = pixelInfo;
 
             // Save the texture
-            ((BinaryFormat)ConvertFormat.With<Binary2MmTex>(texture))
-                  .Stream.WriteTo(outPath);
+            // ((BinaryFormat)ConvertFormat.With<Binary2MmTex>(texture))
+            //       .Stream.WriteTo(outPath);
         }
 
         static void DevilSurvivor(string[] args)
@@ -186,32 +190,33 @@ namespace Texim
 
             // The palette may have more colors than needed.
             // Since the format is A3I5 only 32 colors are used
-            Rgb[] actualPalette = palette.GetFormatAs<Texim.Palettes.Palette>().Colors
+            Rgb[] actualPalette = palette.GetFormatAs<Palette>().Colors
                    .Take(32)
                    .ToArray();
 
             // To export the image:
-            //Node pixels = NodeFactory.FromFile("auction_price.cmp.decompressed");
-            //pixels.Transform<BinaryFormat, PixelArray, DsTex2Image>();
-            //pixels.GetFormatAs<PixelArray>()
-            //    .CreateBitmap(palette.GetFormatAs<Palette>(), 0).Save("img.png");
+            var exporterParameters = new IndexedImageBitmapParameters { Palette = palette.GetFormatAs<Palette>() };
+            NodeFactory.FromFile("auction_price.cmp.decompressed")
+                .TransformWith<DsTex2Image>()
+                .TransformWith<IndexedImage2BinaryBitmap, IndexedImageBitmapParameters>(exporterParameters)
+                .Stream.WriteTo("img.png");
 
             // Import the new PNG file
             Bitmap newImage = (Bitmap)Image.FromFile(newImagePath);
             // var quantization = new FixedPaletteQuantization(actualPalette) {
             //     TransparentIndex = 0x15
             // };
-            ImageConverter importer = new ImageConverter {
-                Format = ColorFormat.Indexed_A3I5,
-                PixelEncoding = PixelEncoding.Lineal,
+            // ImageConverter importer = new ImageConverter {
+                // Format = ColorFormat.Indexed_A3I5,
+                // PixelEncoding = PixelEncoding.Lineal,
                 // Quantization = quantization
-            };
-            (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
+            // };
+            // (Palette _, PixelArray pixelInfo) = importer.Convert(newImage);
 
             // Save the new pixel info
-            Node newPixels = new Node("pxInfo", pixelInfo);
-            newPixels.TransformWith<DsTex2Image>();
-            newPixels.GetFormatAs<BinaryFormat>().Stream.WriteTo(outPath);
+            // Node newPixels = new Node("pxInfo", pixelInfo);
+            // newPixels.TransformWith<DsTex2Image>();
+            // newPixels.GetFormatAs<BinaryFormat>().Stream.WriteTo(outPath);
         }
     }
 }
