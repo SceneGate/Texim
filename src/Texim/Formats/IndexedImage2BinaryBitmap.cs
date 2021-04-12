@@ -54,10 +54,10 @@ namespace Texim.Formats
                 ? parameters.Palettes.Palettes.Select(PaletteToColors).ToArray()
                 : new[] { PaletteToColors(parameters.Palette) };
 
-            var bitmap = new Bitmap(source.Width, source.Height);
+            using var bitmap = new Bitmap(source.Width, source.Height);
             for (int x = 0; x < source.Width; x++) {
                 for (int y = 0; y < source.Height; y++) {
-                    var pixel = source.Pixels[y * source.Width + x];
+                    var pixel = source.Pixels[(y * source.Width) + x];
                     if (pixel.PaletteIndex >= palettes.Length) {
                         throw new FormatException("Missing palettes");
                     }

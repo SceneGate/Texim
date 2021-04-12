@@ -43,7 +43,7 @@ namespace Texim.PerformanceTest.ImageStructures
 
         public bool IsIndexed { get => isIndexed; }
 
-        public byte Red { get => (byte)(value); }
+        public byte Red { get => (byte)value; }
 
         public byte Green { get => (byte)(value >> 8); }
 

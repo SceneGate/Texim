@@ -20,10 +20,10 @@
 namespace Texim.Formats
 {
     using System;
-    using Yarhl.IO;
-    using Yarhl.FileFormat;
-    using Texim.Palettes;
     using Texim.Colors;
+    using Texim.Palettes;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
 
     public class Palette2BinaryRiff :
         IInitializer<bool>, IConverter<IPalette, BinaryFormat>
@@ -37,15 +37,15 @@ namespace Texim.Formats
             GimpCompatibility = parameters;
         }
 
-        public BinaryFormat Convert(IPalette palette)
+        public BinaryFormat Convert(IPalette source)
         {
-            if (palette == null)
-                throw new ArgumentNullException(nameof(palette));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
             var binary = new BinaryFormat();
             var writer = new DataWriter(binary.Stream);
 
-            int paletteSize = palette.Colors.Count * Rgb32.BytesPerColor;
+            int paletteSize = source.Colors.Count * Rgb32.BytesPerColor;
 
             writer.Write("RIFF", nullTerminator: false);
             writer.Write((uint)(0x10 + paletteSize));
@@ -54,14 +54,14 @@ namespace Texim.Formats
             writer.Write("data", nullTerminator: false);
             writer.Write((uint)(0x04 + paletteSize));
             writer.Write((ushort)Version);
-            writer.Write((ushort)(palette.Colors.Count));
+            writer.Write((ushort)source.Colors.Count);
 
             // Bug in Gimp
             if (GimpCompatibility) {
-                writer.Write((uint)0x00);
+                writer.Write(0x00);
             }
 
-            writer.Write<Rgb32>(palette.Colors);
+            writer.Write<Rgb32>(source.Colors);
 
             return binary;
         }

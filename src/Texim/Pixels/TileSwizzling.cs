@@ -90,9 +90,9 @@ namespace Texim.Pixels
             var tilePos = new Point(x / TileSize.Width, y / TileSize.Height);
 
             return (tilePos.Y * numTilesX * tileLength) // Start row of tile
-                + (tilePos.X * tileLength)               // plus start column of tile
-                + (pixelPos.Y * TileSize.Width)          // plus start row inside tile
-                + pixelPos.X;                            // plus start column inside tile
+                + (tilePos.X * tileLength) // plus start column of tile
+                + (pixelPos.Y * TileSize.Width) // plus start row inside tile
+                + pixelPos.X; // plus start column inside tile
         }
     }
 }

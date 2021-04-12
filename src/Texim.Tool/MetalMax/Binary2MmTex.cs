@@ -71,16 +71,16 @@ namespace Texim.Tool.MetalMax
             return texture;
         }
 
-        public BinaryFormat Convert(MmTex texture)
+        public BinaryFormat Convert(MmTex source)
         {
-            if (texture == null)
-                throw new ArgumentNullException(nameof(texture));
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
             BinaryFormat binary = new BinaryFormat();
             DataWriter writer = new DataWriter(binary.Stream);
 
-            var colorsData = Bgr555.Instance.Encode(texture.Colors);
-            var imgData = texture.Pixels.EncodePixelsAs<IndexedA5I3>();
+            var colorsData = Bgr555.Instance.Encode(source.Colors);
+            var imgData = source.Pixels.EncodePixelsAs<IndexedA5I3>();
 
             // First texture info
             writer.Write("CHNK", false);
@@ -88,13 +88,13 @@ namespace Texim.Tool.MetalMax
             writer.Write("TXIF", false);
             writer.Write(0x18);
 
-            writer.Write(texture.UnknownSize);
+            writer.Write(source.UnknownSize);
             writer.Write(imgData.Length);
-            writer.Write(texture.Unknown);
+            writer.Write(source.Unknown);
             writer.Write(colorsData.Length);
-            writer.Write(texture.Width);
-            writer.Write(texture.Height);
-            writer.Write(texture.NumImages);
+            writer.Write(source.Width);
+            writer.Write(source.Height);
+            writer.Write(source.NumImages);
 
             // Image data
             writer.Write("CHNK", false);

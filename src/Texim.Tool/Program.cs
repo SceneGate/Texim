@@ -40,7 +40,7 @@ namespace Texim.Tool
     using Yarhl.FileSystem;
     using Yarhl.IO;
 
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
@@ -71,7 +71,7 @@ namespace Texim.Tool
             Console.WriteLine("Done!");
         }
 
-        static void Disgaea(string[] args)
+        private static void Disgaea(string[] args)
         {
             string binaryFile;
             string imageFile;
@@ -93,7 +93,7 @@ namespace Texim.Tool
                 .Stream.WriteTo(imageFile);
         }
 
-        static void Brs(string[] args)
+        private static void Brs(string[] args)
         {
             string binaryFile;
             string imageFile;
@@ -115,7 +115,7 @@ namespace Texim.Tool
                 .Stream.WriteTo(imageFile);
         }
 
-        static void MetalMax(string[] args)
+        private static void MetalMax(string[] args)
         {
             string oldImagePath;
             string newImagePath;
@@ -162,7 +162,7 @@ namespace Texim.Tool
             //       .Stream.WriteTo(outPath);
         }
 
-        static void DevilSurvivor(string[] args)
+        private static void DevilSurvivor(string[] args)
         {
             string palettePath;
             string newImagePath;

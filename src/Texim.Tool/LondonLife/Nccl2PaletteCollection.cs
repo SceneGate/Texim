@@ -22,8 +22,8 @@ namespace Texim.Tool.LondonLife
     using System;
     using Texim.Colors;
     using Texim.Palettes;
-    using Yarhl.IO;
     using Yarhl.FileFormat;
+    using Yarhl.IO;
 
     public class Nccl2PaletteCollection : IConverter<IBinary, PaletteCollection>
     {

@@ -44,7 +44,7 @@ namespace Texim.Tool.Disgaea
             Rgb[] colors = reader.ReadColors<Rgba32>(NumColors);
             var palette = new Palette(colors);
 
-            IndexedPixel[] pixels = reader.ReadPixels<Indexed8bpp>(Width * Height);
+            IndexedPixel[] pixels = reader.ReadPixels<Indexed8Bpp>(Width * Height);
             var indexed = new IndexedImage(Width, Height, pixels);
 
             return indexed.CreateFullImage(palette);

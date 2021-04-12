@@ -23,7 +23,8 @@ namespace Texim.Colors
     {
         private static Rgb32 instance = new Rgb32();
 
-        public Rgb32() : base(hasAlpha: false)
+        public Rgb32()
+            : base(hasAlpha: false)
         {
         }
 

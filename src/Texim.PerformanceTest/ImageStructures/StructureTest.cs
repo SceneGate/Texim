@@ -24,8 +24,8 @@ namespace Texim.PerformanceTest.ImageStructures
     [MemoryDiagnoser]
     public class StructureTest
     {
-        ushort[] colorBgr555;
-        byte[] index;
+        private ushort[] colorBgr555;
+        private byte[] index;
 
         [Params(192 * 256, 4096 * 2160)]
         public int Size { get; set; }

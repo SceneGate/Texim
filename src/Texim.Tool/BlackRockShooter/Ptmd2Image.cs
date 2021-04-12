@@ -50,7 +50,7 @@ namespace Texim.Tool.BlackRockShooter
             reader.Stream.Position += 0xC; // unknown
 
             var tileSwizzling = new TileSwizzling<IndexedPixel>(TileSize, Width);
-            var pixels = reader.ReadPixels<Indexed4bpp>(Width * Height)
+            var pixels = reader.ReadPixels<Indexed4Bpp>(Width * Height)
                 .UnswizzleWith(tileSwizzling);
 
             var image = new IndexedImage {
