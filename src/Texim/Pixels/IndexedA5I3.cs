@@ -21,6 +21,8 @@ namespace Texim.Pixels
 {
     public class IndexedA5I3 : BytePixelEncoding
     {
+        public static IndexedA5I3 Instance { get; } = new IndexedA5I3();
+
         public override int BitsPerPixel => 8;
 
         protected override IndexedPixel BitsToPixel(byte data) =>

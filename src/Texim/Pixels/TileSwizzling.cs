@@ -32,6 +32,12 @@ namespace Texim.Pixels
             Width = 256;
         }
 
+        public TileSwizzling(int width)
+        {
+            TileSize = new Size(8, 8);
+            Width = width;
+        }
+
         public TileSwizzling(Size tileSize, int width)
         {
             TileSize = tileSize;

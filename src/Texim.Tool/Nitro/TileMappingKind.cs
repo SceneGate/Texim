@@ -17,16 +17,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Pixels
+namespace Texim.Tool.Nitro
 {
-    public class Indexed4Bpp : BytePixelEncoding
+    public enum TileMappingKind
     {
-        public static Indexed4Bpp Instance { get; } = new Indexed4Bpp();
-
-        public override int BitsPerPixel => 4;
-
-        protected override IndexedPixel BitsToPixel(byte data) => new IndexedPixel(data);
-
-        protected override byte PixelToBits(IndexedPixel pixel) => (byte)(pixel.Index & 0x0F);
+        Tile2D,
+        Tile1D_32k,
+        Tile1D_64k,
+        Tile1D_128k,
+        Tile1D_256k,
     }
 }

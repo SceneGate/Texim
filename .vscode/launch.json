@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Cake: Run Build",
-            "program": "${workspaceFolder}/src/Texim/bin/Debug/net5.0/Texim.dll",
+            "program": "${workspaceFolder}/src/Texim.Tool/bin/Debug/net5.0/linux-x64/Texim.Tool.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
