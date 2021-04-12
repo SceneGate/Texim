@@ -26,7 +26,6 @@ namespace Texim.Colors
 
     public class Bgr555 : IColorEncoding
     {
-
         public static int BytesPerColor => 2;
 
         public static Bgr555 Instance { get; } = new Bgr555();
