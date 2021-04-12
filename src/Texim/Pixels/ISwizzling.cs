@@ -23,8 +23,8 @@ namespace Texim.Pixels
 
     public interface ISwizzling<T>
     {
-        IEnumerable<T> Swizzle(IEnumerable<T> data);
+        T[] Swizzle(IEnumerable<T> data);
 
-        IEnumerable<T> Unswizzle(IEnumerable<T> data);
+        T[] Unswizzle(IEnumerable<T> data);
     }
 }
