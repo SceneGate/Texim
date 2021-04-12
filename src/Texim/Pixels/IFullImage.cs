@@ -17,48 +17,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using Texim.Palettes;
-
 namespace Texim.Pixels
 {
-    public class IndexedImage : IIndexedImage
+    using Texim.Colors;
+    using Yarhl.FileFormat;
+
+    public interface IFullImage : IFormat
     {
-        private static Indexed2FullImage fullImageConverter = new Indexed2FullImage();
+        int Width { get; }
 
-        public IndexedImage()
-        {
-        }
+        int Height { get; }
 
-        public IndexedImage(int width, int height)
-        {
-            Pixels = new IndexedPixel[width * height];
-            Width = width;
-            Height = height;
-        }
-
-        public IndexedImage(int width, int height, IndexedPixel[] pixels)
-        {
-            Pixels = pixels;
-            Width = width;
-            Height = height;
-        }
-
-        public int Width { get; init; }
-
-        public int Height { get; init; }
-
-        public IndexedPixel[] Pixels { get; init; }
-
-        public FullImage CreateFullImage(IPalette palette)
-        {
-            fullImageConverter.Initialize(palette);
-            return fullImageConverter.Convert(this);
-        }
-
-        public FullImage CreateFullImage(IPaletteCollection palettes)
-        {
-            fullImageConverter.Initialize(palettes);
-            return fullImageConverter.Convert(this);
-        }
+        Rgb[] Pixels { get; }
     }
 }

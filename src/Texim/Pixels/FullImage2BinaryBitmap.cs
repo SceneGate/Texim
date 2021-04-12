@@ -17,48 +17,42 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using Texim.Palettes;
-
 namespace Texim.Pixels
 {
-    public class IndexedImage : IIndexedImage
+    using System;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
+
+    public class FullImage2BinaryBitmap :
+        IInitializer<ImageFormat>, IConverter<IFullImage, BinaryFormat>
     {
-        private static Indexed2FullImage fullImageConverter = new Indexed2FullImage();
+        private ImageFormat format = ImageFormat.Png;
 
-        public IndexedImage()
+        public void Initialize(ImageFormat parameters)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            format = parameters;
         }
 
-        public IndexedImage(int width, int height)
+        public BinaryFormat Convert(IFullImage source)
         {
-            Pixels = new IndexedPixel[width * height];
-            Width = width;
-            Height = height;
-        }
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-        public IndexedImage(int width, int height, IndexedPixel[] pixels)
-        {
-            Pixels = pixels;
-            Width = width;
-            Height = height;
-        }
+            var image = new Bitmap(source.Width, source.Height);
+            for (int x = 0; x < source.Width; x++) {
+                for (int y = 0; y < source.Height; y++) {
+                    image.SetPixel(x, y, source.Pixels[y * source.Width + x].ToColor());
+                }
+            }
 
-        public int Width { get; init; }
-
-        public int Height { get; init; }
-
-        public IndexedPixel[] Pixels { get; init; }
-
-        public FullImage CreateFullImage(IPalette palette)
-        {
-            fullImageConverter.Initialize(palette);
-            return fullImageConverter.Convert(this);
-        }
-
-        public FullImage CreateFullImage(IPaletteCollection palettes)
-        {
-            fullImageConverter.Initialize(palettes);
-            return fullImageConverter.Convert(this);
+            var binary = new BinaryFormat();
+            image.Save(binary.Stream, format);
+            return binary;
         }
     }
 }
