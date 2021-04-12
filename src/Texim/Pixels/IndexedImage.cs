@@ -17,52 +17,48 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.PerformanceTest.ImageStructures
+using Texim.Palettes;
+
+namespace Texim.Pixels
 {
-    using System;
-    using System.Drawing;
-
-    public readonly struct PixelRgb
+    public class IndexedImage : IIndexedImage
     {
-        public PixelRgb(byte index, byte alpha)
+        private static Indexed2FullImage fullImageConverter = new Indexed2FullImage();
+
+        public IndexedImage()
         {
-            IsIndexed = true;
-            Index = index;
-            Alpha = alpha;
-            Red = 0;
-            Green = 0;
-            Blue = 0;
         }
 
-        public PixelRgb(byte red, byte green, byte blue, byte alpha)
+        public IndexedImage(int width, int height)
         {
-            IsIndexed = false;
-            Index = 0;
-            Alpha = alpha;
-            Red = red;
-            Green = green;
-            Blue = blue;
+            Pixels = new IndexedPixel[width * height];
+            Width = width;
+            Height = height;
         }
 
-        public bool IsIndexed { get; init; }
-
-        public byte Index { get; init; }
-
-        public byte Red { get; init; }
-
-        public byte Green { get; init; }
-
-        public byte Blue { get; init; }
-
-        public byte Alpha { get; init; }
-
-        public readonly Color ToColor()
+        public IndexedImage(int width, int height, IndexedPixel[] pixels)
         {
-            if (!IsIndexed) {
-                throw new FormatException("Pixel is indexed");
-            }
+            Pixels = pixels;
+            Width = width;
+            Height = height;
+        }
 
-            return Color.FromArgb(Alpha, Red, Green, Blue);
+        public int Width { get; init; }
+
+        public int Height { get; init; }
+
+        public IndexedPixel[] Pixels { get; init; }
+
+        public FullImage CreateFullImage(IPalette palette)
+        {
+            fullImageConverter.Initialize(palette);
+            return fullImageConverter.Convert(this);
+        }
+
+        public FullImage CreateFullImage(IPaletteCollection palettes)
+        {
+            fullImageConverter.Initialize(palettes);
+            return fullImageConverter.Convert(this);
         }
     }
 }

@@ -17,40 +17,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim.Disgaea
+namespace Texim.Tool.Disgaea
 {
     using System;
     using Texim.Colors;
     using Texim.Palettes;
+    using Texim.Pixels;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class Binary2Ykcmp :
-        IConverter<BinaryFormat, Ykcmp>
+    public class Ykcmp2Image : IConverter<IBinary, FullImage>
     {
-        public Ykcmp Convert(BinaryFormat source)
+        private const int NumColors = 256;
+        private const int Width = 256;
+        private const int Height = 128;
+
+        public FullImage Convert(IBinary source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            DataReader reader = new DataReader(source.Stream);
+            source.Stream.Position = 0;
+            var reader = new DataReader(source.Stream);
 
-            Ykcmp image = new Ykcmp();
+            Rgb[] colors = reader.ReadColors<Rgba32>(NumColors);
+            var palette = new Palette(colors);
 
-            var colors = reader.ReadColors<Rgba32>(256);
-            image.Palette = new Palette(colors);
+            IndexedPixel[] pixels = reader.ReadPixels<Indexed8bpp>(Width * Height);
+            var indexed = new IndexedImage(Width, Height, pixels);
 
-            image.Pixels = new PixelArray {
-                Width = 256,
-                Height = 128,
-            };
-
-            image.Pixels.SetData(
-                reader.ReadBytes(0x8000),
-                PixelEncoding.Lineal,
-                ColorFormat.Indexed_8bpp);
-
-            return image;
+            return indexed.CreateFullImage(palette);
         }
     }
 }

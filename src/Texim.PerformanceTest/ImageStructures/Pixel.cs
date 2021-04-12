@@ -19,19 +19,45 @@
 // SOFTWARE.
 namespace Texim.PerformanceTest.ImageStructures
 {
-    public struct Pixel
+    using System;
+    using System.Drawing;
+
+    public readonly struct Pixel
     {
-        public Pixel(int info, byte alpha, bool isIndexed)
+        private readonly int value;
+        private readonly bool isIndexed;
+
+        public Pixel(int index, byte alpha)
         {
-            IsIndexed = isIndexed;
-            Info = info;
-            Alpha = alpha;
+            isIndexed = true;
+            value = index | (alpha << 24);
         }
 
-        public int Info { get; init; }
+        public Pixel(byte red, byte green, byte blue, byte alpha)
+        {
+            isIndexed = false;
+            value = red | (green << 8) | (blue << 16) | (alpha << 24);
+        }
 
-        public bool IsIndexed { get; init; }
+        public int Index { get => value & 0x00FFFFFF; }
 
-        public byte Alpha { get; init; }
+        public bool IsIndexed { get => isIndexed; }
+
+        public byte Red { get => (byte)(value); }
+
+        public byte Green { get => (byte)(value >> 8); }
+
+        public byte Blue { get => (byte)(value >> 16); }
+
+        public byte Alpha { get => (byte)(value >> 24); }
+
+        public readonly Color ToColor()
+        {
+            if (!IsIndexed) {
+                throw new FormatException("Pixel is indexed");
+            }
+
+            return Color.FromArgb(Alpha, Red, Green, Blue);
+        }
     }
 }

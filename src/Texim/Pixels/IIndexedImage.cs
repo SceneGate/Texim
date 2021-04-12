@@ -17,52 +17,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.PerformanceTest.ImageStructures
+namespace Texim.Pixels
 {
-    using System;
-    using System.Drawing;
+    using Yarhl.FileFormat;
 
-    public readonly struct PixelRgb
+    public interface IIndexedImage : IFormat
     {
-        public PixelRgb(byte index, byte alpha)
-        {
-            IsIndexed = true;
-            Index = index;
-            Alpha = alpha;
-            Red = 0;
-            Green = 0;
-            Blue = 0;
-        }
+        int Width { get; }
 
-        public PixelRgb(byte red, byte green, byte blue, byte alpha)
-        {
-            IsIndexed = false;
-            Index = 0;
-            Alpha = alpha;
-            Red = red;
-            Green = green;
-            Blue = blue;
-        }
+        int Height { get; }
 
-        public bool IsIndexed { get; init; }
-
-        public byte Index { get; init; }
-
-        public byte Red { get; init; }
-
-        public byte Green { get; init; }
-
-        public byte Blue { get; init; }
-
-        public byte Alpha { get; init; }
-
-        public readonly Color ToColor()
-        {
-            if (!IsIndexed) {
-                throw new FormatException("Pixel is indexed");
-            }
-
-            return Color.FromArgb(Alpha, Red, Green, Blue);
-        }
+        IndexedPixel[] Pixels { get; }
     }
 }

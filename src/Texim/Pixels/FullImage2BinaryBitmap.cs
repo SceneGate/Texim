@@ -17,52 +17,42 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.PerformanceTest.ImageStructures
+namespace Texim.Pixels
 {
     using System;
     using System.Drawing;
+    using System.Drawing.Imaging;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
 
-    public readonly struct PixelRgb
+    public class FullImage2BinaryBitmap :
+        IInitializer<ImageFormat>, IConverter<IFullImage, BinaryFormat>
     {
-        public PixelRgb(byte index, byte alpha)
+        private ImageFormat format = ImageFormat.Png;
+
+        public void Initialize(ImageFormat parameters)
         {
-            IsIndexed = true;
-            Index = index;
-            Alpha = alpha;
-            Red = 0;
-            Green = 0;
-            Blue = 0;
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            format = parameters;
         }
 
-        public PixelRgb(byte red, byte green, byte blue, byte alpha)
+        public BinaryFormat Convert(IFullImage source)
         {
-            IsIndexed = false;
-            Index = 0;
-            Alpha = alpha;
-            Red = red;
-            Green = green;
-            Blue = blue;
-        }
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-        public bool IsIndexed { get; init; }
-
-        public byte Index { get; init; }
-
-        public byte Red { get; init; }
-
-        public byte Green { get; init; }
-
-        public byte Blue { get; init; }
-
-        public byte Alpha { get; init; }
-
-        public readonly Color ToColor()
-        {
-            if (!IsIndexed) {
-                throw new FormatException("Pixel is indexed");
+            var image = new Bitmap(source.Width, source.Height);
+            for (int x = 0; x < source.Width; x++) {
+                for (int y = 0; y < source.Height; y++) {
+                    image.SetPixel(x, y, source.Pixels[y * source.Width + x].ToColor());
+                }
             }
 
-            return Color.FromArgb(Alpha, Red, Green, Blue);
+            var binary = new BinaryFormat();
+            image.Save(binary.Stream, format);
+            return binary;
         }
     }
 }

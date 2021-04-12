@@ -23,41 +23,40 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-namespace Texim.DevilSurvivor
+namespace Texim.Tool.DevilSurvivor
 {
     using System;
+    using Texim.Pixels;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
     public class DsTex2Image :
-        IConverter<BinaryFormat, PixelArray>,
-        IConverter<PixelArray, BinaryFormat>
+        IConverter<IBinary, IndexedImage>,
+        IConverter<IIndexedImage, BinaryFormat>
     {
-        public PixelArray Convert(BinaryFormat source)
+        public IndexedImage Convert(IBinary source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            DataReader reader = new DataReader(source.Stream);
+            source.Stream.Position = 0;
+            var reader = new DataReader(source.Stream);
 
-            PixelArray image = new PixelArray { Width = 128, Height = 128 };
-            image.SetData(
-                reader.ReadBytes((int)source.Stream.Length),
-                PixelEncoding.Lineal,
-                ColorFormat.Indexed_A3I5);
-            
-            return image;
+            IndexedPixel[] pixels = reader.ReadBytes((int)source.Stream.Length)
+                .DecodePixelsAs<IndexedA3I5>();
+
+            return new IndexedImage(128, 128, pixels);
         }
 
-        public BinaryFormat Convert(PixelArray source)
+        public BinaryFormat Convert(IIndexedImage source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            BinaryFormat binary = new BinaryFormat();
-            DataWriter writer = new DataWriter(binary.Stream);
+            var binary = new BinaryFormat();
+            var writer = new DataWriter(binary.Stream);
 
-            writer.Write(source.GetData());
+            writer.Write<IndexedA3I5>(source.Pixels);
             return binary;
         }
     }

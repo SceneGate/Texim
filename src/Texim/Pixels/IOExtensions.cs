@@ -17,46 +17,44 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Colors
+namespace Texim.Pixels
 {
     using System.Collections.Generic;
     using Yarhl.IO;
 
     public static class IOExtensions
     {
-        public static Rgb ReadColor<T>(this DataReader reader)
-            where T : IColorEncoding, new()
+        public static IndexedPixel[] ReadPixels<T>(this DataReader reader, int numPixels)
+            where T : IIndexedPixelEncoding, new()
         {
-            T encoding = new T();
-            return encoding.Decode(reader.Stream);
+            T decoder = new T();
+            return decoder.Decode(reader.Stream, numPixels);
         }
 
-        public static Rgb[] ReadColors<T>(this DataReader reader, int numColors)
-            where T : IColorEncoding, new()
-        {
-            T encoding = new T();
-            return encoding.Decode(reader.Stream, numColors);
-        }
-
-        public static Rgb[] DecodeColorsAs<T>(this byte[] data)
-            where T : IColorEncoding, new()
+        public static IndexedPixel[] DecodePixelsAs<T>(this byte[] data)
+            where T : IIndexedPixelEncoding, new()
         {
             T decoder = new T();
             return decoder.Decode(data);
         }
 
-        public static void Write<T>(this DataWriter writer, Rgb color)
-            where T : IColorEncoding, new()
+        public static void Write<T>(this DataWriter writer, IEnumerable<IndexedPixel> pixels)
+            where T : IIndexedPixelEncoding, new()
         {
-            T encoding = new T();
-            writer.Write(encoding.Encode(color));
+            T encoder = new T();
+            writer.Write(encoder.Encode(pixels));
         }
 
-        public static void Write<T>(this DataWriter writer, IEnumerable<Rgb> colors)
-            where T : IColorEncoding, new()
+        public static byte[] EncodePixelsAs<T>(this IndexedPixel[] pixels)
+            where T : IIndexedPixelEncoding, new()
         {
-            T encoding = new T();
-            writer.Write(encoding.Encode(colors));
+            T encoder = new T();
+            return encoder.Encode(pixels);
+        }
+
+        public static IndexedPixel[] UnswizzleWith(this IndexedPixel[] pixels, ISwizzling<IndexedPixel> swizzling)
+        {
+            return swizzling.Unswizzle(pixels);
         }
     }
 }
