@@ -27,6 +27,7 @@ namespace Texim.Tool.MetalMax
 {
     using System.Collections.ObjectModel;
     using Texim.Colors;
+    using Texim.Images;
     using Texim.Palettes;
     using Texim.Pixels;
 

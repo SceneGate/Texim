@@ -17,11 +17,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Pixels
+namespace Texim.Images
 {
     using System;
     using Texim.Colors;
     using Texim.Palettes;
+    using Texim.Pixels;
     using Yarhl.FileFormat;
 
     public class Indexed2FullImage :

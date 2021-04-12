@@ -31,6 +31,7 @@ namespace Texim.Tool
     using System.Linq;
     using System.Reflection;
     using Texim.Colors;
+    using Texim.Images;
     using Texim.Palettes;
     using Texim.Pixels;
     using Texim.Tool.BlackRockShooter;

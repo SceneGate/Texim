@@ -17,17 +17,42 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Pixels
+namespace Texim.Images
 {
+    using System;
+    using System.Drawing;
     using System.Drawing.Imaging;
-    using Texim.Palettes;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
 
-    public class IndexedImageBitmapParameters
+    public class FullImage2BinaryBitmap :
+        IInitializer<ImageFormat>, IConverter<IFullImage, BinaryFormat>
     {
-        public ImageFormat Format { get; set; }
+        private ImageFormat format = ImageFormat.Png;
 
-        public IPalette Palette { get; set; }
+        public void Initialize(ImageFormat parameters)
+        {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-        public IPaletteCollection Palettes { get; set; }
+            format = parameters;
+        }
+
+        public BinaryFormat Convert(IFullImage source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var image = new Bitmap(source.Width, source.Height);
+            for (int x = 0; x < source.Width; x++) {
+                for (int y = 0; y < source.Height; y++) {
+                    image.SetPixel(x, y, source.Pixels[y * source.Width + x].ToColor());
+                }
+            }
+
+            var binary = new BinaryFormat();
+            image.Save(binary.Stream, format);
+            return binary;
+        }
     }
 }
