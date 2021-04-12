@@ -28,7 +28,7 @@ namespace Texim.Images
     public class Indexed2FullImage :
         IInitializer<IPalette>, IInitializer<IPaletteCollection>, IConverter<IIndexedImage, FullImage>
     {
-        private PaletteCollection palettes;
+        private readonly PaletteCollection palettes = new PaletteCollection();
 
         public void Initialize(IPalette parameters)
         {

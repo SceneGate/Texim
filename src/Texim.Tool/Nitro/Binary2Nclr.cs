@@ -27,14 +27,14 @@ namespace Texim.Tool.Nitro
 
     public class Binary2Nclr : NitroDeserializer<Nclr>
     {
-        int[] paletteIndexes;
+        private int[] paletteIndexes;
 
         protected override void ReadSection(DataReader reader, Nclr model, string id, int size)
         {
             if (id == "PLTT") {
                 ReadPltt(reader, model, size);
             } else if (id == "PCMP") {
-                ReadPcmp(reader, model);
+                ReadPcmp(reader);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Texim.Tool.Nitro
             model.Palettes.Add(new Palette(colors));
         }
 
-        private void ReadPcmp(DataReader reader, Nclr model)
+        private void ReadPcmp(DataReader reader)
         {
             long sectionPos = reader.Stream.Position;
             int numPalettes = reader.ReadUInt16();

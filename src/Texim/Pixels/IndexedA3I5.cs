@@ -25,6 +25,7 @@ namespace Texim.Pixels
 
         protected override IndexedPixel BitsToPixel(byte data) =>
             new IndexedPixel((short)(data & 0x1F), (byte)((data >> 5) << 3));
+
         protected override byte PixelToBits(IndexedPixel pixel) =>
             (byte)(((pixel.Alpha >> 3) << 5) | (pixel.Index & 0x1F));
     }

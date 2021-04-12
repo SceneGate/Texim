@@ -23,16 +23,16 @@ namespace Texim.Formats
 
     public class RawPaletteParameters
     {
-        public long Offset { get; set; }
-
-        public int Size { get; set; } = -1;
-
-        public IColorEncoding ColorEncoding { get; set; }
-
         public static RawPaletteParameters Default => new RawPaletteParameters {
             Offset = 0,
             Size = -1,
             ColorEncoding = Bgr555.Instance,
         };
+
+        public long Offset { get; set; }
+
+        public int Size { get; set; } = -1;
+
+        public IColorEncoding ColorEncoding { get; set; }
     }
 }

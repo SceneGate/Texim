@@ -19,12 +19,12 @@
 // SOFTWARE.
 namespace Texim.Pixels
 {
-    public class Indexed8bpp : BytePixelEncoding
+    public class Indexed4Bpp : BytePixelEncoding
     {
-        public override int BitsPerPixel => 8;
+        public override int BitsPerPixel => 4;
 
         protected override IndexedPixel BitsToPixel(byte data) => new IndexedPixel(data);
 
-        protected override byte PixelToBits(IndexedPixel pixel) => (byte)pixel.Index;
+        protected override byte PixelToBits(IndexedPixel pixel) => (byte)(pixel.Index & 0x0F);
     }
 }

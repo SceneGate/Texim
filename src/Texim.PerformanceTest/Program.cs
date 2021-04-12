@@ -37,7 +37,8 @@ namespace Texim.PerformanceTest
             BenchmarkDotNet.Running.BenchmarkRunner.Run<StructureTest>();
         }
 
-        static unsafe void DisplaySizeOf<T>() where T : unmanaged
+        private static unsafe void DisplaySizeOf<T>()
+            where T : unmanaged
         {
             Console.WriteLine($"Size of {typeof(T)} is {sizeof(T)}");
         }

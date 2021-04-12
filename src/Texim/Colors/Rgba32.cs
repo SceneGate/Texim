@@ -17,13 +17,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 namespace Texim.Colors
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+
     public class Rgba32 : IColorEncoding
     {
         private static Rgba32 instance = new Rgba32();
@@ -86,7 +86,7 @@ namespace Texim.Colors
                 color.Red,
                 color.Green,
                 color.Blue,
-                hasAlpha ? color.Alpha : (byte)0
+                hasAlpha ? color.Alpha : (byte)0,
             };
         }
 

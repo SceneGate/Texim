@@ -44,10 +44,10 @@ namespace Texim.Formats
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            var image = new Bitmap(source.Width, source.Height);
+            using var image = new Bitmap(source.Width, source.Height);
             for (int x = 0; x < source.Width; x++) {
                 for (int y = 0; y < source.Height; y++) {
-                    image.SetPixel(x, y, source.Pixels[y * source.Width + x].ToColor());
+                    image.SetPixel(x, y, source.Pixels[(y * source.Width) + x].ToColor());
                 }
             }
 

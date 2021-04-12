@@ -48,7 +48,7 @@ namespace Texim.Formats
             int width = ColorsPerRow * ZoomSize;
             int height = (int)Math.Ceiling((float)colors.Count / ColorsPerRow);
             height *= ZoomSize;
-            var image = new Bitmap(width, height);
+            using var image = new Bitmap(width, height);
 
             for (int i = 0; i < colors.Count; i++) {
                 Color color = colors[i].ToColor();
