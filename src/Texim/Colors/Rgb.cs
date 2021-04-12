@@ -56,5 +56,12 @@ namespace Texim.Colors
         public byte Alpha { get; init; }
 
         public readonly Color ToColor() => Color.FromArgb(Alpha, Red, Green, Blue);
+
+        public readonly double GetDistanceSquared(Rgb other)
+        {
+            return ((Red - other.Red) * (Red - other.Red))
+                + ((Green - other.Green) * (Green - other.Green))
+                + ((Blue - other.Blue) * (Blue - other.Blue));
+        }
     }
 }
