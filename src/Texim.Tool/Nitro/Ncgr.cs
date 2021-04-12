@@ -17,16 +17,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Pixels
+namespace Texim.Tool.Nitro
 {
-    public class Indexed4Bpp : BytePixelEncoding
+    using System;
+    using Texim.Images;
+    using Texim.Pixels;
+
+    public class Ncgr : IIndexedImage, INitroFormat
     {
-        public static Indexed4Bpp Instance { get; } = new Indexed4Bpp();
+        public string Stamp => "NCGR";
 
-        public override int BitsPerPixel => 4;
+        public Version Version { get; set; }
 
-        protected override IndexedPixel BitsToPixel(byte data) => new IndexedPixel(data);
+        public int Height { get; set; }
 
-        protected override byte PixelToBits(IndexedPixel pixel) => (byte)(pixel.Index & 0x0F);
+        public int Width { get; set; }
+
+        public IndexedPixel[] Pixels { get; set; }
+
+        public NitroTextureFormat Format { get; set; }
+
+        public TileMappingKind TileMapping { get; set; }
+
+        public bool IsTiled { get; set; }
+
+        public bool IsVramTransfer { get; set; }
+
+        public int SourceWidth { get; set; }
+
+        public int SourceHeight { get; set; }
+
+        public int SourceX { get; set; }
+
+        public int SourceY { get; set; }
     }
 }

@@ -21,6 +21,8 @@ namespace Texim.Pixels
 {
     public class Indexed8Bpp : BytePixelEncoding
     {
+        public static Indexed8Bpp Instance { get; } = new Indexed8Bpp();
+
         public override int BitsPerPixel => 8;
 
         protected override IndexedPixel BitsToPixel(byte data) => new IndexedPixel(data);

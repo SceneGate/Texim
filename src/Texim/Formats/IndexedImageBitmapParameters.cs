@@ -24,7 +24,7 @@ namespace Texim.Formats
 
     public class IndexedImageBitmapParameters
     {
-        public ImageFormat Format { get; set; }
+        public ImageFormat Format { get; set; } = ImageFormat.Png;
 
         public IPalette Palette { get; set; }
 

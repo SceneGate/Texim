@@ -26,11 +26,10 @@ namespace Texim.Colors
 
     public class Bgr555 : IColorEncoding
     {
-        private static Bgr555 instance = new Bgr555();
 
         public static int BytesPerColor => 2;
 
-        public static Bgr555 Instance => instance;
+        public static Bgr555 Instance { get; } = new Bgr555();
 
         public static Rgb FromUInt16(ushort value)
         {
