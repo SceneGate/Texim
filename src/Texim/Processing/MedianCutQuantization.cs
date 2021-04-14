@@ -56,6 +56,8 @@ namespace Texim.Processing
             while (buckets.Count < MaxColors) {
                 PixelRef[] bucket = buckets.Dequeue();
                 var (bucket1, bucket2) = MedianCut(bucket);
+                buckets.Enqueue(bucket1);
+                buckets.Enqueue(bucket2);
             }
 
             // Average bucket color and create indexes
@@ -95,7 +97,8 @@ namespace Texim.Processing
         }
 
         private Rgb Average(PixelRef[] bucket) =>
-            new Rgb((byte)bucket.Average(c => c.Color.Red),
+            new Rgb(
+                (byte)bucket.Average(c => c.Color.Red),
                 (byte)bucket.Average(c => c.Color.Green),
                 (byte)bucket.Average(c => c.Color.Blue));
 
