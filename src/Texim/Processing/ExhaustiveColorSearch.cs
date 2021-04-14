@@ -17,29 +17,40 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Palettes
+namespace Texim.Processing
 {
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Linq;
+    using Texim.Colors;
 
-    public class PaletteCollection : IPaletteCollection
+    public class ExhaustiveColorSearch
     {
-        public PaletteCollection()
+        private readonly Rgb[] vertex;
+
+        public ExhaustiveColorSearch(IEnumerable<Rgb> vertex)
         {
-            Palettes = new Collection<IPalette>();
+            this.vertex = vertex.ToArray();
         }
 
-        public PaletteCollection(IPalette initialPalette)
+        public int Search(Rgb color)
         {
-            Palettes = new Collection<IPalette> { initialPalette };
-        }
+            // Set the largest distance and a null index
+            double minDistance = (255 * 255) + (255 * 255) + (255 * 255) + 1;
+            int nearestColor = -1;
 
-        public PaletteCollection(IEnumerable<IPalette> initialPalettes)
-        {
-            Palettes = new Collection<IPalette>(initialPalettes.ToList());
-        }
+            // FUTURE: Implement "Approximate Nearest Neighbors in Non-Euclidean Spaces"
+            // algorithm or k-d tree if it's computing CIE76 color difference
+            for (int i = 0; i < vertex.Length && minDistance > 0; i++) {
+                // Since we only want the value to compare,
+                // it is faster to not computer the squared root
+                double distance = color.GetDistanceSquared(this.vertex[i]);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestColor = i;
+                }
+            }
 
-        public Collection<IPalette> Palettes { get; }
+            return nearestColor;
+        }
     }
 }

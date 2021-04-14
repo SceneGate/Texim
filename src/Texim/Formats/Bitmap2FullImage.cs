@@ -17,29 +17,32 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Palettes
+namespace Texim.Formats
 {
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
+    using System;
+    using System.Drawing;
+    using Texim.Colors;
+    using Texim.Images;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
 
-    public class PaletteCollection : IPaletteCollection
+    public class Bitmap2FullImage : IConverter<BinaryFormat, FullImage>
     {
-        public PaletteCollection()
+        public FullImage Convert(BinaryFormat source)
         {
-            Palettes = new Collection<IPalette>();
-        }
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-        public PaletteCollection(IPalette initialPalette)
-        {
-            Palettes = new Collection<IPalette> { initialPalette };
-        }
+            using var image = (Bitmap)Image.FromStream(source.Stream);
+            var fullImage = new FullImage(image.Width, image.Height);
 
-        public PaletteCollection(IEnumerable<IPalette> initialPalettes)
-        {
-            Palettes = new Collection<IPalette>(initialPalettes.ToList());
-        }
+            for (int x = 0; x < image.Width; x++) {
+                for (int y = 0; y < image.Height; y++) {
+                    fullImage.Pixels[(y * image.Width) + x] = new Rgb(image.GetPixel(x, y));
+                }
+            }
 
-        public Collection<IPalette> Palettes { get; }
+            return fullImage;
+        }
     }
 }

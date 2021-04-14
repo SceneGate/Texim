@@ -17,29 +17,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Palettes
+namespace Texim.Processing
 {
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
+    using Texim.Colors;
+    using Texim.Palettes;
+    using Texim.Pixels;
 
-    public class PaletteCollection : IPaletteCollection
+    public class FixedPaletteQuantization : IQuantization
     {
-        public PaletteCollection()
+        private readonly IPalette palette;
+        private readonly ExhaustiveColorSearch search;
+
+        public FixedPaletteQuantization(IPalette palette)
         {
-            Palettes = new Collection<IPalette>();
+            this.palette = palette;
+            search = new ExhaustiveColorSearch(palette.Colors);
         }
 
-        public PaletteCollection(IPalette initialPalette)
-        {
-            Palettes = new Collection<IPalette> { initialPalette };
-        }
+        public bool FirstAsTransparent { get; set; }
 
-        public PaletteCollection(IEnumerable<IPalette> initialPalettes)
+        public (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels)
         {
-            Palettes = new Collection<IPalette>(initialPalettes.ToList());
-        }
+            var indexed = new IndexedPixel[pixels.Length];
 
-        public Collection<IPalette> Palettes { get; }
+            for (int i = 0; i < pixels.Length; i++) {
+                int colorIdx = (FirstAsTransparent && pixels[i].Alpha >= 128)
+                    ? 0
+                    : search.Search(pixels[i]);
+                indexed[i] = new IndexedPixel((short)colorIdx, pixels[i].Alpha, 0);
+            }
+
+            var collection = new PaletteCollection(palette);
+            return (indexed, collection);
+        }
     }
 }

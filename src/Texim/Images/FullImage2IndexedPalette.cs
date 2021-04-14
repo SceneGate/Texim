@@ -17,29 +17,39 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Palettes
+namespace Texim.Images
 {
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
+    using System;
+    using Texim.Palettes;
+    using Texim.Pixels;
+    using Texim.Processing;
+    using Yarhl.FileFormat;
 
-    public class PaletteCollection : IPaletteCollection
+    public class FullImage2IndexedPalette :
+        IInitializer<IQuantization>, IConverter<IFullImage, IndexedPaletteImage>
     {
-        public PaletteCollection()
+        private IQuantization quantization;
+
+        public void Initialize(IQuantization parameters)
         {
-            Palettes = new Collection<IPalette>();
+            quantization = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
-        public PaletteCollection(IPalette initialPalette)
+        public IndexedPaletteImage Convert(IFullImage source)
         {
-            Palettes = new Collection<IPalette> { initialPalette };
-        }
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-        public PaletteCollection(IEnumerable<IPalette> initialPalettes)
-        {
-            Palettes = new Collection<IPalette>(initialPalettes.ToList());
-        }
+            (IndexedPixel[] pixels, IPaletteCollection palette) = quantization.Quantize(source.Pixels);
 
-        public Collection<IPalette> Palettes { get; }
+            var indexed = new IndexedPaletteImage {
+                Width = source.Width,
+                Height = source.Height,
+                Pixels = pixels,
+            };
+            indexed.Palettes.Add(palette.Palettes);
+
+            return indexed;
+        }
     }
 }

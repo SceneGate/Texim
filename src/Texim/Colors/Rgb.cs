@@ -23,6 +23,14 @@ namespace Texim.Colors
 
     public readonly struct Rgb
     {
+        public Rgb(Color color)
+        {
+            Alpha = color.A;
+            Red = color.R;
+            Green = color.G;
+            Blue = color.B;
+        }
+
         public Rgb(Rgb color, byte alpha)
         {
             Alpha = alpha;
@@ -56,5 +64,12 @@ namespace Texim.Colors
         public byte Alpha { get; init; }
 
         public readonly Color ToColor() => Color.FromArgb(Alpha, Red, Green, Blue);
+
+        public readonly double GetDistanceSquared(Rgb other)
+        {
+            return ((Red - other.Red) * (Red - other.Red))
+                + ((Green - other.Green) * (Green - other.Green))
+                + ((Blue - other.Blue) * (Blue - other.Blue));
+        }
     }
 }

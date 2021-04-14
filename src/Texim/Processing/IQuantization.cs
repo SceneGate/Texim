@@ -17,29 +17,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Palettes
+namespace Texim.Processing
 {
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
+    using Texim.Colors;
+    using Texim.Palettes;
+    using Texim.Pixels;
 
-    public class PaletteCollection : IPaletteCollection
+    public interface IQuantization
     {
-        public PaletteCollection()
-        {
-            Palettes = new Collection<IPalette>();
-        }
-
-        public PaletteCollection(IPalette initialPalette)
-        {
-            Palettes = new Collection<IPalette> { initialPalette };
-        }
-
-        public PaletteCollection(IEnumerable<IPalette> initialPalettes)
-        {
-            Palettes = new Collection<IPalette>(initialPalettes.ToList());
-        }
-
-        public Collection<IPalette> Palettes { get; }
+        (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels);
     }
 }
