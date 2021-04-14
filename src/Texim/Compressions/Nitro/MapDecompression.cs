@@ -109,8 +109,8 @@ namespace Texim.Compressions.Nitro
         {
             for (int y = 0; y < tileSize.Height; y++) {
                 for (int x = 0; x < tileSize.Width / 2; x++) {
-                    int t1 = y * tileSize.Width + x;
-                    int t2 = y * tileSize.Width + (tileSize.Width - 1 - x);
+                    int t1 = (y * tileSize.Width) + x;
+                    int t2 = (y * tileSize.Width) + (tileSize.Width - 1 - x);
 
                     IndexedPixel swap = tile[t1];
                     tile[t1] = tile[t2];
@@ -123,8 +123,8 @@ namespace Texim.Compressions.Nitro
         {
             for (int x = 0; x < tileSize.Width; x++) {
                 for (int y = 0; y < tileSize.Height / 2; y++) {
-                    int t1 = x + tileSize.Width * y;
-                    int t2 = x + tileSize.Width * (tileSize.Height - 1 - y);
+                    int t1 = x + (tileSize.Width * y);
+                    int t2 = x + (tileSize.Width * (tileSize.Height - 1 - y));
 
                     IndexedPixel swap = tile[t1];
                     tile[t1] = tile[t2];

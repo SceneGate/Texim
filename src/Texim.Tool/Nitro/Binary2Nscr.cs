@@ -17,40 +17,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Compressions.Nitro
+namespace Texim.Tool.Nitro
 {
-    public readonly struct MapInfo
+    using System.Linq;
+    using Texim.Compressions.Nitro;
+    using Yarhl.IO;
+
+    public class Binary2Nscr : NitroDeserializer<Nscr>
     {
-        public MapInfo(byte value)
+        protected override void ReadSection(DataReader reader, Nscr model, string id, int size)
         {
-            TileIndex = value;
-            HorizontalFlip = false;
-            VerticalFlip = false;
-            PaletteIndex = 0;
+            if (id == "SCRN") {
+                ReadScrn(reader, model);
+            }
         }
 
-        public MapInfo(short value)
+        private void ReadScrn(DataReader reader, Nscr model)
         {
-            TileIndex = (short)(value & 0x3FF);
-            HorizontalFlip = (value >> 10) == 1;
-            VerticalFlip = (value >> 11) == 1;
-            PaletteIndex = (byte)(value >> 12);
-        }
+            model.Width = reader.ReadUInt16();
+            model.Height = reader.ReadUInt16();
+            model.PaletteMode = (NitroPaletteMode)reader.ReadUInt16();
+            model.BackgroundMode = (NitroBackgroundMode)reader.ReadUInt16();
 
-        public short TileIndex { get; init; }
-
-        public bool HorizontalFlip { get; init; }
-
-        public bool VerticalFlip { get; init; }
-
-        public byte PaletteIndex { get; init; }
-
-        public readonly short ToInt16()
-        {
-            return (short)((TileIndex & 0x3FF)
-                | ((HorizontalFlip ? 1 : 0) << 10)
-                | ((VerticalFlip ? 1 : 0) << 11)
-                | ((PaletteIndex & 0x0F) << 12));
+            int length = reader.ReadInt32();
+            if (model.BackgroundMode == NitroBackgroundMode.Affine) {
+                model.Maps = reader.ReadBytes(length)
+                    .Select(b => new MapInfo(b))
+                    .ToArray();
+            } else {
+                model.Maps = reader.ReadMapInfos(length / 2);
+            }
         }
     }
 }

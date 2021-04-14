@@ -17,40 +17,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Compressions.Nitro
+namespace Texim.Tool.Nitro
 {
-    public readonly struct MapInfo
+    using System;
+    using Texim.Compressions.Nitro;
+
+    public class Nscr : IScreenMap, INitroFormat
     {
-        public MapInfo(byte value)
-        {
-            TileIndex = value;
-            HorizontalFlip = false;
-            VerticalFlip = false;
-            PaletteIndex = 0;
-        }
+        public string Stamp => "NSCR";
 
-        public MapInfo(short value)
-        {
-            TileIndex = (short)(value & 0x3FF);
-            HorizontalFlip = (value >> 10) == 1;
-            VerticalFlip = (value >> 11) == 1;
-            PaletteIndex = (byte)(value >> 12);
-        }
+        public Version Version { get; set; }
 
-        public short TileIndex { get; init; }
+        public MapInfo[] Maps { get; set; }
 
-        public bool HorizontalFlip { get; init; }
+        public int Width { get; set; }
 
-        public bool VerticalFlip { get; init; }
+        public int Height { get; set; }
 
-        public byte PaletteIndex { get; init; }
+        public NitroPaletteMode PaletteMode { get; set; }
 
-        public readonly short ToInt16()
-        {
-            return (short)((TileIndex & 0x3FF)
-                | ((HorizontalFlip ? 1 : 0) << 10)
-                | ((VerticalFlip ? 1 : 0) << 11)
-                | ((PaletteIndex & 0x0F) << 12));
-        }
+        public NitroBackgroundMode BackgroundMode { get; set; }
     }
 }

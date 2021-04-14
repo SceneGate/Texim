@@ -17,40 +17,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Compressions.Nitro
+namespace Texim.Tool.Nitro
 {
-    public readonly struct MapInfo
+    public enum NitroPaletteMode
     {
-        public MapInfo(byte value)
-        {
-            TileIndex = value;
-            HorizontalFlip = false;
-            VerticalFlip = false;
-            PaletteIndex = 0;
-        }
-
-        public MapInfo(short value)
-        {
-            TileIndex = (short)(value & 0x3FF);
-            HorizontalFlip = (value >> 10) == 1;
-            VerticalFlip = (value >> 11) == 1;
-            PaletteIndex = (byte)(value >> 12);
-        }
-
-        public short TileIndex { get; init; }
-
-        public bool HorizontalFlip { get; init; }
-
-        public bool VerticalFlip { get; init; }
-
-        public byte PaletteIndex { get; init; }
-
-        public readonly short ToInt16()
-        {
-            return (short)((TileIndex & 0x3FF)
-                | ((HorizontalFlip ? 1 : 0) << 10)
-                | ((VerticalFlip ? 1 : 0) << 11)
-                | ((PaletteIndex & 0x0F) << 12));
-        }
+        Palette16x16 = 0, // 16 colors / 16 palettes
+        Palette256x1 = 1, // 256 colors / 1 palette
+        Extended = 2, // 256 colors / 16 palettes
     }
 }
