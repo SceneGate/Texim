@@ -23,6 +23,14 @@ namespace Texim.Colors
 
     public readonly struct Rgb
     {
+        public Rgb(Color color)
+        {
+            Alpha = color.A;
+            Red = color.R;
+            Green = color.G;
+            Blue = color.B;
+        }
+
         public Rgb(Rgb color, byte alpha)
         {
             Alpha = alpha;
