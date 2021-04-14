@@ -23,6 +23,7 @@ namespace Texim.Pixels
     using System.Collections.Generic;
     using System.Drawing;
     using System.Linq;
+    using Yarhl.IO;
 
     public class TileSwizzling<T> : ISwizzling<T>
     {
@@ -73,12 +74,12 @@ namespace Texim.Pixels
             // If the image is incomplete there may missing tiles but in order
             // to set some pixels we will need a square image so we can skip
             // the missing pixels.
-            int height = input.Length / Width;
+            int height = (input.Length / Width).Pad(TileSize.Height);
             T[] output = new T[Width * height];
             for (int linealIndex = 0; linealIndex < input.Length; linealIndex++) {
                 int tiledIndex = GetTiledIndex(linealIndex % Width, linealIndex / Width);
                 if (decoding) {
-                    output[linealIndex] = input[tiledIndex];
+                    output[linealIndex] = tiledIndex < input.Length ? input[tiledIndex] : default;
                 } else {
                     output[tiledIndex] = input[linealIndex];
                 }
