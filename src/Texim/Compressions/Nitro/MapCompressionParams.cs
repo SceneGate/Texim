@@ -19,17 +19,13 @@
 // SOFTWARE.
 namespace Texim.Compressions.Nitro
 {
+    using System.Drawing;
     using Texim.Images;
-    using Texim.Pixels;
 
-    public class IndexedMapImage : IScreenMap, IIndexedImage
+    public class MapCompressionParams
     {
-        public int Width { get; init; }
+        public Size TileSize { get; set; } = new Size(8, 8);
 
-        public int Height { get; init; }
-
-        public MapInfo[] Maps { get; init; }
-
-        public IndexedPixel[] Pixels { get; init; }
+        public IIndexedImage MergeImage { get; set; }
     }
 }

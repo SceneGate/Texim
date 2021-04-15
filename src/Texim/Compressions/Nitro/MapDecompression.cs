@@ -26,14 +26,14 @@ namespace Texim.Compressions.Nitro
     using Yarhl.FileFormat;
 
     public class MapDecompression :
-        IInitializer<MapDecompressionParameters>,
+        IInitializer<MapDecompressionParams>,
         IConverter<IIndexedImage, IndexedImage>,
         IConverter<IndexedPixel[], IndexedPixel[]>
     {
         private Size tileSize;
         private IScreenMap map;
 
-        public void Initialize(MapDecompressionParameters parameters)
+        public void Initialize(MapDecompressionParams parameters)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));

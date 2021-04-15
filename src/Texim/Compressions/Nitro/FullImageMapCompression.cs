@@ -20,42 +20,42 @@
 namespace Texim.Compressions.Nitro
 {
     using System;
-    using System.Drawing;
     using Texim.Images;
-    using Texim.Palettes;
     using Texim.Pixels;
     using Texim.Processing;
     using Yarhl.FileFormat;
+    using Yarhl.FileSystem;
 
     public class FullImageMapCompression :
-        IInitializer<FullImageMapCompressionParameters>, IConverter<IFullImage, IndexedMapImage>
+        IInitializer<FullImageMapCompressionParams>, IConverter<IFullImage, NodeContainerFormat>
     {
-        private Size tileSize;
-        private IPaletteCollection palettes;
+        private FullImageMapCompressionParams parameters;
 
-        public void Initialize(FullImageMapCompressionParameters parameters)
+        public void Initialize(FullImageMapCompressionParams parameters)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            tileSize = parameters.TileSize;
-            palettes = parameters.Palettes;
+            this.parameters = parameters;
         }
 
-        public IndexedMapImage Convert(IFullImage source)
+        public NodeContainerFormat Convert(IFullImage source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
             // TODO: Avoid several swizzling by providing an argument to quantization
             // and compression (in and out, out here too).
-            var quantization = new FixedPaletteTileQuantization(palettes, tileSize, source.Width);
+            var quantization = new FixedPaletteTileQuantization(
+                parameters.Palettes,
+                parameters.TileSize,
+                source.Width);
             (IndexedPixel[] tiles, _) = quantization.Quantize(source.Pixels);
 
             var fullIndexedImage = new IndexedImage(source.Width, source.Height, tiles);
 
             var compression = new MapCompression();
-            compression.Initialize(tileSize);
+            compression.Initialize(parameters);
             return compression.Convert(fullIndexedImage);
         }
     }

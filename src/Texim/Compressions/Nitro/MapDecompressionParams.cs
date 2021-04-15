@@ -21,7 +21,7 @@ namespace Texim.Compressions.Nitro
 {
     using System.Drawing;
 
-    public class MapDecompressionParameters
+    public class MapDecompressionParams
     {
         public IScreenMap Map { get; set; }
 

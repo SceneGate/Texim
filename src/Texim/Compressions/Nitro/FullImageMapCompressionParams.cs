@@ -19,13 +19,10 @@
 // SOFTWARE.
 namespace Texim.Compressions.Nitro
 {
-    using System.Drawing;
     using Texim.Palettes;
 
-    public class FullImageMapCompressionParameters
+    public class FullImageMapCompressionParams : MapCompressionParams
     {
         public IPaletteCollection Palettes { get; set; }
-
-        public Size TileSize { get; set; } = new Size(8, 8);
     }
 }
