@@ -59,12 +59,18 @@ namespace Texim.Formats
                 for (int y = 0; y < source.Height; y++) {
                     var pixel = source.Pixels[(y * source.Width) + x];
                     if (pixel.PaletteIndex >= palettes.Length) {
-                        throw new FormatException("Missing palettes");
+                        throw new FormatException(
+                            $"[x={x},y={y}] Missing palettes. " +
+                            $"Need palette #{pixel.PaletteIndex} but it has {palettes.Length}. " +
+                            $"First palette length: {palettes[0].Length}");
                     }
 
                     var palette = palettes[pixel.PaletteIndex];
                     if (pixel.Index >= palette.Length) {
-                        throw new FormatException("Missing colors in palette");
+                        throw new FormatException(
+                            $"[x={x},y={y}] Missing colors in palette. " +
+                            $"Need color #{pixel.Index} but palette " +
+                            $"#{pixel.PaletteIndex} has {palette.Length}");
                     }
 
                     Color color = (pixel.Alpha != 255)

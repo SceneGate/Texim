@@ -49,12 +49,15 @@ namespace Texim.Compressions.Nitro
             if (map == null)
                 throw new InvalidOperationException("Missing initialization");
 
-            // It's easier if we swizzle again
-            var swizzling = new TileSwizzling<IndexedPixel>(source.Width);
+            // It's easier if we swizzle again, with the compressed tiles
+            var swizzling = new TileSwizzling<IndexedPixel>(tileSize, source.Width);
             IndexedPixel[] tiles = swizzling.Swizzle(source.Pixels);
 
             IndexedPixel[] decompressed = DecompressTiles(tiles);
-            decompressed = swizzling.Unswizzle(decompressed);
+
+            // Unswizzle but this time with the final image size
+            var unswizzling = new TileSwizzling<IndexedPixel>(tileSize, map.Width);
+            decompressed = unswizzling.Unswizzle(decompressed);
 
             return new IndexedImage(map.Width, map.Height, decompressed);
         }

@@ -54,7 +54,7 @@ namespace Texim.Processing
 
             IndexedPixel[] indexed = new IndexedPixel[pixels.Length];
             Span<IndexedPixel> output = indexed;
-            ReadOnlySpan<Rgb> input = pixels;
+            ReadOnlySpan<Rgb> input = tiles;
 
             int tileLength = tileSize.Width * tileSize.Height;
             for (int i = 0; i < pixels.Length; i += tileLength) {
