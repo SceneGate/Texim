@@ -43,7 +43,7 @@ namespace Texim.Processing
             for (int i = 0; i < pixels.Length; i++) {
                 int colorIdx = (FirstAsTransparent && pixels[i].Alpha >= 128)
                     ? 0
-                    : search.Search(pixels[i]);
+                    : search.Search(pixels[i]).Index;
                 indexed[i] = new IndexedPixel((short)colorIdx, pixels[i].Alpha, 0);
             }
 

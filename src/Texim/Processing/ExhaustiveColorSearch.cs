@@ -32,25 +32,32 @@ namespace Texim.Processing
             this.vertex = vertex.ToArray();
         }
 
-        public int Search(Rgb color)
+        public static (int Index, int Distance) Search(IEnumerable<Rgb> vertex, Rgb color)
         {
+            var vertexArray = (vertex as Rgb[]) ?? vertex.ToArray();
+
             // Set the largest distance and a null index
-            double minDistance = (255 * 255) + (255 * 255) + (255 * 255) + 1;
+            int minDistance = (255 * 255) + (255 * 255) + (255 * 255) + 1;
             int nearestColor = -1;
 
             // FUTURE: Implement "Approximate Nearest Neighbors in Non-Euclidean Spaces"
             // algorithm or k-d tree if it's computing CIE76 color difference
-            for (int i = 0; i < vertex.Length && minDistance > 0; i++) {
+            for (int i = 0; i < vertexArray.Length && minDistance > 0; i++) {
                 // Since we only want the value to compare,
                 // it is faster to not computer the squared root
-                double distance = color.GetDistanceSquared(this.vertex[i]);
+                int distance = color.GetDistanceSquared(vertexArray[i]);
                 if (distance < minDistance) {
                     minDistance = distance;
                     nearestColor = i;
                 }
             }
 
-            return nearestColor;
+            return (nearestColor, minDistance);
+        }
+
+        public (int Index, int Distance) Search(Rgb color)
+        {
+            return Search(vertex, color);
         }
     }
 }
