@@ -29,12 +29,17 @@ namespace Texim.Compressions.Nitro
             PaletteIndex = 0;
         }
 
-        public MapInfo(short value)
+        public MapInfo(ushort value)
         {
             TileIndex = (short)(value & 0x3FF);
-            HorizontalFlip = (value >> 10) == 1;
-            VerticalFlip = (value >> 11) == 1;
+            HorizontalFlip = ((value >> 10) & 0x01) == 1;
+            VerticalFlip = ((value >> 11) & 0x01) == 1;
             PaletteIndex = (byte)(value >> 12);
+        }
+
+        public MapInfo(short value)
+            : this((ushort)value)
+        {
         }
 
         public short TileIndex { get; init; }

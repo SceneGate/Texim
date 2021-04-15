@@ -19,35 +19,15 @@
 // SOFTWARE.
 namespace Texim.Formats
 {
-    using System;
     using System.Drawing.Imaging;
     using Texim.Palettes;
-    using Yarhl.FileFormat;
-    using Yarhl.FileSystem;
 
-    public class PaletteCollection2ContainerBitmap :
-        IInitializer<ImageFormat>, IConverter<IPaletteCollection, NodeContainerFormat>
+    public class IndexedImageBitmapParams
     {
-        private ImageFormat format = ImageFormat.Png;
+        public ImageFormat Format { get; set; } = ImageFormat.Png;
 
-        public void Initialize(ImageFormat parameters)
-        {
-            format = parameters;
-        }
+        public IPalette Palette { get; set; }
 
-        public NodeContainerFormat Convert(IPaletteCollection source)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            var container = new NodeContainerFormat();
-            for (int i = 0; i < source.Palettes.Count; i++) {
-                var child = new Node($"Palette {i}", source.Palettes[i])
-                    .TransformWith<Palette2Bitmap>();
-                container.Root.Add(child);
-            }
-
-            return container;
-        }
+        public IPaletteCollection Palettes { get; set; }
     }
 }

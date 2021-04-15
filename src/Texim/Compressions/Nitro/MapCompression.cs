@@ -26,15 +26,24 @@ namespace Texim.Compressions.Nitro
     using Texim.Images;
     using Texim.Pixels;
     using Yarhl.FileFormat;
+    using Yarhl.FileSystem;
 
     public class MapCompression :
-        IInitializer<Size>, IConverter<IIndexedImage, IndexedMapImage>
+        IInitializer<MapCompressionParams>, IConverter<IIndexedImage, NodeContainerFormat>
     {
         private Size tileSize = new Size(8, 8);
+        private IIndexedImage mergeImage;
 
-        public void Initialize(Size parameters) => tileSize = parameters;
+        public void Initialize(MapCompressionParams parameters)
+        {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
 
-        public IndexedMapImage Convert(IIndexedImage source)
+            tileSize = parameters.TileSize;
+            mergeImage = parameters.MergeImage;
+        }
+
+        public NodeContainerFormat Convert(IIndexedImage source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -43,11 +52,23 @@ namespace Texim.Compressions.Nitro
             var swizzling = new TileSwizzling<IndexedPixel>(source.Width);
             var tiles = swizzling.Swizzle(source.Pixels).AsMemory();
 
+            var initialTiles = Memory<IndexedPixel>.Empty;
+            if (mergeImage != null) {
+                var mergeImageSwizzling = new TileSwizzling<IndexedPixel>(mergeImage.Width);
+                initialTiles = mergeImageSwizzling.Swizzle(mergeImage.Pixels).AsMemory();
+            }
+
             int pixelsPerTile = tileSize.Width * tileSize.Height;
             int numTiles = tiles.Length / pixelsPerTile;
             var uniqueTiles = new List<Memory<IndexedPixel>>();
-            var maps = new MapInfo[numTiles];
 
+            // Add the initial tiles in case of creating one pixel data + several maps
+            for (int i = 0; i < initialTiles.Length; i += pixelsPerTile) {
+                var tile = initialTiles.Slice(i, pixelsPerTile);
+                uniqueTiles.Add(tile);
+            }
+
+            var maps = new MapInfo[numTiles];
             for (int i = 0; i < numTiles; i++) {
                 var tile = tiles.Slice(i * pixelsPerTile, pixelsPerTile);
 
@@ -108,15 +129,28 @@ namespace Texim.Compressions.Nitro
                 uniqueTiles.Add(tile);
             }
 
+            // The compressed image now doesn't have any valid size.
+            // So we compress with width 8 (one tile) that will work always
+            // It also requires to have two types as now the map and image
+            // size are different, which is required to swizzle/unswizzle later.
             var uniquePixels = uniqueTiles.SelectMany(t => t.ToArray()).ToArray();
-            uniquePixels = swizzling.Unswizzle(uniquePixels);
+            var unswizzling = new TileSwizzling<IndexedPixel>(tileSize, 8);
+            uniquePixels = unswizzling.Unswizzle(uniquePixels);
 
-            return new IndexedMapImage {
-                Width = source.Width,
-                Height = source.Height,
-                Maps = maps,
+            var container = new NodeContainerFormat();
+            var indexed = new IndexedImage {
+                Width = 8,
+                Height = uniquePixels.Length / 8,
                 Pixels = uniquePixels,
             };
+            container.Root.Add(new Node("Pixels", indexed));
+
+            var map = new ScreenMap(source.Width, source.Height) {
+                Maps = maps,
+            };
+            container.Root.Add(new Node("ScreenMap", map));
+
+            return container;
         }
     }
 }

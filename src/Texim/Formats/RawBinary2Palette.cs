@@ -25,11 +25,11 @@ namespace Texim.Formats
     using Yarhl.IO;
 
     public class RawBinary2Palette :
-        IInitializer<RawPaletteParameters>, IConverter<BinaryFormat, Palette>
+        IInitializer<RawPaletteParams>, IConverter<BinaryFormat, Palette>
     {
-        private RawPaletteParameters parameters = RawPaletteParameters.Default;
+        private RawPaletteParams parameters = RawPaletteParams.Default;
 
-        public void Initialize(RawPaletteParameters parameters)
+        public void Initialize(RawPaletteParams parameters)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));

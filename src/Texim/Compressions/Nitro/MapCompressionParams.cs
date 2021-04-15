@@ -17,22 +17,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Formats
+namespace Texim.Compressions.Nitro
 {
-    using Texim.Colors;
+    using System.Drawing;
+    using Texim.Images;
 
-    public class RawPaletteParameters
+    public class MapCompressionParams
     {
-        public static RawPaletteParameters Default => new RawPaletteParameters {
-            Offset = 0,
-            Size = -1,
-            ColorEncoding = Bgr555.Instance,
-        };
+        public Size TileSize { get; set; } = new Size(8, 8);
 
-        public long Offset { get; set; }
-
-        public int Size { get; set; } = -1;
-
-        public IColorEncoding ColorEncoding { get; set; }
+        public IIndexedImage MergeImage { get; set; }
     }
 }

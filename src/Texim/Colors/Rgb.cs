@@ -65,7 +65,7 @@ namespace Texim.Colors
 
         public readonly Color ToColor() => Color.FromArgb(Alpha, Red, Green, Blue);
 
-        public readonly double GetDistanceSquared(Rgb other)
+        public readonly int GetDistanceSquared(Rgb other)
         {
             return ((Red - other.Red) * (Red - other.Red))
                 + ((Green - other.Green) * (Green - other.Green))

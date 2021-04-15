@@ -22,44 +22,32 @@ namespace Texim.Formats
     using System;
     using System.Drawing;
     using System.Drawing.Imaging;
-    using Texim.Palettes;
+    using Texim.Images;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class Palette2BinaryBitmap :
-       IInitializer<ImageFormat>, IConverter<IPalette, BinaryFormat>
+    public class FullImage2Bitmap :
+        IInitializer<ImageFormat>, IConverter<IFullImage, BinaryFormat>
     {
-        private const int ColorsPerRow = 16;
-        private const int ZoomSize = 10;
         private ImageFormat format = ImageFormat.Png;
 
         public void Initialize(ImageFormat parameters)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
             format = parameters;
         }
 
-        public BinaryFormat Convert(IPalette source)
+        public BinaryFormat Convert(IFullImage source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            var colors = source.Colors;
-
-            int width = ColorsPerRow * ZoomSize;
-            int height = (int)Math.Ceiling((float)colors.Count / ColorsPerRow);
-            height *= ZoomSize;
-            using var image = new Bitmap(width, height);
-
-            for (int i = 0; i < colors.Count; i++) {
-                Color color = colors[i].ToColor();
-                int colorX = (i % ColorsPerRow) * ZoomSize;
-                int colorY = (i / ColorsPerRow) * ZoomSize;
-
-                // Repeat the same color to create a big square
-                for (int zoomX = 0; zoomX < ZoomSize; zoomX++) {
-                    for (int zoomY = 0; zoomY < ZoomSize; zoomY++) {
-                        image.SetPixel(colorX + zoomX, colorY + zoomY, color);
-                    }
+            using var image = new Bitmap(source.Width, source.Height);
+            for (int x = 0; x < source.Width; x++) {
+                for (int y = 0; y < source.Height; y++) {
+                    image.SetPixel(x, y, source.Pixels[(y * source.Width) + x].ToColor());
                 }
             }
 

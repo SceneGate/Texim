@@ -42,6 +42,7 @@ namespace Texim.Pixels
         public TileSwizzling(Size tileSize, int width)
         {
             TileSize = tileSize;
+            Width = width;
         }
 
         public Size TileSize { get; set; }

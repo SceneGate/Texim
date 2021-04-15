@@ -50,7 +50,7 @@ namespace Texim.Pixels
             int numPixels = data.Length * (8 / BitsPerPixel);
             var pixels = new IndexedPixel[numPixels];
 
-            int mask = (0xFF << (8 - BitsPerPixel)) >> (8 - BitsPerPixel);
+            int mask = (1 << BitsPerPixel) - 1;
             for (int i = 0, bitPos = 0; i < numPixels; i++, bitPos += BitsPerPixel) {
                 byte value = (byte)((data[bitPos / 8] >> (bitPos % 8)) & mask);
                 pixels[i] = BitsToPixel(value);

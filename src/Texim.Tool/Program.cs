@@ -1,4 +1,4 @@
-﻿//
+//
 // Program.cs
 //
 // Author:
@@ -89,7 +89,7 @@ namespace Texim.Tool
 
             NodeFactory.FromFile(binaryFile, FileOpenMode.Read)
                 .TransformWith<Ykcmp2Image>()
-                .TransformWith<FullImage2BinaryBitmap, ImageFormat>(ImageFormat.Png)
+                .TransformWith<FullImage2Bitmap, ImageFormat>(ImageFormat.Png)
                 .Stream.WriteTo(imageFile);
         }
 
@@ -111,7 +111,7 @@ namespace Texim.Tool
 
             NodeFactory.FromFile(binaryFile)
                 .TransformWith<Ptmd2Image>()
-                .TransformWith<FullImage2BinaryBitmap, ImageFormat>(ImageFormat.Png)
+                .TransformWith<FullImage2Bitmap, ImageFormat>(ImageFormat.Png)
                 .Stream.WriteTo(imageFile);
         }
 
@@ -142,8 +142,8 @@ namespace Texim.Tool
             MmTex texture = oldImage.GetFormatAs<MmTex>();
 
             // To export the image:
-            var exporterParams = new IndexedImageBitmapParameters { Palette = texture };
-            oldImage.TransformWith<IndexedImage2BinaryBitmap, IndexedImageBitmapParameters>(exporterParams)
+            var exporterParams = new IndexedImageBitmapParams { Palette = texture };
+            oldImage.TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(exporterParams)
                 .Stream.WriteTo("img.png");
 
             // Import the new PNG file
@@ -194,10 +194,10 @@ namespace Texim.Tool
                    .ToArray();
 
             // To export the image:
-            var exporterParameters = new IndexedImageBitmapParameters { Palette = palette.GetFormatAs<Palette>() };
+            var exporterParameters = new IndexedImageBitmapParams { Palette = palette.GetFormatAs<Palette>() };
             NodeFactory.FromFile("auction_price.cmp.decompressed")
                 .TransformWith<DsTex2Image>()
-                .TransformWith<IndexedImage2BinaryBitmap, IndexedImageBitmapParameters>(exporterParameters)
+                .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(exporterParameters)
                 .Stream.WriteTo("img.png");
 
             // Import the new PNG file

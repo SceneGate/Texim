@@ -17,37 +17,46 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Formats
+namespace Texim.Compressions.Nitro
 {
     using System;
-    using System.Drawing.Imaging;
-    using Texim.Palettes;
+    using Texim.Images;
+    using Texim.Pixels;
+    using Texim.Processing;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
 
-    public class PaletteCollection2ContainerBitmap :
-        IInitializer<ImageFormat>, IConverter<IPaletteCollection, NodeContainerFormat>
+    public class FullImageMapCompression :
+        IInitializer<FullImageMapCompressionParams>, IConverter<IFullImage, NodeContainerFormat>
     {
-        private ImageFormat format = ImageFormat.Png;
+        private FullImageMapCompressionParams parameters;
 
-        public void Initialize(ImageFormat parameters)
+        public void Initialize(FullImageMapCompressionParams parameters)
         {
-            format = parameters;
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            this.parameters = parameters;
         }
 
-        public NodeContainerFormat Convert(IPaletteCollection source)
+        public NodeContainerFormat Convert(IFullImage source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            var container = new NodeContainerFormat();
-            for (int i = 0; i < source.Palettes.Count; i++) {
-                var child = new Node($"Palette {i}", source.Palettes[i])
-                    .TransformWith<Palette2Bitmap>();
-                container.Root.Add(child);
-            }
+            // TODO: Avoid several swizzling by providing an argument to quantization
+            // and compression (in and out, out here too).
+            var quantization = new FixedPaletteTileQuantization(
+                parameters.Palettes,
+                parameters.TileSize,
+                source.Width);
+            (IndexedPixel[] tiles, _) = quantization.Quantize(source.Pixels);
 
-            return container;
+            var fullIndexedImage = new IndexedImage(source.Width, source.Height, tiles);
+
+            var compression = new MapCompression();
+            compression.Initialize(parameters);
+            return compression.Convert(fullIndexedImage);
         }
     }
 }
