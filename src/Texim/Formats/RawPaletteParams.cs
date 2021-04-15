@@ -21,9 +21,9 @@ namespace Texim.Formats
 {
     using Texim.Colors;
 
-    public class RawPaletteParameters
+    public class RawPaletteParams
     {
-        public static RawPaletteParameters Default => new RawPaletteParameters {
+        public static RawPaletteParams Default => new RawPaletteParams {
             Offset = 0,
             Size = -1,
             ColorEncoding = Bgr555.Instance,

@@ -27,13 +27,13 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class IndexedImage2BinaryBitmap :
-        IInitializer<IndexedImageBitmapParameters>,
+    public class IndexedImage2Bitmap :
+        IInitializer<IndexedImageBitmapParams>,
         IConverter<IIndexedImage, BinaryFormat>
     {
-        private IndexedImageBitmapParameters parameters;
+        private IndexedImageBitmapParams parameters;
 
-        public void Initialize(IndexedImageBitmapParameters parameters)
+        public void Initialize(IndexedImageBitmapParams parameters)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));

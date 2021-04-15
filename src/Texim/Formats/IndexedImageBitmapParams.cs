@@ -22,7 +22,7 @@ namespace Texim.Formats
     using System.Drawing.Imaging;
     using Texim.Palettes;
 
-    public class IndexedImageBitmapParameters
+    public class IndexedImageBitmapParams
     {
         public ImageFormat Format { get; set; } = ImageFormat.Png;
 

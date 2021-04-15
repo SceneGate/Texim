@@ -43,7 +43,7 @@ namespace Texim.Formats
             var container = new NodeContainerFormat();
             for (int i = 0; i < source.Palettes.Count; i++) {
                 var child = new Node($"Palette {i}", source.Palettes[i])
-                    .TransformWith<Palette2BinaryBitmap>();
+                    .TransformWith<Palette2Bitmap>();
                 container.Root.Add(child);
             }
 
