@@ -24,8 +24,6 @@ namespace Texim.Tool.Nitro
 
     public interface INitroFormat : IFormat
     {
-        string Stamp { get; }
-
         Version Version { get; set; }
     }
 }

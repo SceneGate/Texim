@@ -20,33 +20,41 @@
 namespace Texim.Tool.Nitro
 {
     using System;
-    using Texim.Images;
-    using Texim.Pixels;
+    using System.Linq;
+    using Texim.Colors;
+    using Yarhl.IO;
 
-    public class Ncgr : IIndexedImage, INitroFormat
+    public class Nclr2Binary : NitroSerializer<Nclr>
     {
-        public Version Version { get; set; }
+        public Nclr2Binary()
+        {
+            RegisterSection("PLTT", WritePltt);
+            RegisterSection("PCMP", WritePcmp);
+        }
 
-        public int Height { get; set; }
+        protected override string Stamp => "NCLR";
 
-        public int Width { get; set; }
+        private void WritePltt(DataWriter writer, Nclr model)
+        {
+            writer.Write((uint)model.TextureFormat);
+            writer.Write(model.IsExtendedPalette ? 1 : 0);
+            writer.Write(model.Palettes.Sum(p => p.Colors.Count) * 2);
+            writer.Write(0x0C); // relative offset to data
 
-        public IndexedPixel[] Pixels { get; set; }
+            var colors = model.Palettes.SelectMany(p => p.Colors);
+            writer.Write<Bgr555>(colors);
+        }
 
-        public NitroTextureFormat Format { get; set; }
+        private void WritePcmp(DataWriter writer, Nclr model)
+        {
+            // TODO: How to compress??
+            writer.Write((ushort)model.Palettes.Count);
+            writer.Write((ushort)0xBEEF); // padding
+            writer.Write(0x08); // relative offset
 
-        public TileMappingKind TileMapping { get; set; }
-
-        public bool IsTiled { get; set; }
-
-        public bool IsVramTransfer { get; set; }
-
-        public int SourceWidth { get; set; }
-
-        public int SourceHeight { get; set; }
-
-        public int SourceX { get; set; }
-
-        public int SourceY { get; set; }
+            for (int i = 0; i < model.Palettes.Count; i++) {
+                writer.Write((ushort)i);
+            }
+        }
     }
 }

@@ -19,34 +19,33 @@
 // SOFTWARE.
 namespace Texim.Tool.Nitro
 {
-    using System;
-    using Texim.Images;
-    using Texim.Pixels;
+    using System.Linq;
+    using Texim.Compressions.Nitro;
+    using Yarhl.IO;
 
-    public class Ncgr : IIndexedImage, INitroFormat
+    public class Nscr2Binary : NitroSerializer<Nscr>
     {
-        public Version Version { get; set; }
+        public Nscr2Binary()
+        {
+            RegisterSection("SCRN", WriteScrn);
+        }
 
-        public int Height { get; set; }
+        protected override string Stamp => "NSCR";
 
-        public int Width { get; set; }
+        private void WriteScrn(DataWriter writer, Nscr model)
+        {
+            writer.Write((ushort)model.Width);
+            writer.Write((ushort)model.Height);
+            writer.Write((ushort)model.PaletteMode);
+            writer.Write((ushort)model.BackgroundMode);
 
-        public IndexedPixel[] Pixels { get; set; }
-
-        public NitroTextureFormat Format { get; set; }
-
-        public TileMappingKind TileMapping { get; set; }
-
-        public bool IsTiled { get; set; }
-
-        public bool IsVramTransfer { get; set; }
-
-        public int SourceWidth { get; set; }
-
-        public int SourceHeight { get; set; }
-
-        public int SourceX { get; set; }
-
-        public int SourceY { get; set; }
+            if (model.BackgroundMode == NitroBackgroundMode.Affine) {
+                writer.Write(model.Maps.Length);
+                writer.Write(model.Maps.Select(m => (byte)m.TileIndex).ToArray());
+            } else {
+                writer.Write(model.Maps.Length * 2);
+                writer.Write(model.Maps);
+            }
+        }
     }
 }

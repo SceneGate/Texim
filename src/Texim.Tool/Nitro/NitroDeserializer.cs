@@ -43,6 +43,8 @@ namespace Texim.Tool.Nitro
             return model;
         }
 
+        protected abstract string Stamp { get; }
+
         protected abstract void ReadSection(DataReader reader, T model, string id, int size);
 
         protected virtual void PostProcessing(T model)
@@ -52,7 +54,7 @@ namespace Texim.Tool.Nitro
         private void ReadHeader(DataReader reader, T model, out int numSections)
         {
             string stamp = new string(reader.ReadChars(4).Reverse().ToArray());
-            if (stamp != model.Stamp) {
+            if (stamp != Stamp) {
                 throw new FormatException($"Invalid stamp: {stamp}");
             }
 

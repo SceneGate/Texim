@@ -29,6 +29,8 @@ namespace Texim.Tool.Nitro
     {
         private int[] paletteIndexes;
 
+        protected override string Stamp => "NCLR";
+
         protected override void ReadSection(DataReader reader, Nclr model, string id, int size)
         {
             if (id == "PLTT") {
