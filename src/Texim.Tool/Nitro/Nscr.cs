@@ -24,7 +24,36 @@ namespace Texim.Tool.Nitro
 
     public class Nscr : IScreenMap, INitroFormat
     {
-        public string Stamp => "NSCR";
+        public Nscr()
+        {
+            Version = new Version(1, 0);
+        }
+
+        public Nscr(Nscr nscr)
+        {
+            Version = nscr.Version;
+            Maps = nscr.Maps;
+            Width = nscr.Width;
+            Height = nscr.Height;
+            PaletteMode = nscr.PaletteMode;
+            BackgroundMode = nscr.BackgroundMode;
+        }
+
+        public Nscr(Nscr nscr, IScreenMap screenMap)
+            : this(nscr)
+        {
+            Maps = screenMap.Maps;
+            Width = screenMap.Width;
+            Height = screenMap.Height;
+        }
+
+        public Nscr(int width, int height)
+            : this()
+        {
+            Width = width;
+            Height = height;
+            Maps = new MapInfo[width * height];
+        }
 
         public Version Version { get; set; }
 
