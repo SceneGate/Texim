@@ -21,11 +21,61 @@ namespace Texim.Tool.Nitro
 {
     using System;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using Texim.Palettes;
 
     public class Nclr : IPaletteCollection, INitroFormat
     {
-        public string Stamp => "NCLR";
+        public Nclr()
+        {
+            Version = new Version(1, 0);
+        }
+
+        public Nclr(Nclr nclr)
+        {
+            Version = nclr.Version;
+            IsExtendedPalette = nclr.IsExtendedPalette;
+            TextureFormat = nclr.TextureFormat;
+
+            foreach (var palette in nclr.Palettes) {
+                Palettes.Add(new Palette(palette.Colors.ToArray()));
+            }
+        }
+
+        public Nclr(IPaletteCollection palettes)
+            : this()
+        {
+            if (palettes.Palettes.Count > 1) {
+                if (palettes.Palettes.All(p => p.Colors.Count == 256)) {
+                    IsExtendedPalette = true;
+                    TextureFormat = NitroTextureFormat.Indexed8Bpp;
+                } else if (palettes.Palettes.Any(p => p.Colors.Count != 16)) {
+                    throw new ArgumentOutOfRangeException("Multi-palettes must have 16 or 256 colors");
+                } else {
+                    IsExtendedPalette = false;
+                    TextureFormat = NitroTextureFormat.Indexed4Bpp;
+                }
+            } else if (palettes.Palettes.Count == 1) {
+                IsExtendedPalette = false;
+                TextureFormat = (palettes.Palettes[0].Colors.Count > 16)
+                    ? NitroTextureFormat.Indexed8Bpp
+                    : NitroTextureFormat.Indexed4Bpp;
+            }
+
+            foreach (var palette in palettes.Palettes) {
+                Palettes.Add(new Palette(palette.Colors.ToArray()));
+            }
+        }
+
+        public Nclr(IPalette palette)
+            : this()
+        {
+            IsExtendedPalette = false;
+            TextureFormat = (palette.Colors.Count > 16)
+                ? NitroTextureFormat.Indexed8Bpp
+                : NitroTextureFormat.Indexed4Bpp;
+            Palettes.Add(new Palette(palette.Colors.ToArray()));
+        }
 
         public Version Version { get; set; }
 

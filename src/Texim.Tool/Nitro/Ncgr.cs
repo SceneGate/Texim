@@ -20,12 +20,56 @@
 namespace Texim.Tool.Nitro
 {
     using System;
+    using System.Linq;
     using Texim.Images;
     using Texim.Pixels;
 
     public class Ncgr : IIndexedImage, INitroFormat
     {
-        public string Stamp => "NCGR";
+        public Ncgr()
+        {
+            Version = new Version(1, 0);
+        }
+
+        public Ncgr(Ncgr ncgr)
+        {
+            Version = ncgr.Version;
+            Height = ncgr.Height;
+            Width = ncgr.Width;
+            Pixels = ncgr.Pixels.ToArray();
+            Format = ncgr.Format;
+            TileMapping = ncgr.TileMapping;
+            IsTiled = ncgr.IsTiled;
+            IsVramTransfer = ncgr.IsVramTransfer;
+            SourceWidth = ncgr.SourceWidth;
+            SourceHeight = ncgr.SourceHeight;
+            SourceX = ncgr.SourceX;
+            SourceY = ncgr.SourceY;
+        }
+
+        public Ncgr(IIndexedImage image)
+            : this()
+        {
+            Height = image.Height;
+            Width = image.Width;
+            Pixels = image.Pixels.ToArray();
+        }
+
+        public Ncgr(Ncgr ncgr, IIndexedImage image)
+            : this(ncgr)
+        {
+            Height = image.Height;
+            Width = image.Width;
+            Pixels = image.Pixels.ToArray();
+        }
+
+        public Ncgr(int width, int height)
+            : this()
+        {
+            Width = width;
+            Height = height;
+            Pixels = new IndexedPixel[width * height];
+        }
 
         public Version Version { get; set; }
 

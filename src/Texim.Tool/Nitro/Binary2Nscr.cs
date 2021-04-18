@@ -25,6 +25,8 @@ namespace Texim.Tool.Nitro
 
     public class Binary2Nscr : NitroDeserializer<Nscr>
     {
+        protected override string Stamp => "NSCR";
+
         protected override void ReadSection(DataReader reader, Nscr model, string id, int size)
         {
             if (id == "SCRN") {

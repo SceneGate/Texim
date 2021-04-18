@@ -25,6 +25,8 @@ namespace Texim.Tool.Nitro
 
     public class Binary2Ncgr : NitroDeserializer<Ncgr>
     {
+        protected override string Stamp => "NCGR";
+
         protected override void ReadSection(DataReader reader, Ncgr model, string id, int size)
         {
             switch (id) {

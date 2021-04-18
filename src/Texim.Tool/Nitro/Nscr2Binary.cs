@@ -19,52 +19,33 @@
 // SOFTWARE.
 namespace Texim.Tool.Nitro
 {
-    using System;
+    using System.Linq;
     using Texim.Compressions.Nitro;
+    using Yarhl.IO;
 
-    public class Nscr : IScreenMap, INitroFormat
+    public class Nscr2Binary : NitroSerializer<Nscr>
     {
-        public Nscr()
+        public Nscr2Binary()
         {
-            Version = new Version(1, 0);
+            RegisterSection("SCRN", WriteScrn);
         }
 
-        public Nscr(Nscr nscr)
+        protected override string Stamp => "NSCR";
+
+        private void WriteScrn(DataWriter writer, Nscr model)
         {
-            Version = nscr.Version;
-            Maps = nscr.Maps;
-            Width = nscr.Width;
-            Height = nscr.Height;
-            PaletteMode = nscr.PaletteMode;
-            BackgroundMode = nscr.BackgroundMode;
+            writer.Write((ushort)model.Width);
+            writer.Write((ushort)model.Height);
+            writer.Write((ushort)model.PaletteMode);
+            writer.Write((ushort)model.BackgroundMode);
+
+            if (model.BackgroundMode == NitroBackgroundMode.Affine) {
+                writer.Write(model.Maps.Length);
+                writer.Write(model.Maps.Select(m => (byte)m.TileIndex).ToArray());
+            } else {
+                writer.Write(model.Maps.Length * 2);
+                writer.Write(model.Maps);
+            }
         }
-
-        public Nscr(Nscr nscr, IScreenMap screenMap)
-            : this(nscr)
-        {
-            Maps = screenMap.Maps;
-            Width = screenMap.Width;
-            Height = screenMap.Height;
-        }
-
-        public Nscr(int width, int height)
-            : this()
-        {
-            Width = width;
-            Height = height;
-            Maps = new MapInfo[width * height];
-        }
-
-        public Version Version { get; set; }
-
-        public MapInfo[] Maps { get; set; }
-
-        public int Width { get; set; }
-
-        public int Height { get; set; }
-
-        public NitroPaletteMode PaletteMode { get; set; }
-
-        public NitroBackgroundMode BackgroundMode { get; set; }
     }
 }

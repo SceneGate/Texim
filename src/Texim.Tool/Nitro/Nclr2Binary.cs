@@ -20,51 +20,41 @@
 namespace Texim.Tool.Nitro
 {
     using System;
-    using Texim.Compressions.Nitro;
+    using System.Linq;
+    using Texim.Colors;
+    using Yarhl.IO;
 
-    public class Nscr : IScreenMap, INitroFormat
+    public class Nclr2Binary : NitroSerializer<Nclr>
     {
-        public Nscr()
+        public Nclr2Binary()
         {
-            Version = new Version(1, 0);
+            RegisterSection("PLTT", WritePltt);
+            RegisterSection("PCMP", WritePcmp);
         }
 
-        public Nscr(Nscr nscr)
+        protected override string Stamp => "NCLR";
+
+        private void WritePltt(DataWriter writer, Nclr model)
         {
-            Version = nscr.Version;
-            Maps = nscr.Maps;
-            Width = nscr.Width;
-            Height = nscr.Height;
-            PaletteMode = nscr.PaletteMode;
-            BackgroundMode = nscr.BackgroundMode;
+            writer.Write((uint)model.TextureFormat);
+            writer.Write(model.IsExtendedPalette ? 1 : 0);
+            writer.Write(model.Palettes.Sum(p => p.Colors.Count) * 2);
+            writer.Write(0x0C); // relative offset to data
+
+            var colors = model.Palettes.SelectMany(p => p.Colors);
+            writer.Write<Bgr555>(colors);
         }
 
-        public Nscr(Nscr nscr, IScreenMap screenMap)
-            : this(nscr)
+        private void WritePcmp(DataWriter writer, Nclr model)
         {
-            Maps = screenMap.Maps;
-            Width = screenMap.Width;
-            Height = screenMap.Height;
+            // TODO: How to compress??
+            writer.Write((ushort)model.Palettes.Count);
+            writer.Write((ushort)0xBEEF); // padding
+            writer.Write(0x08); // relative offset
+
+            for (int i = 0; i < model.Palettes.Count; i++) {
+                writer.Write((ushort)i);
+            }
         }
-
-        public Nscr(int width, int height)
-            : this()
-        {
-            Width = width;
-            Height = height;
-            Maps = new MapInfo[width * height];
-        }
-
-        public Version Version { get; set; }
-
-        public MapInfo[] Maps { get; set; }
-
-        public int Width { get; set; }
-
-        public int Height { get; set; }
-
-        public NitroPaletteMode PaletteMode { get; set; }
-
-        public NitroBackgroundMode BackgroundMode { get; set; }
     }
 }
