@@ -32,6 +32,8 @@ namespace Texim.Tool.Nitro
         private readonly List<(string Id, Action<DataWriter, T> Writer)> sections =
             new List<(string, Action<DataWriter, T>)>();
 
+        protected abstract string Stamp { get; }
+
         public BinaryFormat Convert(T source)
         {
             if (source == null)
@@ -46,8 +48,6 @@ namespace Texim.Tool.Nitro
 
             return binary;
         }
-
-        protected abstract string Stamp { get; }
 
         protected void RegisterSection(string id, Action<DataWriter, T> writer)
         {

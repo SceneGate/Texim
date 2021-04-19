@@ -17,38 +17,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Processing
+namespace Texim.Tool.Disgaea
 {
-    using Texim.Colors;
-    using Texim.Palettes;
-    using Texim.Pixels;
+    using System.CommandLine;
+    using Texim.Formats;
+    using Yarhl.FileSystem;
+    using Yarhl.IO;
 
-    public class FixedPaletteQuantization : IQuantization
+    public static class CommandLine
     {
-        private readonly IPalette palette;
-        private readonly ExhaustiveColorSearch search;
-
-        public FixedPaletteQuantization(IPalette palette)
+        public static Command CreateCommand()
         {
-            this.palette = palette;
-            search = new ExhaustiveColorSearch(palette.Colors);
+            var export = new Command("export", "Export image") {
+                new Option<string>("input", "the input file"),
+                new Option<string>("output", "the output file"),
+            };
+
+            return new Command("disgaea", "Disgaea game") {
+                export,
+            };
         }
 
-        public int TransparentIndex { get; set; }
-
-        public (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels)
+        private static void Export(string input, string output)
         {
-            var indexed = new IndexedPixel[pixels.Length];
-
-            for (int i = 0; i < pixels.Length; i++) {
-                int colorIdx = (pixels[i].Alpha >= 128)
-                    ? TransparentIndex
-                    : search.Search(pixels[i]).Index;
-                indexed[i] = new IndexedPixel((short)colorIdx, pixels[i].Alpha, 0);
-            }
-
-            var collection = new PaletteCollection(palette);
-            return (indexed, collection);
+            NodeFactory.FromFile(input, FileOpenMode.Read)
+                .TransformWith<Ykcmp2Image>()
+                .TransformWith<FullImage2Bitmap>()
+                .Stream.WriteTo(output);
         }
     }
 }

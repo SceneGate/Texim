@@ -50,7 +50,9 @@ namespace Texim.Tool.Nitro
                     IsExtendedPalette = true;
                     TextureFormat = NitroTextureFormat.Indexed8Bpp;
                 } else if (palettes.Palettes.Any(p => p.Colors.Count != 16)) {
-                    throw new ArgumentOutOfRangeException("Multi-palettes must have 16 or 256 colors");
+                    throw new ArgumentOutOfRangeException(
+                        nameof(palettes),
+                        "Multi-palettes must have 16 or 256 colors");
                 } else {
                     IsExtendedPalette = false;
                     TextureFormat = NitroTextureFormat.Indexed4Bpp;

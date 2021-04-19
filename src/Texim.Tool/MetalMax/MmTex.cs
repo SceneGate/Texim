@@ -27,7 +27,7 @@ namespace Texim.Tool.MetalMax
 
     public class MmTex : IPalette, IIndexedImage
     {
-        public Collection<Rgb> Colors { get; } = new Collection<Rgb>();
+        public Collection<Rgb> Colors { get; set; } = new Collection<Rgb>();
 
         public IndexedPixel[] Pixels { get; set; }
 

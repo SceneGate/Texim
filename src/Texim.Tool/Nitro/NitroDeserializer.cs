@@ -27,6 +27,8 @@ namespace Texim.Tool.Nitro
     public abstract class NitroDeserializer<T> : IConverter<IBinary, T>
         where T : INitroFormat, new()
     {
+        protected abstract string Stamp { get; }
+
         public T Convert(IBinary source)
         {
             if (source == null)
@@ -42,8 +44,6 @@ namespace Texim.Tool.Nitro
 
             return model;
         }
-
-        protected abstract string Stamp { get; }
 
         protected abstract void ReadSection(DataReader reader, T model, string id, int size);
 
