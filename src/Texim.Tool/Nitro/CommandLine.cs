@@ -67,11 +67,11 @@ namespace Texim.Tool.Nitro
                 new Option<string[]>("--input", "the input image(s) file", ArgumentArity.OneOrMore),
                 new Option<string>("--nclr", "the palette to use", ArgumentArity.ExactlyOne),
                 new Option<string>("--ncgr", "optional original NCGR to copy params", ArgumentArity.ZeroOrOne),
-                new Option<string>("--nscr", "optional original NSCR to copy params", ArgumentArity.ZeroOrOne),
+                new Option<string[]>("--nscr", "optional original NSCR to copy params", ArgumentArity.ZeroOrMore),
                 new Option<string>("--out-ncgr", "the output nitro image file", ArgumentArity.ExactlyOne),
                 new Option<string>("--out-nscr", "the output directory for nitro compression files", ArgumentArity.ExactlyOne),
             };
-            importCompressedImage.Handler = CommandHandler.Create<string[], string, string, string, string, string>(ImportCompressedImage);
+            importCompressedImage.Handler = CommandHandler.Create<string[], string, string, string[], string, string>(ImportCompressedImage);
 
             return new Command("nitro", "Nintendo DS standard formats") {
                 exportPalette,
@@ -169,7 +169,7 @@ namespace Texim.Tool.Nitro
             string[] input,
             string nclr,
             string ncgr,
-            string nscr,
+            string[] nscr,
             string outNcgr,
             string outNscr)
         {
@@ -194,7 +194,7 @@ namespace Texim.Tool.Nitro
                 if (nscr == null) {
                     newNscr = new Nscr(map);
                 } else {
-                    var originalNscr = NodeFactory.FromFile(nscr, FileOpenMode.Read)
+                    var originalNscr = NodeFactory.FromFile(nscr[i], FileOpenMode.Read)
                         .TransformWith<Binary2Nscr>()
                         .GetFormatAs<Nscr>();
                     newNscr = new Nscr(originalNscr, map);
