@@ -39,6 +39,14 @@ namespace Texim.Tool.Nitro
             BackgroundMode = nscr.BackgroundMode;
         }
 
+        public Nscr(IScreenMap screenMap)
+            : this()
+        {
+            Width = screenMap.Width;
+            Height = screenMap.Height;
+            Maps = screenMap.Maps;
+        }
+
         public Nscr(Nscr nscr, IScreenMap screenMap)
             : this(nscr)
         {

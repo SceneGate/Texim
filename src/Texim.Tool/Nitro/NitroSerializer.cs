@@ -32,6 +32,8 @@ namespace Texim.Tool.Nitro
         private readonly List<(string Id, Action<DataWriter, T> Writer)> sections =
             new List<(string, Action<DataWriter, T>)>();
 
+        protected abstract string Stamp { get; }
+
         public BinaryFormat Convert(T source)
         {
             if (source == null)
@@ -46,8 +48,6 @@ namespace Texim.Tool.Nitro
 
             return binary;
         }
-
-        protected abstract string Stamp { get; }
 
         protected void RegisterSection(string id, Action<DataWriter, T> writer)
         {
@@ -80,7 +80,7 @@ namespace Texim.Tool.Nitro
                 long dataPosition = writer.Stream.Position;
                 section.Writer.Invoke(writer, model);
 
-                long dataLength = writer.Stream.Length - dataPosition;
+                long dataLength = writer.Stream.Length - dataPosition + 8;
                 writer.Stream.Position = dataPosition - 4;
                 writer.Write((uint)dataLength);
 
