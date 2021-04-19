@@ -80,7 +80,7 @@ namespace Texim.Tool.Nitro
                 long dataPosition = writer.Stream.Position;
                 section.Writer.Invoke(writer, model);
 
-                long dataLength = writer.Stream.Length - dataPosition;
+                long dataLength = writer.Stream.Length - dataPosition + 8;
                 writer.Stream.Position = dataPosition - 4;
                 writer.Write((uint)dataLength);
 

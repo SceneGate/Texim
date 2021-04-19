@@ -56,7 +56,7 @@ namespace Texim.Tool.Nitro
             byte[] data = encoder.Encode(pixels);
 
             writer.Write(data.Length);
-            writer.Write(0x10); // relative position to data
+            writer.Write(0x18); // relative position to data
             writer.Write(data);
         }
 
