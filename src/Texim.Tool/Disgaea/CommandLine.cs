@@ -29,8 +29,8 @@ namespace Texim.Tool.Disgaea
         public static Command CreateCommand()
         {
             var export = new Command("export", "Export image") {
-                new Option<string>("input", "the input file"),
-                new Option<string>("output", "the output file"),
+                new Option<string>("--input", "the input file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output file", ArgumentArity.ExactlyOne),
             };
 
             return new Command("disgaea", "Disgaea game") {

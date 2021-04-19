@@ -39,37 +39,37 @@ namespace Texim.Tool.Nitro
         public static Symbol CreateCommand()
         {
             var exportPalette = new Command("export_palette", "Export Nitro files into an image") {
-                new Option<string>("input", "nitro palette file", ArgumentArity.ExactlyOne),
-                new Option<string>("output", "Output file", ArgumentArity.ExactlyOne),
+                new Option<string>("--input", "nitro palette file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "Output file", ArgumentArity.ExactlyOne),
                 new Option<StandardPaletteFormat>("format", "Output format", ArgumentArity.ZeroOrOne),
             };
             exportPalette.Handler = CommandHandler.Create<string, string, StandardPaletteFormat>(ExportPalette);
 
             var exportImage = new Command("export_image", "Export Nitro files into an image") {
-                new Option<string>("nclr", "nitro palette file", ArgumentArity.ExactlyOne),
-                new Option<string>("ncgr", "nitro pixel file", ArgumentArity.ExactlyOne),
-                new Option<string>("nscr", "nitro screen file", ArgumentArity.ZeroOrOne),
-                new Option<string>("output", "Output file", ArgumentArity.ExactlyOne),
+                new Option<string>("--nclr", "nitro palette file", ArgumentArity.ExactlyOne),
+                new Option<string>("--ncgr", "nitro pixel file", ArgumentArity.ExactlyOne),
+                new Option<string>("--nscr", "nitro screen file", ArgumentArity.ZeroOrOne),
+                new Option<string>("--output", "Output file", ArgumentArity.ExactlyOne),
                 new Option<StandardImageFormat>("format", "Output image format", ArgumentArity.ZeroOrOne),
             };
             exportImage.Handler = CommandHandler.Create<string, string, string, string, StandardImageFormat>(ExportImage);
 
             var importImage = new Command("import_image", "Import an image as Nitro image") {
-                new Option<string>("input", "the input image file", ArgumentArity.ExactlyOne),
-                new Option<string>("nclr", "the palette to use", ArgumentArity.ExactlyOne),
-                new Option<string>("ncgr", "optional original NCGR to copy params", ArgumentArity.ZeroOrOne),
-                new Option<int>("palette-index", "optional palette index", ArgumentArity.ZeroOrOne),
-                new Option<string>("output", "the output nitro image file", ArgumentArity.ExactlyOne),
+                new Option<string>("--input", "the input image file", ArgumentArity.ExactlyOne),
+                new Option<string>("--nclr", "the palette to use", ArgumentArity.ExactlyOne),
+                new Option<string>("--ncgr", "optional original NCGR to copy params", ArgumentArity.ZeroOrOne),
+                new Option<int>("--palette-index", "optional palette index", ArgumentArity.ZeroOrOne),
+                new Option<string>("--output", "the output nitro image file", ArgumentArity.ExactlyOne),
             };
             importImage.Handler = CommandHandler.Create<string, string, string, string, int>(ImportImage);
 
             var importCompressedImage = new Command("import_compressed", "Import and compress an image") {
-                new Option<string[]>("input", "the input image(s) file", ArgumentArity.OneOrMore),
-                new Option<string>("nclr", "the palette to use", ArgumentArity.ExactlyOne),
-                new Option<string>("ncgr", "optional original NCGR to copy params", ArgumentArity.ZeroOrOne),
-                new Option<string>("nscr", "optional original NSCR to copy params", ArgumentArity.ZeroOrOne),
-                new Option<string>("out-ncgr", "the output nitro image file", ArgumentArity.ExactlyOne),
-                new Option<string>("out-nscr", "the output directory for nitro compression files", ArgumentArity.ExactlyOne),
+                new Option<string[]>("--input", "the input image(s) file", ArgumentArity.OneOrMore),
+                new Option<string>("--nclr", "the palette to use", ArgumentArity.ExactlyOne),
+                new Option<string>("--ncgr", "optional original NCGR to copy params", ArgumentArity.ZeroOrOne),
+                new Option<string>("--nscr", "optional original NSCR to copy params", ArgumentArity.ZeroOrOne),
+                new Option<string>("--out-ncgr", "the output nitro image file", ArgumentArity.ExactlyOne),
+                new Option<string>("--out-nscr", "the output directory for nitro compression files", ArgumentArity.ExactlyOne),
             };
             importCompressedImage.Handler = CommandHandler.Create<string[], string, string, string, string, string>(ImportCompressedImage);
 
@@ -178,13 +178,13 @@ namespace Texim.Tool.Nitro
                 .GetFormatAs<Nclr>();
 
             IndexedImage mergedImage = null;
-            foreach (var inputImage in input) {
+            for (int i = 0; i < input.Length; i++) {
                 var compressionParams = new FullImageMapCompressionParams {
                     MergeImage = mergedImage,
                     Palettes = palette,
                 };
 
-                var compressed = NodeFactory.FromFile(inputImage, FileOpenMode.Read)
+                var compressed = NodeFactory.FromFile(input[i], FileOpenMode.Read)
                     .TransformWith<Bitmap2FullImage>()
                     .TransformWith<FullImageMapCompression, FullImageMapCompressionParams>(compressionParams);
                 mergedImage = compressed.Children[0].GetFormatAs<IndexedImage>();
@@ -200,7 +200,7 @@ namespace Texim.Tool.Nitro
                     newNscr = new Nscr(originalNscr, map);
                 }
 
-                string imageName = Path.GetFileNameWithoutExtension(inputImage);
+                string imageName = Path.GetFileNameWithoutExtension(input[i]);
                 string outputNscrPath = Path.Combine(outNscr, $"{imageName}.nscr");
                 using var binaryNscr = new Nscr2Binary().Convert(newNscr);
                 binaryNscr.Stream.WriteTo(outputNscrPath);

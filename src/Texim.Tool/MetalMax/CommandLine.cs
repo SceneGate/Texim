@@ -32,15 +32,15 @@ namespace Texim.Tool.MetalMax
         public static Command CreateCommand()
         {
             var export = new Command("export", "Export image") {
-                new Option<string>("input", "the input file"),
-                new Option<string>("output", "the output image file"),
+                new Option<string>("--input", "the input file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output image file", ArgumentArity.ExactlyOne),
             };
             export.Handler = CommandHandler.Create<string, string>(ExportImage);
 
             var import = new Command("import", "Import image") {
-                new Option<string>("original", "the original image"),
-                new Option<string>("input", "the new input image"),
-                new Option<string>("output", "the output file"),
+                new Option<string>("--original", "the original image", ArgumentArity.ExactlyOne),
+                new Option<string>("--input", "the new input image", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output file", ArgumentArity.ExactlyOne),
             };
             import.Handler = CommandHandler.Create<string, string, string>(ImportImage);
 

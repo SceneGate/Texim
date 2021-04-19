@@ -34,16 +34,16 @@ namespace Texim.Tool.LondonLife
         public static Command CreateCommand()
         {
             var exportAcl = new Command("export_acl", "Export ACL palettes") {
-                new Option<string>("input", "the input ACL file"),
-                new Option<string>("output", "the output directory"),
-                new Option<StandardPaletteFormat>("format", "the output format"),
+                new Option<string>("--input", "the input ACL file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output directory", ArgumentArity.ExactlyOne),
+                new Option<StandardPaletteFormat>("--format", "the output format", ArgumentArity.ExactlyOne),
             };
             exportAcl.Handler = CommandHandler.Create<string, string, StandardPaletteFormat>(ExportAcl);
 
             var exportNccl = new Command("export_nccl", "Export NCCL palettes") {
-                new Option<string>("input", "the input NCCL file"),
-                new Option<string>("output", "the output directory"),
-                new Option<StandardPaletteFormat>("format", "the output format"),
+                new Option<string>("--input", "the input NCCL file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output directory", ArgumentArity.ExactlyOne),
+                new Option<StandardPaletteFormat>("--format", "the output format", ArgumentArity.ExactlyOne),
             };
             exportNccl.Handler = CommandHandler.Create<string, string, StandardPaletteFormat>(ExportNccl);
 

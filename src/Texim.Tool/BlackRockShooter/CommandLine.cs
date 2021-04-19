@@ -30,8 +30,8 @@ namespace Texim.Tool.BlackRockShooter
         public static Command CreateCommand()
         {
             var export = new Command("export", "Export PTMD into an image") {
-                new Option<string>("input", "the input PTMD file"),
-                new Option<string>("output", "the output image file"),
+                new Option<string>("--input", "the input PTMD file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output image file", ArgumentArity.ExactlyOne),
             };
             export.Handler = CommandHandler.Create<string, string>(Export);
 

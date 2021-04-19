@@ -33,16 +33,16 @@ namespace Texim.Tool.DevilSurvivor
         public static Command CreateCommand()
         {
             var exportImage = new Command("export", "Export an image") {
-                new Option<string>("palette", "the palette file", ArgumentArity.ExactlyOne),
-                new Option<string>("image", "the image file", ArgumentArity.ExactlyOne),
-                new Option<string>("output", "the output file", ArgumentArity.ExactlyOne),
+                new Option<string>("--palette", "the palette file", ArgumentArity.ExactlyOne),
+                new Option<string>("--image", "the image file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output file", ArgumentArity.ExactlyOne),
             };
             exportImage.Handler = CommandHandler.Create<string, string, string>(ExportImage);
 
             var importImage = new Command("import", "Import an image") {
-                new Option<string>("palette", "the palette file", ArgumentArity.ExactlyOne),
-                new Option<string>("image", "the image file", ArgumentArity.ExactlyOne),
-                new Option<string>("output", "the output file", ArgumentArity.ExactlyOne),
+                new Option<string>("--palette", "the palette file", ArgumentArity.ExactlyOne),
+                new Option<string>("--image", "the image file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output file", ArgumentArity.ExactlyOne),
             };
             importImage.Handler = CommandHandler.Create<string, string, string>(ImportImage);
 
