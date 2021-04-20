@@ -17,25 +17,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Compressions.Nitro
+namespace Texim.Formats
 {
-    public class ScreenMap : IScreenMap
+    using Texim.Pixels;
+
+    public class RawIndexedImageParams
     {
-        public ScreenMap()
-        {
-        }
+        public static RawIndexedImageParams Default => new RawIndexedImageParams {
+            Offset = 0,
+            Size = -1,
+            Width = -1,
+            Height = -1,
+            PixelEncoding = Indexed8Bpp.Instance,
+            Swizzling = null,
+        };
 
-        public ScreenMap(int width, int height)
-        {
-            Width = width;
-            Height = height;
-            Maps = new MapInfo[width * height];
-        }
+        public long Offset { get; set; }
 
-        public MapInfo[] Maps { get; init; }
+        public int Size { get; set; }
 
-        public int Width { get; init; }
+        public int Width { get; set; }
 
-        public int Height { get; init; }
+        public int Height { get; set; }
+
+        public IIndexedPixelEncoding PixelEncoding { get; set; }
+
+        public ISwizzling<IndexedPixel> Swizzling { get; set; }
     }
 }
