@@ -86,7 +86,7 @@ namespace Texim.Compressions.Nitro
                 MapInfo info = map.Maps[i];
 
                 int inIndex = info.TileIndex * pixelsPerTile;
-                if (inIndex + pixelsPerTile > pixelsIn.Length) {
+                if (inIndex + pixelsPerTile > pixelsIn.Length || inIndex < 0) {
                     if (outOfBoundsIndex == -1) {
                         throw new FormatException($"Required tile index {info.TileIndex} is out of bounds");
                     } else {

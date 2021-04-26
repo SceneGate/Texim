@@ -52,16 +52,18 @@ namespace Texim.Formats
             var data = reader.ReadBytes(size);
 
             var colors = parameters.ColorEncoding.Decode(data).AsSpan();
+            if (parameters.ColorsPerPalette < 0) {
+                return new PaletteCollection(new Palette(colors.ToArray()));
+            }
 
             var collection = new PaletteCollection();
-            int colorsPerPalette = colors.Length / parameters.NumberPalettes;
-            for (int i = 0; i < parameters.NumberPalettes; i++) {
+            for (int i = 0; i < colors.Length; i += parameters.ColorsPerPalette) {
                 Rgb[] paletteColors;
-                if (i + 1 == parameters.NumberPalettes) {
+                if (i + parameters.ColorsPerPalette >= colors.Length) {
                     // Take the rest (there may be more than in the other palettes).
-                    paletteColors = colors.Slice(i * colorsPerPalette).ToArray();
+                    paletteColors = colors.Slice(i).ToArray();
                 } else {
-                    paletteColors = colors.Slice(i * colorsPerPalette, colorsPerPalette).ToArray();
+                    paletteColors = colors.Slice(i, parameters.ColorsPerPalette).ToArray();
                 }
 
                 var palette = new Palette(paletteColors);
