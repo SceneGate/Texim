@@ -34,5 +34,7 @@ namespace Texim.Formats
         public int Size { get; set; } = -1;
 
         public IColorEncoding ColorEncoding { get; set; }
+
+        public int N
     }
 }

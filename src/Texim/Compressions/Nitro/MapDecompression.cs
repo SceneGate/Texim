@@ -32,6 +32,7 @@ namespace Texim.Compressions.Nitro
     {
         private Size tileSize;
         private IScreenMap map;
+        private int outOfBoundsIndex = -1;
 
         public void Initialize(MapDecompressionParams parameters)
         {
@@ -40,6 +41,7 @@ namespace Texim.Compressions.Nitro
 
             tileSize = parameters.TileSize;
             map = parameters.Map;
+            outOfBoundsIndex = parameters.OutOfBoundsTileIndex;
         }
 
         public IndexedImage Convert(IIndexedImage source)
@@ -84,6 +86,14 @@ namespace Texim.Compressions.Nitro
                 MapInfo info = map.Maps[i];
 
                 int inIndex = info.TileIndex * pixelsPerTile;
+                if (inIndex + pixelsPerTile > pixelsIn.Length) {
+                    if (outOfBoundsIndex == -1) {
+                        throw new FormatException($"Required tile index {info.TileIndex} is out of bounds");
+                    } else {
+                        inIndex = outOfBoundsIndex * pixelsPerTile;
+                    }
+                }
+
                 Span<IndexedPixel> tileIn = pixelsIn.Slice(inIndex, pixelsPerTile);
 
                 int outIndex = i * pixelsPerTile;
