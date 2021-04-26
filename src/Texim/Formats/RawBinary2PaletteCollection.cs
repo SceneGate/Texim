@@ -20,12 +20,13 @@
 namespace Texim.Formats
 {
     using System;
+    using Texim.Colors;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class RawBinary2Palette :
-        IInitializer<RawPaletteParams>, IConverter<BinaryFormat, Palette>
+    public class RawBinary2PaletteCollection :
+        IInitializer<RawPaletteParams>, IConverter<BinaryFormat, PaletteCollection>
     {
         private RawPaletteParams parameters = RawPaletteParams.Default;
 
@@ -37,7 +38,7 @@ namespace Texim.Formats
             this.parameters = parameters;
         }
 
-        public Palette Convert(BinaryFormat source)
+        public PaletteCollection Convert(BinaryFormat source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -50,9 +51,24 @@ namespace Texim.Formats
                 : (int)(source.Stream.Length - parameters.Offset);
             var data = reader.ReadBytes(size);
 
-            var colors = parameters.ColorEncoding.Decode(data);
+            var colors = parameters.ColorEncoding.Decode(data).AsSpan();
 
-            return new Palette(colors);
+            var collection = new PaletteCollection();
+            int colorsPerPalette = colors.Length / parameters.NumberPalettes;
+            for (int i = 0; i < parameters.NumberPalettes; i++) {
+                Rgb[] paletteColors;
+                if (i + 1 == parameters.NumberPalettes) {
+                    // Take the rest (there may be more than in the other palettes).
+                    paletteColors = colors.Slice(i * colorsPerPalette).ToArray();
+                } else {
+                    paletteColors = colors.Slice(i * colorsPerPalette, colorsPerPalette).ToArray();
+                }
+
+                var palette = new Palette(paletteColors);
+                collection.Palettes.Add(palette);
+            }
+
+            return collection;
         }
     }
 }

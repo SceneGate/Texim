@@ -27,6 +27,7 @@ namespace Texim.Formats
             Offset = 0,
             Size = -1,
             ColorEncoding = Bgr555.Instance,
+            NumberPalettes = 1,
         };
 
         public long Offset { get; set; }
@@ -35,6 +36,6 @@ namespace Texim.Formats
 
         public IColorEncoding ColorEncoding { get; set; }
 
-        public int N
+        public int NumberPalettes { get; set; } = 1;
     }
 }
