@@ -10,7 +10,7 @@ Task("Define-Project")
     info.AddApplicationProjects("Texim.Tool");
 
     info.PreviewNuGetFeed = "https://pkgs.dev.azure.com/SceneGate/SceneGate/_packaging/SceneGate-Preview/nuget/v3/index.json";
-    info.StableNuGetFeed = "";
+    info.StableNuGetFeed = "https://pkgs.dev.azure.com/SceneGate/SceneGate/_packaging/SceneGate-Preview/nuget/v3/index.json";
 });
 
 Task("Default")

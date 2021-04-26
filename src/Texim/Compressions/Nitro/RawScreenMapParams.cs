@@ -19,23 +19,21 @@
 // SOFTWARE.
 namespace Texim.Compressions.Nitro
 {
-    public class ScreenMap : IScreenMap
+    public class RawScreenMapParams
     {
-        public ScreenMap()
-        {
-        }
+        public static RawScreenMapParams Default => new RawScreenMapParams {
+            Offset = 0,
+            Size = -1,
+            Width = -1,
+            Height = -1,
+        };
 
-        public ScreenMap(int width, int height)
-        {
-            Width = width;
-            Height = height;
-            Maps = new MapInfo[width * height];
-        }
+        public long Offset { get; set; }
 
-        public MapInfo[] Maps { get; init; }
+        public int Size { get; set; }
 
-        public int Width { get; init; }
+        public int Width { get; set; }
 
-        public int Height { get; init; }
+        public int Height { get; set; }
     }
 }
