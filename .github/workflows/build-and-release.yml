@@ -33,7 +33,7 @@ jobs:
       - name: "Setup .NET Core 3.1 for Cake dependencies"
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.407'
+          dotnet-version: '3.1.408'
 
       - name: "Install build tools"
         run: dotnet tool restore
@@ -82,7 +82,7 @@ jobs:
       - name: "Setup .NET Core 3.1 for Cake dependencies"
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.407'
+          dotnet-version: '3.1.408'
 
       - name: "Install build tools"
         run: dotnet tool restore
@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Needed only for Azure DevOps Artifacts due to its weird auth method.
-      PREVIEW_NUGET_FEED: 'https://pkgs.dev.azure.com/SceneGate/SceneGate/_packaging/SceneGate-Preview/nuget/v3/index.json'
+      NUGET_FEED: 'https://pkgs.dev.azure.com/SceneGate/SceneGate/_packaging/SceneGate-Preview/nuget/v3/index.json'
     steps:
       - name: "Checkout"
         uses: actions/checkout@v2
@@ -120,7 +120,7 @@ jobs:
       - name: "Setup .NET Core 3.1 for Cake dependencies"
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.407'
+          dotnet-version: '3.1.408'
 
       - name: "Install build tools"
         run: dotnet tool restore
@@ -134,6 +134,6 @@ jobs:
         run: dotnet cake --target=Push-Artifacts --verbosity=diagnostic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          STABLE_NUGET_FEED_TOKEN: ${{ secrets.STABLE_NUGET_FEED_TOKEN }}
-          PREVIEW_NUGET_FEED_TOKEN: "az"  # Dummy, auth via below env var
-          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials": [{"endpoint":"${{ env.PREVIEW_NUGET_FEED }}", "username":"", "password":"${{ secrets.PREVIEW_NUGET_FEED_TOKEN }}"}]}'
+          STABLE_NUGET_FEED_TOKEN: "az"
+          PREVIEW_NUGET_FEED_TOKEN: "az" # Dummy, auth via below env var
+          VSS_NUGET_EXTERNAL_FEED_ENDPOINTS: '{"endpointCredentials": [{"endpoint":"${{ env.NUGET_FEED }}", "username":"", "password":"${{ secrets.PREVIEW_NUGET_FEED_TOKEN }}"}]}'
