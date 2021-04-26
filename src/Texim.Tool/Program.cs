@@ -33,6 +33,7 @@ namespace Texim.Tool
             root.Add(Disgaea.CommandLine.CreateCommand());
             root.Add(MetalMax.CommandLine.CreateCommand());
             root.Add(LondonLife.CommandLine.CreateCommand());
+            root.Add(Megaman.CommandLine.CreateCommand());
 
             return root.InvokeAsync(args);
         }

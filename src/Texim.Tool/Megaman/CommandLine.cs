@@ -19,6 +19,7 @@
 // SOFTWARE.
 namespace Texim.Tool.Megaman
 {
+    using System;
     using System.CommandLine;
     using System.CommandLine.Invocation;
     using Texim.Colors;
@@ -33,29 +34,39 @@ namespace Texim.Tool.Megaman
     {
         public static Command CreateCommand()
         {
-            var exportTitlelocal = new Command("title_local", "Export the image title local") {
-                new Option<string>("--palette", "the palette file", ArgumentArity.ExactlyOne),
-                new Option<string>("--pixels", "the pixels info file", ArgumentArity.ExactlyOne),
-                new Option<string>("--map", "the map file", ArgumentArity.ExactlyOne),
-                new Option<string>("--output", "the output file", ArgumentArity.ExactlyOne),
-            };
-            exportTitlelocal.Handler = CommandHandler.Create<string, string, string, string>(ExportTitleLocal);
+            Command CreateExportCommand(string name, Action<string, string, string, string> exporter)
+            {
+                var command = new Command(name, $"Export {name}") {
+                    new Option<string>("--palette", "the palette file", ArgumentArity.ExactlyOne),
+                    new Option<string>("--pixels", "the pixels info file", ArgumentArity.ExactlyOne),
+                    new Option<string>("--map", "the map file", ArgumentArity.ExactlyOne),
+                    new Option<string>("--output", "the output file", ArgumentArity.ExactlyOne),
+                };
+                command.Handler = CommandHandler.Create(exporter);
+                return command;
+            }
 
-            var export = new Command("export", "Export images") {
-                exportTitlelocal,
-            };
             return new Command("megaman", "MegaMan NDS game") {
-                export,
+                new Command("export", "Export images") {
+                    CreateExportCommand("title_local", ExportTitle),
+                    CreateExportCommand("capcomlogo_local", ExportCapcomlogo),
+                },
             };
         }
 
-        private static void ExportCapcomlogoLocal(string palette, string pixels, string map, string output)
+        private static void ExportCapcomlogo(string palette, string pixels, string map, string output)
         {
-            // Read RAW files
-            // Image: 4bpp tiled size 256x192 with maps starting at tile 1
+            // Image format with three RAW files:
+            // - Palette: 16 palettes of 16 colors BGR555
+            // - Pixels: indexed 4BPP with tile swizzling
+            // - ScreenMap: 256x192
+            // The game load the tiles in the VRAM at the offset 64. That is, it
+            // shifts the tiles one tile. For that reason, the map points to the
+            // image tiles starting at tile 1. It doesn't use the unset tile 0.
+            // To export, instead of shiting the tiles, we substract to the map 1.
             var paletteParams = new RawPaletteParams {
                 ColorEncoding = Bgr555.Instance,
-
+                ColorsPerPalette = 16,
             };
             var pixelsParams = new RawIndexedImageParams {
                 PixelEncoding = Indexed4Bpp.Instance,
@@ -67,7 +78,7 @@ namespace Texim.Tool.Megaman
             };
 
             var paletteNode = NodeFactory.FromFile(palette, FileOpenMode.Read)
-                .TransformWith<RawBinary2Palette, RawPaletteParams>(paletteParams);
+                .TransformWith<RawBinary2PaletteCollection, RawPaletteParams>(paletteParams);
 
             var pixelsNode = NodeFactory.FromFile(pixels, FileOpenMode.Read)
                 .TransformWith<RawBinary2IndexedImage, RawIndexedImageParams>(pixelsParams);
@@ -75,23 +86,35 @@ namespace Texim.Tool.Megaman
             var mapsNode = NodeFactory.FromFile(map, FileOpenMode.Read)
                 .TransformWith<RawBinary2ScreenMap, RawScreenMapParams>(mapsParams);
 
+            // Required as the first tile in the map is 1.
+            var screenMap = mapsNode.GetFormatAs<ScreenMap>();
+            for (int i = 0; i < screenMap.Maps.Length; i++) {
+                screenMap.Maps[i] = new MapInfo {
+                    TileIndex = (short)(screenMap.Maps[i].TileIndex - 1),
+                };
+            }
+
             // Export them as an image
             var decompressionParams = new MapDecompressionParams {
-                Map = mapsNode.GetFormatAs<ScreenMap>(),
-                OutOfBoundsTileIndex = 0,
+                Map = screenMap,
             };
             var indexedImageParams = new IndexedImageBitmapParams {
-                Palette = paletteNode.GetFormatAs<Palette>(),
+                Palettes = paletteNode.GetFormatAs<PaletteCollection>(),
             };
             pixelsNode.TransformWith<MapDecompression, MapDecompressionParams>(decompressionParams)
                 .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
                 .Stream.WriteTo(output);
         }
 
-        private static void ExportTitleLocal(string palette, string pixels, string map, string output)
+        private static void ExportTitle(string palette, string pixels, string map, string output)
         {
-            // Read RAW files
-            // Image: 8bpp tiled size 256x192 with out bound tile index (0xFF -> 0x00)
+            // Image format with three RAW files:
+            // - Palette: 1 palette of 256 colors BGR555
+            // - Pixels: indexed 8BPP with tile swizzling
+            // - ScreenMap: 256x192
+            // For some reason the map uses the tile 0xFF which is not present
+            // in the image. We set the parameter "OutOfBoundsTileIndex" to use
+            // instead the tile 0.
             var paletteParams = new RawPaletteParams {
                 ColorEncoding = Bgr555.Instance,
             };
@@ -105,7 +128,7 @@ namespace Texim.Tool.Megaman
             };
 
             var paletteNode = NodeFactory.FromFile(palette, FileOpenMode.Read)
-                .TransformWith<RawBinary2Palette, RawPaletteParams>(paletteParams);
+                .TransformWith<RawBinary2PaletteCollection, RawPaletteParams>(paletteParams);
 
             var pixelsNode = NodeFactory.FromFile(pixels, FileOpenMode.Read)
                 .TransformWith<RawBinary2IndexedImage, RawIndexedImageParams>(pixelsParams);
@@ -119,7 +142,7 @@ namespace Texim.Tool.Megaman
                 OutOfBoundsTileIndex = 0,
             };
             var indexedImageParams = new IndexedImageBitmapParams {
-                Palette = paletteNode.GetFormatAs<Palette>(),
+                Palettes = paletteNode.GetFormatAs<PaletteCollection>(),
             };
             pixelsNode.TransformWith<MapDecompression, MapDecompressionParams>(decompressionParams)
                 .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
