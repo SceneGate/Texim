@@ -39,12 +39,18 @@ namespace Texim.Processing
                 throw new ArgumentNullException(nameof(palettes));
 
             this.paletteCollection = palettes;
-            this.palettes = palettes.Palettes.Select(p => p.Colors.ToArray()).ToArray();
             this.width = width;
             this.tileSize = tileSize;
+
+            if (FirstAsTransparent) {
+                // do not use the first color to quantize things because is replaced by transparency
+                this.palettes = palettes.Palettes.Select(p => p.Colors.Skip(1).ToArray()).ToArray();
+            } else {
+                this.palettes = palettes.Palettes.Select(p => p.Colors.ToArray()).ToArray();
+            }
         }
 
-        public bool FirstAsTransparent { get; set; }
+        public bool FirstAsTransparent { get; init; }
 
         public (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels)
         {
@@ -72,9 +78,14 @@ namespace Texim.Processing
         private void ApproximateTile(ReadOnlySpan<Rgb> tile, int paletteIdx, Span<IndexedPixel> output)
         {
             for (int i = 0; i < tile.Length; i++) {
-                int colorIdx = (FirstAsTransparent && tile[i].Alpha >= 128)
-                    ? 0
-                    : ExhaustiveColorSearch.Search(palettes[paletteIdx], tile[i]).Index;
+                int colorIdx;
+                if (FirstAsTransparent && tile[i].Alpha >= 128) {
+                    colorIdx = 0;
+                } else {
+                    int searchIdx = ExhaustiveColorSearch.Search(palettes[paletteIdx], tile[i]).Index;
+                    colorIdx = FirstAsTransparent ? (searchIdx + 1) : searchIdx;
+                }
+
                 output[i] = new IndexedPixel((short)colorIdx, tile[i].Alpha, (byte)paletteIdx);
             }
         }

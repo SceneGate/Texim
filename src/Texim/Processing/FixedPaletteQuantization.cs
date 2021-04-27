@@ -19,6 +19,7 @@
 // SOFTWARE.
 namespace Texim.Processing
 {
+    using System.Linq;
     using Texim.Colors;
     using Texim.Palettes;
     using Texim.Pixels;
@@ -31,10 +32,14 @@ namespace Texim.Processing
         public FixedPaletteQuantization(IPalette palette)
         {
             this.palette = palette;
+
+            // Remove the transparent index from the list of search colors
+            var vertex = palette.Colors.ToList();
+            vertex.RemoveAt(TransparentIndex);
             search = new ExhaustiveColorSearch(palette.Colors);
         }
 
-        public int TransparentIndex { get; set; }
+        public int TransparentIndex { get; init; }
 
         public (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels)
         {
@@ -43,12 +48,19 @@ namespace Texim.Processing
             for (int i = 0; i < pixels.Length; i++) {
                 int colorIdx = (pixels[i].Alpha >= 128)
                     ? TransparentIndex
-                    : search.Search(pixels[i]).Index;
+                    : VertexIndexToPaletteIndex(search.Search(pixels[i]).Index);
                 indexed[i] = new IndexedPixel((short)colorIdx, pixels[i].Alpha, 0);
             }
 
             var collection = new PaletteCollection(palette);
             return (indexed, collection);
+        }
+
+        private int VertexIndexToPaletteIndex(int vertexIdx)
+        {
+            return (vertexIdx < TransparentIndex)
+                ? vertexIdx
+                : vertexIdx + 1;
         }
     }
 }
