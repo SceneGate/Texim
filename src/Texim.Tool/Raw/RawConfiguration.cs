@@ -17,42 +17,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Formats
+namespace Texim.Tool.Raw
 {
-    using System;
-    using Texim.Palettes;
-    using Yarhl.FileFormat;
-    using Yarhl.IO;
-
-    public class RawBinary2Palette :
-        IInitializer<RawPaletteParams>, IConverter<BinaryFormat, Palette>
+    public class RawConfiguration
     {
-        private RawPaletteParams parameters = RawPaletteParams.Default;
+        public string Image { get; set; }
 
-        public void Initialize(RawPaletteParams parameters)
-        {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+        public PaletteConfiguration Palette { get; set; }
 
-            this.parameters = parameters;
-        }
+        public PixelsConfiguration Pixels { get; set; }
 
-        public Palette Convert(BinaryFormat source)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            var reader = new DataReader(source.Stream);
-            source.Stream.Position = parameters.Offset;
-
-            int size = parameters.Size > 0
-                ? parameters.Size
-                : (int)(source.Stream.Length - parameters.Offset);
-            var data = reader.ReadBytes(size);
-
-            var colors = parameters.ColorEncoding.Decode(data);
-
-            return new Palette(colors);
-        }
+        public MapConfiguration Map { get; set; }
     }
 }

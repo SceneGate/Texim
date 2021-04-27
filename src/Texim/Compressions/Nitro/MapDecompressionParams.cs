@@ -26,5 +26,7 @@ namespace Texim.Compressions.Nitro
         public IScreenMap Map { get; set; }
 
         public Size TileSize { get; set; } = new Size(8, 8);
+
+        public int OutOfBoundsTileIndex { get; set; } = -1; // megaman
     }
 }
