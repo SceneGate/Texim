@@ -35,6 +35,8 @@ namespace Texim.Tool.Raw
 
         public string Swizzling { get; set; }
 
+        public bool MissingBgTile { get; set; }
+
         public RawIndexedImageParams GetParams()
         {
             IIndexedPixelEncoding encoding = Encoding.ToUpperInvariant() switch {

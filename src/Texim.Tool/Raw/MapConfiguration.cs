@@ -35,8 +35,6 @@ namespace Texim.Tool.Raw
 
         public int ErrorTile { get; set; } = -1;
 
-        public int IndexShift { get; set; }
-
         public RawScreenMapParams GetParams()
         {
             return new RawScreenMapParams {

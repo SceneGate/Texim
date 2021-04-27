@@ -19,13 +19,16 @@
 // SOFTWARE.
 namespace Texim.Tool.Raw
 {
+    using System;
     using System.Collections.Generic;
     using System.CommandLine;
     using System.CommandLine.Invocation;
     using System.IO;
     using Texim.Compressions.Nitro;
     using Texim.Formats;
+    using Texim.Images;
     using Texim.Palettes;
+    using Texim.Pixels;
     using YamlDotNet.Serialization;
     using YamlDotNet.Serialization.NamingConventions;
     using Yarhl.FileSystem;
@@ -77,16 +80,14 @@ namespace Texim.Tool.Raw
             var mapNode = NodeFactory.FromFile(mapPath, FileOpenMode.Read)
                 .TransformWith<RawBinary2ScreenMap, RawScreenMapParams>(mapParams);
 
-            var screenMap = mapNode.GetFormatAs<ScreenMap>();
-            for (int i = 0; i < screenMap.Maps.Length; i++) {
-                screenMap.Maps[i] = new MapInfo {
-                    TileIndex = (short)(screenMap.Maps[i].TileIndex - config.Map.IndexShift),
-                };
+            if (config.Pixels.MissingBgTile) {
+                var newImage = AppendBackgroundTile(pixelsNode.GetFormatAs<IndexedImage>());
+                pixelsNode.ChangeFormat(newImage);
             }
 
             string outputFilePath = Path.Combine(outputPath, config.Image);
             var decompressionParams = new MapDecompressionParams {
-                Map = screenMap,
+                Map = mapNode.GetFormatAs<ScreenMap>(),
                 OutOfBoundsTileIndex = config.Map.ErrorTile,
             };
             var indexedImageParams = new IndexedImageBitmapParams {
@@ -95,6 +96,34 @@ namespace Texim.Tool.Raw
             pixelsNode.TransformWith<MapDecompression, MapDecompressionParams>(decompressionParams)
                 .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
                 .Stream.WriteTo(outputFilePath);
+        }
+
+        private static IndexedImage AppendBackgroundTile(IndexedImage current)
+        {
+            // As we work with tiles, we need to swizzle and unswizzle the image
+            var swizzling = new TileSwizzling<IndexedPixel>(current.Width);
+            var currentTiles = swizzling.Swizzle(current.Pixels);
+
+            // Assume the tile is 8x8
+            IndexedPixel[] bgTile = new IndexedPixel[8 * 8];
+            for (int i = 0; i < bgTile.Length; i++) {
+                bgTile[i] = new IndexedPixel(0);
+            }
+
+            IndexedPixel[] newTiles = new IndexedPixel[currentTiles.Length + bgTile.Length];
+            Array.Copy(bgTile, 0, newTiles, 0, bgTile.Length);
+            Array.Copy(currentTiles, 0, newTiles, bgTile.Length, currentTiles.Length);
+
+            newTiles = swizzling.Unswizzle(newTiles);
+
+            // Re-calculate height
+            int height = (int)Math.Ceiling((float)newTiles.Length / current.Width);
+
+            return new IndexedImage {
+                Width = current.Width,
+                Height = height,
+                Pixels = newTiles,
+            };
         }
     }
 }
