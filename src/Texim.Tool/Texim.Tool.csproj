@@ -11,6 +11,7 @@
     <ProjectReference Include="../Texim/Texim.csproj" />
 
     <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 
 </Project>

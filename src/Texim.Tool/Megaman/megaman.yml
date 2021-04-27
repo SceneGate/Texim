@@ -1,0 +1,42 @@
+- image: "title_local.png"
+  palette:
+    path: "title_local/00.bin"
+    encoding: "BGR555"
+  pixels:
+    path: "title_local/01.bin"
+    encoding: "8bpp"
+    swizzling: "tile"
+  map:
+    path: "title_local/02.bin"
+    width: 256
+    height: 192
+    error_tile: 0 # For some reason the map points to the tile 0xFF non-present
+
+- image: "capcomlogo_local_1.png"
+  palette:
+    path: "capcomlogo_local/00.bin"
+    encoding: "BGR555"
+    palette_colors: 16
+  pixels:
+    path: "capcomlogo_local/02.bin"
+    encoding: "4bpp"
+    swizzling: "tile"
+  map:
+    path: "capcomlogo_local/01.bin"
+    width: 256
+    height: 192
+    index_shift: 1 # For some reason the game shift the tiles by 1
+- image: "capcomlogo_local_2.png"
+  palette:
+    path: "capcomlogo_local/03.bin"
+    encoding: "BGR555"
+    palette_colors: 16
+  pixels:
+    path: "capcomlogo_local/05.bin"
+    encoding: "4bpp"
+    swizzling: "tile"
+  map:
+    path: "capcomlogo_local/04.bin"
+    width: 256
+    height: 192
+    index_shift: 1 # For some reason the game shift the tiles by 1

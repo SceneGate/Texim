@@ -17,25 +17,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Formats
+namespace Texim.Tool.Raw
 {
-    using Texim.Colors;
+    using System;
+    using Texim.Formats;
+    using Texim.Pixels;
 
-    public class RawPaletteParams
+    public class PixelsConfiguration
     {
-        public static RawPaletteParams Default => new RawPaletteParams {
-            Offset = 0,
-            Size = -1,
-            ColorEncoding = Bgr555.Instance,
-            ColorsPerPalette = -1,
-        };
+        public string Path { get; set; }
 
         public long Offset { get; set; }
 
         public int Size { get; set; }
 
-        public IColorEncoding ColorEncoding { get; set; }
+        public string Encoding { get; set; }
 
-        public int ColorsPerPalette { get; set; }
+        public string Swizzling { get; set; }
+
+        public RawIndexedImageParams GetParams()
+        {
+            IIndexedPixelEncoding encoding = Encoding.ToUpperInvariant() switch {
+                "8BPP" => Indexed8Bpp.Instance,
+                "4BPP" => Indexed4Bpp.Instance,
+                _ => throw new NotSupportedException("Unknown pixel encoding"),
+            };
+
+            ISwizzling<IndexedPixel> swizzling = null;
+            if (Swizzling.StartsWith("TILE", StringComparison.InvariantCultureIgnoreCase)) {
+                swizzling = new TileSwizzling<IndexedPixel>(8);
+            }
+
+            return new RawIndexedImageParams {
+                Offset = Offset,
+                Size = Size,
+                PixelEncoding = encoding,
+                Swizzling = swizzling,
+            };
+        }
     }
 }

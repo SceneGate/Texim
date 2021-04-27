@@ -52,7 +52,7 @@ namespace Texim.Formats
             var data = reader.ReadBytes(size);
 
             var colors = parameters.ColorEncoding.Decode(data).AsSpan();
-            if (parameters.ColorsPerPalette < 0) {
+            if (parameters.ColorsPerPalette <= 0) {
                 return new PaletteCollection(new Palette(colors.ToArray()));
             }
 

@@ -17,25 +17,37 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Formats
+namespace Texim.Tool.Raw
 {
+    using System;
     using Texim.Colors;
+    using Texim.Formats;
 
-    public class RawPaletteParams
+    public class PaletteConfiguration
     {
-        public static RawPaletteParams Default => new RawPaletteParams {
-            Offset = 0,
-            Size = -1,
-            ColorEncoding = Bgr555.Instance,
-            ColorsPerPalette = -1,
-        };
+        public string Path { get; set; }
 
         public long Offset { get; set; }
 
         public int Size { get; set; }
 
-        public IColorEncoding ColorEncoding { get; set; }
+        public string Encoding { get; set; }
 
-        public int ColorsPerPalette { get; set; }
+        public int PaletteColors { get; set; }
+
+        public RawPaletteParams GetParams()
+        {
+            IColorEncoding encoding = Encoding.ToUpperInvariant() switch {
+                "BGR555" => Bgr555.Instance,
+                _ => throw new NotSupportedException("Unknown color encoding"),
+            };
+
+            return new RawPaletteParams {
+                Offset = Offset,
+                Size = Size,
+                ColorEncoding = encoding,
+                ColorsPerPalette = PaletteColors,
+            };
+        }
     }
 }
