@@ -22,13 +22,12 @@ namespace Texim.Tool.Nitro
     using System;
     using System.CommandLine;
     using System.CommandLine.Invocation;
-    using System.Drawing;
     using System.IO;
+    using System.Linq;
     using Texim.Compressions.Nitro;
     using Texim.Formats;
     using Texim.Images;
     using Texim.Palettes;
-    using Texim.Pixels;
     using Texim.Processing;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
@@ -64,14 +63,16 @@ namespace Texim.Tool.Nitro
             importImage.Handler = CommandHandler.Create<string, string, string, string, int>(ImportImage);
 
             var importCompressedImage = new Command("import_compressed", "Import and compress an image") {
-                new Option<string[]>("--input", "the input image(s) file", ArgumentArity.OneOrMore),
+                new Option<string>("--input", "the input image file", ArgumentArity.ExactlyOne),
                 new Option<string>("--nclr", "the palette to use", ArgumentArity.ExactlyOne),
-                new Option<string>("--ncgr", "optional original NCGR to copy params", ArgumentArity.ZeroOrOne),
-                new Option<string[]>("--nscr", "optional original NSCR to copy params", ArgumentArity.ZeroOrMore),
+                new Option<string>("--ncgr", "optional original NCGR to copy params and tiles", ArgumentArity.ZeroOrOne),
+                new Option<bool>("--append", "re-use existing tiles from the NCGR", ArgumentArity.ZeroOrOne),
+                new Option<string>("--nscr", "optional original NSCR to copy params", ArgumentArity.ZeroOrOne),
+                new Option<bool>("--use-same-palettes", "force to use the same palette range", ArgumentArity.ZeroOrOne),
                 new Option<string>("--out-ncgr", "the output nitro image file", ArgumentArity.ExactlyOne),
-                new Option<string>("--out-nscr", "the output directory for nitro compression files", ArgumentArity.ExactlyOne),
+                new Option<string>("--out-nscr", "the output nitro compression file", ArgumentArity.ExactlyOne),
             };
-            importCompressedImage.Handler = CommandHandler.Create<string[], string, string, string[], string, string>(ImportCompressedImage);
+            importCompressedImage.Handler = CommandHandler.Create<string, string, string, bool, string, bool, string, string>(ImportCompressedImage);
 
             return new Command("nitro", "Nintendo DS standard formats") {
                 exportPalette,
@@ -166,58 +167,88 @@ namespace Texim.Tool.Nitro
         }
 
         private static void ImportCompressedImage(
-            string[] input,
+            string input,
             string nclr,
             string ncgr,
-            string[] nscr,
+            bool append,
+            string nscr,
+            bool useSamePalettes,
             string outNcgr,
             string outNscr)
         {
-            var palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
+            IPaletteCollection palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
                 .TransformWith<Binary2Nclr>()
                 .GetFormatAs<Nclr>();
 
-            IndexedImage mergedImage = null;
-            for (int i = 0; i < input.Length; i++) {
-                var compressionParams = new FullImageMapCompressionParams {
-                    MergeImage = mergedImage,
-                    Palettes = palette,
-                };
+            if (useSamePalettes) {
+                var paletteIndexes = NodeFactory.FromFile(nscr, FileOpenMode.Read)
+                    .TransformWith<Binary2Nscr>()
+                    .GetFormatAs<Nscr>()
+                    .Maps
+                    .Select(m => m.PaletteIndex)
+                    .Distinct()
+                    .ToArray();
 
-                var compressed = NodeFactory.FromFile(input[i], FileOpenMode.Read)
-                    .TransformWith<Bitmap2FullImage>()
-                    .TransformWith<FullImageMapCompression, FullImageMapCompressionParams>(compressionParams);
-                mergedImage = compressed.Children[0].GetFormatAs<IndexedImage>();
-                var map = compressed.Children[1].GetFormatAs<ScreenMap>();
-
-                Nscr newNscr;
-                if (nscr == null) {
-                    newNscr = new Nscr(map);
-                } else {
-                    var originalNscr = NodeFactory.FromFile(nscr[i], FileOpenMode.Read)
-                        .TransformWith<Binary2Nscr>()
-                        .GetFormatAs<Nscr>();
-                    newNscr = new Nscr(originalNscr, map);
+                // Fill of palettes, even if we don't copy them so the palette
+                // indexes are the same in the new collection
+                var limitedPalette = new PaletteCollection();
+                int maxIndex = paletteIndexes.Max();
+                for (int i = 0; i <= maxIndex; i++) {
+                    limitedPalette.Palettes.Add(new Palette());
                 }
 
-                string imageName = Path.GetFileNameWithoutExtension(input[i]);
-                string outputNscrPath = Path.Combine(outNscr, $"{imageName}.nscr");
-                using var binaryNscr = new Nscr2Binary().Convert(newNscr);
-                binaryNscr.Stream.WriteTo(outputNscrPath);
+                // Copy only those palettes used in the original NSCR.
+                for (int i = 0; i < paletteIndexes.Length; i++) {
+                    int idx = paletteIndexes[i];
+                    limitedPalette.Palettes[idx] = palette.Palettes[idx];
+                }
+
+                palette = limitedPalette;
             }
+
+            IIndexedImage mergedImage = null;
+            if (append && File.Exists(outNcgr)) {
+                mergedImage = NodeFactory.FromFile(outNcgr, FileOpenMode.Read)
+                    .TransformWith<Binary2Ncgr>()
+                    .GetFormatAs<Ncgr>();
+            }
+
+            var compressionParams = new FullImageMapCompressionParams {
+                MergeImage = mergedImage,
+                Palettes = palette,
+            };
+
+            var compressed = NodeFactory.FromFile(input, FileOpenMode.Read)
+                .TransformWith<Bitmap2FullImage>()
+                .TransformWith<FullImageMapCompression, FullImageMapCompressionParams>(compressionParams);
+            var newImage = compressed.Children[0].GetFormatAs<IndexedImage>();
+            var map = compressed.Children[1].GetFormatAs<ScreenMap>();
 
             Ncgr newNcgr;
             if (ncgr == null) {
-                newNcgr = new Ncgr(mergedImage);
+                newNcgr = new Ncgr(newImage);
             } else {
                 var originalNcgr = NodeFactory.FromFile(ncgr, FileOpenMode.Read)
                     .TransformWith<Binary2Ncgr>()
                     .GetFormatAs<Ncgr>();
-                newNcgr = new Ncgr(originalNcgr, mergedImage);
+                newNcgr = new Ncgr(originalNcgr, newImage);
             }
 
             using var binary = new Ncgr2Binary().Convert(newNcgr);
             binary.Stream.WriteTo(outNcgr);
+
+            Nscr newNscr;
+            if (nscr == null) {
+                newNscr = new Nscr(map);
+            } else {
+                var originalNscr = NodeFactory.FromFile(nscr, FileOpenMode.Read)
+                    .TransformWith<Binary2Nscr>()
+                    .GetFormatAs<Nscr>();
+                newNscr = new Nscr(originalNscr, map);
+            }
+
+            using var binaryNscr = new Nscr2Binary().Convert(newNscr);
+            binaryNscr.Stream.WriteTo(outNscr);
         }
     }
 }
