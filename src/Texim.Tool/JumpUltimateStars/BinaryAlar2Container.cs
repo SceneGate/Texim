@@ -28,7 +28,7 @@ namespace Texim.Tool.JumpUltimateStars
     public class BinaryAlar2Container : IConverter<IBinary, NodeContainerFormat>
     {
         private const string STAMP = "ALAR";
-        private static readonly Version SupportedVersion = new Version(3, 0);
+        private static readonly Version SupportedVersion = new Version(3, 5);
 
         private DataReader reader;
         private NodeContainerFormat container;
@@ -65,7 +65,7 @@ namespace Texim.Tool.JumpUltimateStars
                 throw new FormatException($"Unsupported version: {version:X}");
             }
 
-            reader.Stream.Position += 4; // numFiles + reserved
+            reader.Stream.Position += 6; // numFiles + reserved
             numEntries = reader.ReadInt32();
             reader.Stream.Position += 2; // data offset
         }
@@ -82,6 +82,7 @@ namespace Texim.Tool.JumpUltimateStars
             string path = reader.ReadString();
 
             string name = Path.GetFileName(path);
+            string dir = Path.GetDirectoryName(path);
             Node child = NodeFactory.FromSubstream(name, reader.Stream, offset, size);
             child.Tags["JUS_ID"] = id;
             child.Tags["JUS_UNK1"] = unknown;
@@ -89,7 +90,7 @@ namespace Texim.Tool.JumpUltimateStars
             child.Tags["JUS_UNK3"] = unknown3;
             child.Tags["JUS_UNK4"] = unknown4;
 
-            NodeFactory.CreateContainersForChild(container.Root, path, child);
+            NodeFactory.CreateContainersForChild(container.Root, dir, child);
         }
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,14 +26,16 @@ namespace Texim.Tool
     {
         public static Task<int> Main(string[] args)
         {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats");
-            root.Add(Nitro.CommandLine.CreateCommand());
-            root.Add(BlackRockShooter.CommandLine.CreateCommand());
-            root.Add(DevilSurvivor.CommandLine.CreateCommand());
-            root.Add(Disgaea.CommandLine.CreateCommand());
-            root.Add(MetalMax.CommandLine.CreateCommand());
-            root.Add(LondonLife.CommandLine.CreateCommand());
-            root.Add(Raw.CommandLine.CreateCommand());
+            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
+                Nitro.CommandLine.CreateCommand(),
+                BlackRockShooter.CommandLine.CreateCommand(),
+                DevilSurvivor.CommandLine.CreateCommand(),
+                Disgaea.CommandLine.CreateCommand(),
+                MetalMax.CommandLine.CreateCommand(),
+                LondonLife.CommandLine.CreateCommand(),
+                JumpUltimateStars.CommandLine.CreateCommand(),
+                Raw.CommandLine.CreateCommand(),
+            };
 
             return root.InvokeAsync(args);
         }
