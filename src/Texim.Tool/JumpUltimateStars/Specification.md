@@ -25,7 +25,59 @@
 | 0x0C   | bgr555[]           | palette     |
 | ...    | pixels[]           | image       |
 
-## Koma name table
+## ALAR
+
+| Offset | Type       | Description                 |
+| ------ | ---------- | --------------------------- |
+| 0x00   | char[4]    | ALAR                        |
+| 0x04   | byte       | Version (3 to follow)       |
+| 0x05   | byte       | Minor version?              |
+| 0x06   | int        | Number of files             |
+| 0x0A   | short      | Reserved?                   |
+| 0x0C   | int        | Number of entries           |
+| 0x10   | short      | Data offset                 |
+| 0x12   | short[]    | File info absolute pointers |
+| ..     | FileInfo[] | File info list              |
+| ..     | Stream[]   | File data                   |
+
+### File info
+
+| Offset | Type   | Description               |
+| ------ | ------ | ------------------------- |
+| 0x00   | short  | ID                        |
+| 0x02   | short  | Unknown                   |
+| 0x04   | int    | Absolute pointer          |
+| 0x08   | int    | Size                      |
+| 0x0C   | short  | Unknown                   |
+| 0x0E   | short  | Unknown                   |
+| 0x10   | short  | Unknown                   |
+| 0x12   | string | Null-terminated file path |
+
+## Koma
+
+| Offset | Type          | Description |
+| ------ | ------------- | ----------- |
+| 0x00   | KomaElement[] | Entries     |
+
+### Koma element
+
+| Offset | Type  | Description          |
+| ------ | ----- | -------------------- |
+| 0x00   | short | Image ID             |
+| 0x02   | short | Unknown              |
+| 0x04   | byte  | Name table index     |
+| 0x05   | byte  | Name number          |
+| 0x06   | byte  | Unknown              |
+| 0x07   | byte  | Unknown              |
+| 0x08   | byte  | KShape group index   |
+| 0x09   | byte  | KShape element index |
+| 0x0A   | byte  | Unknown              |
+| 0x0B   | byte  | Unknown              |
+
+The name is the combination of the prefix from the table and the number:
+`$"{table[index]}_{num:D2}"`
+
+### Koma name table
 
 | ID  | Name   |
 | --- | ------ |

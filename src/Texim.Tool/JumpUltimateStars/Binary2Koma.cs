@@ -21,7 +21,7 @@ using System;
 using Yarhl.FileFormat;
 using Yarhl.IO;
 
-namespace Texim.Tool.JumppUltimateStars
+namespace Texim.Tool.JumpUltimateStars
 {
     public class Binary2Koma : IConverter<BinaryFormat, Koma>
     {

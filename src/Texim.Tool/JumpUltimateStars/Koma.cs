@@ -20,7 +20,7 @@
 using System.Collections.ObjectModel;
 using Yarhl.FileFormat;
 
-namespace Texim.Tool.JumppUltimateStars
+namespace Texim.Tool.JumpUltimateStars
 {
     public class Koma : Collection<KomaElement>, IFormat
     {

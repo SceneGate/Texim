@@ -20,6 +20,7 @@
 namespace Texim.Tool.Disgaea
 {
     using System.CommandLine;
+    using System.CommandLine.Invocation;
     using Texim.Formats;
     using Yarhl.FileSystem;
     using Yarhl.IO;
@@ -32,6 +33,7 @@ namespace Texim.Tool.Disgaea
                 new Option<string>("--input", "the input file", ArgumentArity.ExactlyOne),
                 new Option<string>("--output", "the output file", ArgumentArity.ExactlyOne),
             };
+            export.Handler = CommandHandler.Create<string, string>(Export);
 
             return new Command("disgaea", "Disgaea game") {
                 export,

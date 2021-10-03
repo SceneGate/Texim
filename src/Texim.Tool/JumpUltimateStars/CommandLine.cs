@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using Yarhl.FileSystem;
 
-namespace Texim.Tool.JumppUltimateStars
+namespace Texim.Tool.JumpUltimateStars
 {
     public static class CommandLine
     {
@@ -45,6 +45,9 @@ namespace Texim.Tool.JumppUltimateStars
             var komaFormat = NodeFactory.FromFile(koma)
                 .TransformWith<Binary2Koma>()
                 .GetFormatAs<Koma>();
+
+            var images = NodeFactory.FromFile(package)
+                .TransformWith<BinaryAlar2Container>();
         }
     }
 }

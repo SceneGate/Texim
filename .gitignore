@@ -2,6 +2,7 @@
 obj/
 bin/
 artifacts/
+.vs/
 
 # Build system
 tools/
