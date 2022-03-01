@@ -20,7 +20,6 @@
 namespace Texim.Tool.BlackRockShooter
 {
     using System;
-    using System.Drawing;
     using Texim.Colors;
     using Texim.Images;
     using Texim.Palettes;
@@ -33,7 +32,7 @@ namespace Texim.Tool.BlackRockShooter
         private const string Stamp = "PTMD";
         private const int Width = 256;
         private const int Height = 64;
-        private static readonly Size TileSize = new Size(32, 8);
+        private static readonly System.Drawing.Size TileSize = new System.Drawing.Size(32, 8);
 
         public FullImage Convert(IBinary source)
         {

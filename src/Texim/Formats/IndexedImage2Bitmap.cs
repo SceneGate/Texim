@@ -20,12 +20,13 @@
 namespace Texim.Formats
 {
     using System;
-    using System.Drawing;
     using System.Linq;
+    using SixLabors.ImageSharp;
     using Texim.Images;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
+    using SixRgb = SixLabors.ImageSharp.PixelFormats.Rgba32;
 
     public class IndexedImage2Bitmap :
         IInitializer<IndexedImageBitmapParams>,
@@ -47,14 +48,15 @@ namespace Texim.Formats
                 throw new ArgumentNullException(nameof(source));
 
             // Preconvert to colors for faster iteration later
-            Color[] PaletteToColors(IPalette pal) =>
-                pal.Colors.Select(c => c.ToColor()).ToArray();
+            SixRgb[] PaletteToColors(IPalette pal) =>
+                pal.Colors.Select(c => c.ToImageSharpColor()).ToArray();
 
-            Color[][] palettes = (parameters.Palettes != null)
+            SixRgb[][] palettes = (parameters.Palettes != null)
                 ? parameters.Palettes.Palettes.Select(PaletteToColors).ToArray()
                 : new[] { PaletteToColors(parameters.Palette) };
 
-            using var bitmap = new Bitmap(source.Width, source.Height);
+            using var bitmap = new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(source.Width, source.Height);
+
             for (int x = 0; x < source.Width; x++) {
                 for (int y = 0; y < source.Height; y++) {
                     var pixel = source.Pixels[(y * source.Width) + x];
@@ -73,15 +75,15 @@ namespace Texim.Formats
                             $"#{pixel.PaletteIndex} has {palette.Length}");
                     }
 
-                    Color color = (pixel.Alpha != 255)
-                        ? Color.FromArgb(pixel.Alpha, palette[pixel.Index])
+                    SixRgb color = (pixel.Alpha != 255)
+                        ? new SixRgb(palette[pixel.Index].R, palette[pixel.Index].G, palette[pixel.Index].B, pixel.Alpha)
                         : palette[pixel.Index];
-                    bitmap.SetPixel(x, y, color);
+                    bitmap[x, y] = color;
                 }
             }
 
             var binary = new BinaryFormat();
-            bitmap.Save(binary.Stream, parameters.Format);
+            bitmap.Save(binary.Stream, parameters.Encoder);
             return binary;
         }
     }

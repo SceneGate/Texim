@@ -20,7 +20,6 @@
 namespace Texim.PerformanceTest
 {
     using System;
-    using System.Drawing;
     using System.Runtime.InteropServices;
     using Texim.PerformanceTest.ImageStructures;
 
@@ -33,7 +32,7 @@ namespace Texim.PerformanceTest
             DisplaySizeOf<PixelRgb>();
             DisplaySizeOf<Texim.Pixels.IndexedPixel>();
             DisplaySizeOf<Texim.Colors.Rgb>();
-            Console.WriteLine($"Marshal size of Color: {Marshal.SizeOf<Color>()}");
+            Console.WriteLine($"Marshal size of Color: {Marshal.SizeOf<System.Drawing.Color>()}");
             BenchmarkDotNet.Running.BenchmarkRunner.Run<StructureTest>();
         }
 

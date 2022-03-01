@@ -19,16 +19,15 @@
 // SOFTWARE.
 namespace Texim.Tool
 {
-    using System;
-    using System.Drawing.Imaging;
-
     public enum StandardImageFormat
     {
         Png,
         Bmp,
         Gif,
-        Icon,
+        Pbm,
         Jpeg,
         Tiff,
+        Tga,
+        Webp,
     }
 }

@@ -20,7 +20,7 @@
 namespace Texim.Formats
 {
     using System;
-    using System.Drawing;
+    using SixLabors.ImageSharp;
     using Texim.Colors;
     using Texim.Images;
     using Yarhl.FileFormat;
@@ -33,12 +33,12 @@ namespace Texim.Formats
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            using var image = (Bitmap)Image.FromStream(source.Stream);
+            using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(source.Stream);
             var fullImage = new FullImage(image.Width, image.Height);
 
             for (int x = 0; x < image.Width; x++) {
                 for (int y = 0; y < image.Height; y++) {
-                    fullImage.Pixels[(y * image.Width) + x] = new Rgb(image.GetPixel(x, y));
+                    fullImage.Pixels[(y * image.Width) + x] = new Rgb(image[x, y]);
                 }
             }
 

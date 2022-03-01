@@ -20,23 +20,25 @@
 namespace Texim.Formats
 {
     using System;
-    using System.Drawing;
-    using System.Drawing.Imaging;
+    using SixLabors.ImageSharp;
+    using SixLabors.ImageSharp.Formats;
+    using SixLabors.ImageSharp.Formats.Png;
+    using SixLabors.ImageSharp.PixelFormats;
     using Texim.Images;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
     public class FullImage2Bitmap :
-        IInitializer<ImageFormat>, IConverter<IFullImage, BinaryFormat>
+        IInitializer<IImageEncoder>, IConverter<IFullImage, BinaryFormat>
     {
-        private ImageFormat format = ImageFormat.Png;
+        private IImageEncoder encoder = new PngEncoder();
 
-        public void Initialize(ImageFormat parameters)
+        public void Initialize(IImageEncoder parameters)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            format = parameters;
+            encoder = parameters;
         }
 
         public BinaryFormat Convert(IFullImage source)
@@ -44,15 +46,15 @@ namespace Texim.Formats
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            using var image = new Bitmap(source.Width, source.Height);
+            using var image = new Image<Rgba32>(source.Width, source.Height);
             for (int x = 0; x < source.Width; x++) {
                 for (int y = 0; y < source.Height; y++) {
-                    image.SetPixel(x, y, source.Pixels[(y * source.Width) + x].ToColor());
+                    image[x, y] = source.Pixels[(y * source.Width) + x].ToImageSharpColor();
                 }
             }
 
             var binary = new BinaryFormat();
-            image.Save(binary.Stream, format);
+            image.Save(binary.Stream, encoder);
             return binary;
         }
     }
