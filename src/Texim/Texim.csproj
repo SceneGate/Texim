@@ -2,8 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="$(PackageReadmeFile)"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Yarhl" />
