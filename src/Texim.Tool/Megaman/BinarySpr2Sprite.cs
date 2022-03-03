@@ -80,13 +80,13 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
         reader.Stream.Position = dataOffset + pixelsOffset;
         int pixelsLength = (int)(paletteOffset - reader.Stream.Position);
         var pixels = reader.ReadPixels<Indexed4Bpp>(pixelsLength * 2)
-            .UnswizzleWith(new TileSwizzling<IndexedPixel>(sceneWidth));
+            .UnswizzleWith(new TileSwizzling<IndexedPixel>(64));
 
-        // sceneWidth happens to be also the num of tiles, so we can use it as width and 64 as height
+        // sceneWidth happens to be also the num of tiles, so we can use it as height and 64 as width
         return new IndexedImage {
             Pixels = pixels,
-            Width = sceneWidth,
-            Height = 64,
+            Width = 64,
+            Height = sceneHeight,
         };
     }
 
