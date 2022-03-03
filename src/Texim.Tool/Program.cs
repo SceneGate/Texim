@@ -34,6 +34,7 @@ namespace Texim.Tool
             root.Add(MetalMax.CommandLine.CreateCommand());
             root.Add(LondonLife.CommandLine.CreateCommand());
             root.Add(Raw.CommandLine.CreateCommand());
+            root.Add(Darko.CommandLine.CreateCommand());
 
             return root.InvokeAsync(args);
         }
