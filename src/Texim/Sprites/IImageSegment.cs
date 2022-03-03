@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,27 +17,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Sprites;
+
+public interface IImageSegment
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    int Layer { get; }
 
-    public static class Program
-    {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats");
-            root.Add(Nitro.CommandLine.CreateCommand());
-            root.Add(BlackRockShooter.CommandLine.CreateCommand());
-            root.Add(DevilSurvivor.CommandLine.CreateCommand());
-            root.Add(Disgaea.CommandLine.CreateCommand());
-            root.Add(MetalMax.CommandLine.CreateCommand());
-            root.Add(LondonLife.CommandLine.CreateCommand());
-            root.Add(Megaman.CommandLine.CreateCommand());
-            root.Add(Raw.CommandLine.CreateCommand());
-            root.Add(Darko.CommandLine.CreateCommand());
+    int CoordinateX { get; }
 
-            return root.InvokeAsync(args);
-        }
-    }
+    int CoordinateY { get; }
+
+    int Width { get; }
+
+    int Height { get; }
+
+    short TileIndex { get; }
+
+    bool HorizontalFlip { get; }
+
+    bool VerticalFlip { get; }
+
+    byte PaletteIndex { get; }
 }

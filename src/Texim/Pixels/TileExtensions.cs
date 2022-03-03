@@ -17,10 +17,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Compressions.Nitro
+namespace Texim.Pixels
 {
     using System;
-    using Texim.Pixels;
 
     public static class TileExtensions
     {
