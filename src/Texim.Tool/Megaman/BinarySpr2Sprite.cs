@@ -36,6 +36,8 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
     private uint paletteOffset;
     private uint animationOffset;
     private uint spritesOffset;
+    private int sceneWidth;
+    private int sceneHeight;
 
     public NodeContainerFormat Convert(IBinary source)
     {
@@ -53,12 +55,8 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
         var palettes = ReadPalettes();
         container.Root.Add(new Node("palettes", palettes));
 
-        source.Stream.Position = animationOffset;
-        int numAnimations = reader.ReadInt32();
-        for (int i = 0; i < numAnimations; i++) {
-            var node = ReadAnimationSprites(i);
-            container.Root.Add(node);
-        }
+        var animations = ReadAnimations();
+        container.Root.Add(animations);
 
         return container;
     }
@@ -75,13 +73,13 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
     private IndexedImage ReadPixels()
     {
         reader.Stream.Position = dataOffset;
-        int sceneWidth = reader.ReadInt16();
-        reader.ReadInt16(); // sceneHeight
+        sceneWidth = reader.ReadInt16();
+        sceneHeight = reader.ReadInt16();
         uint pixelsOffset = reader.ReadUInt32(); // then there is an unknown uint per element
 
         reader.Stream.Position = dataOffset + pixelsOffset;
         int pixelsLength = (int)(paletteOffset - reader.Stream.Position);
-        var pixels = reader.ReadPixels<Indexed4Bpp>(pixelsLength)
+        var pixels = reader.ReadPixels<Indexed4Bpp>(pixelsLength * 2)
             .UnswizzleWith(new TileSwizzling<IndexedPixel>(sceneWidth));
 
         // sceneWidth happens to be also the num of tiles, so we can use it as width and 64 as height
@@ -106,6 +104,20 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
         }
 
         return palettes;
+    }
+
+    private Node ReadAnimations()
+    {
+        var animationNode = new Node("animations");
+
+        reader.Stream.Position = animationOffset;
+        int numAnimations = reader.ReadInt32();
+        for (int i = 0; i < numAnimations; i++) {
+            var node = ReadAnimationSprites(i);
+            animationNode.Add(node);
+        }
+
+        return animationNode;
     }
 
     private Node ReadAnimationSprites(int index)
@@ -149,10 +161,14 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
             : reader.ReadUInt32();
         int numElements = (int)(nextOffset - offset) / 8;
 
-        var sprite = new Sprite();
+        var sprite = new Sprite {
+            Width = sceneWidth,
+            Height = sceneHeight,
+        };
+
         reader.Stream.Position = spritesOffset + offset;
         for (int i = 0; i < numElements; i++) {
-            short tileIndex = reader.ReadByte();
+            int tileIndex = reader.ReadByte() * 2; // x2 because of 4bpp
             int coordX = reader.ReadSByte();
             int coordY = reader.ReadSByte();
             int sizeMode = reader.ReadByte();
@@ -164,7 +180,7 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
             var (width, height) = GetSize(shape, sizeMode);
 
             sprite.Segments.Add(new ImageSegment {
-                TileIndex = tileIndex,
+                TileIndex = (short)tileIndex,
                 CoordinateX = coordX,
                 CoordinateY = coordY,
                 Width = width,
