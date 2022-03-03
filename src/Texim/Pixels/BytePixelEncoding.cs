@@ -53,11 +53,13 @@ namespace Texim.Pixels
             int numPixels = data.Length * (8 / BitsPerPixel);
             var pixels = new IndexedPixel[numPixels];
 
-            int endiannessShift = (Endianness == EndiannessMode.LittleEndian) ? 0 : BitsPerPixel;
             int mask = (1 << BitsPerPixel) - 1;
             for (int i = 0, bitPos = 0; i < numPixels; i++, bitPos += BitsPerPixel) {
-                byte value = (byte)((data[bitPos / 8] >> (endiannessShift - (bitPos % 8))) & mask);
-                pixels[i] = BitsToPixel(value);
+                int endiannessShift = (Endianness == EndiannessMode.LittleEndian)
+                    ? (bitPos % 8)
+                    : (BitsPerPixel - (bitPos % 8));
+                int value = (data[bitPos / 8] >> endiannessShift) & mask;
+                pixels[i] = BitsToPixel((byte)value);
             }
 
             return pixels;
@@ -68,7 +70,6 @@ namespace Texim.Pixels
             if (pixels == null)
                 throw new ArgumentNullException(nameof(pixels));
 
-            int endiannessShift = (Endianness == EndiannessMode.LittleEndian) ? 0 : BitsPerPixel;
             var pixelList = pixels.ToArray();
             int numBytes = pixelList.Length * BitsPerPixel / 8;
             byte[] data = new byte[numBytes];
@@ -76,8 +77,12 @@ namespace Texim.Pixels
             for (int i = 0, bitPos = 0; i < pixelList.Length; i++, bitPos += BitsPerPixel) {
                 byte pixelData = PixelToBits(pixelList[i]);
 
+                int endiannessShift = (Endianness == EndiannessMode.LittleEndian)
+                    ? (bitPos % 8)
+                    : (BitsPerPixel - (bitPos % 8));
+
                 byte value = data[bitPos / 8];
-                value |= (byte)(pixelData << (endiannessShift - (bitPos % 8)));
+                value |= (byte)(pixelData << endiannessShift);
                 data[bitPos / 8] = value;
             }
 
