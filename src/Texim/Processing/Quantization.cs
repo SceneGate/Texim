@@ -39,7 +39,7 @@ namespace Texim.Processing
             }
 
             for (int i = 0; i < pixels.Length; i++) {
-                if (FirstAsTransparent && pixels[i].Alpha >= 128) {
+                if (FirstAsTransparent && pixels[i].Alpha <= 128) {
                     indexed[i] = new IndexedPixel(0, pixels[i].Alpha, 0);
                     continue;
                 }
