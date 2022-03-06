@@ -17,8 +17,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Drawing;
+using System.IO;
+using Texim.Compressions.Nitro;
+using Texim.Formats;
 using Yarhl.FileSystem;
 
 namespace Texim.Tool.JumpUltimateStars
@@ -42,12 +47,44 @@ namespace Texim.Tool.JumpUltimateStars
 
         private static void Export(string package, string koma, string kshape, string output)
         {
-            var komaFormat = NodeFactory.FromFile(koma)
+            Node images = NodeFactory.FromFile(package)
+                .TransformWith<BinaryAlar2Container>()
+                .Children["koma"];
+            if (images is null) {
+                throw new FormatException("Invalid package file");
+            }
+
+            KShape shapes = NodeFactory.FromFile(kshape)
+                .TransformWith<Binary2KShape>()
+                .GetFormatAs<KShape>();
+
+            Koma komaFormat = NodeFactory.FromFile(koma)
                 .TransformWith<Binary2Koma>()
                 .GetFormatAs<Koma>();
+            foreach (KomaElement komaElement in komaFormat) {
+                string filename = $"{komaElement.KomaName}.dtx";
+                Node dtx = images.Children[filename];
+                if (dtx is null) {
+                    Console.WriteLine("- Missing: " + filename);
+                    continue;
+                }
 
-            var images = NodeFactory.FromFile(package)
-                .TransformWith<BinaryAlar2Container>();
+                //string outputFilePath = Path.Combine(output, komaElement.KomaName + ".png");
+                //var decompressionParams = new MapDecompressionParams {
+                //    Map = shapes[0], // TODO
+                //    TileSize = new Size(48, 48),
+                //};
+                //var indexedImageParams = new IndexedImageBitmapParams {
+                //    Palettes = null, // TODO: from DTX
+                //};
+                //dtx
+                    // TODO: .TransformWith<BinaryDtx2Image>()
+                    //.TransformWith<MapDecompression, MapDecompressionParams>(decompressionParams)
+                    //.TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
+                    //.Stream.WriteTo(outputFilePath);
+            }
+
+            Console.WriteLine("Done!");
         }
     }
 }

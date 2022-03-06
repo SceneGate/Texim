@@ -18,25 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System.Collections.ObjectModel;
+using Texim.Compressions.Nitro;
 using Yarhl.FileFormat;
 
 namespace Texim.Tool.JumpUltimateStars
 {
-    public class Koma : Collection<KomaElement>, IFormat
+    public class KShape : Collection<IScreenMap>, IFormat
     {
-        // From ARM9 pointers at 0x0209E840
-        public static string[] NameTable { get; } = new[] {
-            null, "es", "is", "ig",
-            "tr", "ct", "gt", "kn",
-            "kk", "cb", "oj", "nb",
-            "sk", "tc", "jj", "sd",
-            "ss", "tz", "to", "dg",
-            "dn", "ds", "tl", "db",
-            "na", "nk", "hh", "pj",
-            "bu", "bc", "bl", "hs",
-            "hk", "bb", "nn", "mo",
-            "mr", "yo", "yh", "rk",
-            "rb", "op", "dt",
-        };
     }
 }
