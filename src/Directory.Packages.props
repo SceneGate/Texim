@@ -1,18 +1,19 @@
 <Project>
     <!-- Centralize dependency management -->
     <ItemGroup>
-        <PackageVersion Include="Yarhl" Version="3.1.1-preview.23" />
-        <PackageVersion Include="System.Drawing.Common" Version="5.0.2" />
+        <PackageVersion Include="Yarhl" Version="4.0.0-preview.153" />
+        <PackageVersion Include="System.Drawing.Common" Version="6.0.0" />
+        <PackageVersion Include="SixLabors.ImageSharp" Version="2.0.0" />
 
         <PackageVersion Include="System.CommandLine" Version="2.0.0-beta1.21216.1" />
-        <PackageVersion Include="YamlDotNet" Version="11.1.1" />
+        <PackageVersion Include="YamlDotNet" Version="11.2.1" />
 
-        <PackageVersion Include="BenchmarkDotNet" Version="0.12.1" />
+        <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
 
-        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.0.0" />
+        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
 
         <PackageVersion Include="StyleCop.Analyzers" Version="1.1.118" />
-        <PackageVersion Include="SonarAnalyzer.CSharp" Version="8.20.0.28934" />
-        <PackageVersion Include="Roslynator.Analyzers" Version="3.1.0" />
+        <PackageVersion Include="SonarAnalyzer.CSharp" Version="8.36.0.43782" />
+        <PackageVersion Include="Roslynator.Analyzers" Version="4.0.2" />
     </ItemGroup>
 </Project>

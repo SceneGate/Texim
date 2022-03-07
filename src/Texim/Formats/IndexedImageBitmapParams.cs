@@ -19,12 +19,13 @@
 // SOFTWARE.
 namespace Texim.Formats
 {
-    using System.Drawing.Imaging;
+    using SixLabors.ImageSharp.Formats;
+    using SixLabors.ImageSharp.Formats.Png;
     using Texim.Palettes;
 
     public class IndexedImageBitmapParams
     {
-        public ImageFormat Format { get; set; } = ImageFormat.Png;
+        public IImageEncoder Encoder { get; set; } = new PngEncoder();
 
         public IPalette Palette { get; set; }
 

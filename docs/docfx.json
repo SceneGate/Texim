@@ -4,7 +4,7 @@
         "src": [
           {
             "files": [
-              "Texim/Texim.csproj"
+              "Texim/bin/**/Texim.dll"
             ],
             "src": "../src"
           }

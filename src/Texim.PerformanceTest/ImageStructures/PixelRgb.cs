@@ -20,7 +20,6 @@
 namespace Texim.PerformanceTest.ImageStructures
 {
     using System;
-    using System.Drawing;
 
     public readonly struct PixelRgb
     {
@@ -56,13 +55,13 @@ namespace Texim.PerformanceTest.ImageStructures
 
         public byte Alpha { get; init; }
 
-        public readonly Color ToColor()
+        public readonly System.Drawing.Color ToColor()
         {
             if (!IsIndexed) {
                 throw new FormatException("Pixel is indexed");
             }
 
-            return Color.FromArgb(Alpha, Red, Green, Blue);
+            return System.Drawing.Color.FromArgb(Alpha, Red, Green, Blue);
         }
     }
 }

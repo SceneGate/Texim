@@ -20,7 +20,6 @@
 namespace Texim.Processing
 {
     using System;
-    using System.Drawing;
     using System.Linq;
     using Texim.Colors;
     using Texim.Palettes;
@@ -30,10 +29,10 @@ namespace Texim.Processing
     {
         private readonly IPaletteCollection paletteCollection;
         private readonly Rgb[][] palettes;
-        private readonly Size tileSize;
+        private readonly System.Drawing.Size tileSize;
         private readonly int width;
 
-        public FixedPaletteTileQuantization(IPaletteCollection palettes, Size tileSize, int width)
+        public FixedPaletteTileQuantization(IPaletteCollection palettes, System.Drawing.Size tileSize, int width)
         {
             if (palettes == null)
                 throw new ArgumentNullException(nameof(palettes));
@@ -72,7 +71,7 @@ namespace Texim.Processing
         private void ApproximateTile(ReadOnlySpan<Rgb> tile, int paletteIdx, Span<IndexedPixel> output)
         {
             for (int i = 0; i < tile.Length; i++) {
-                int colorIdx = (FirstAsTransparent && tile[i].Alpha >= 128)
+                int colorIdx = (FirstAsTransparent && tile[i].Alpha <= 128)
                     ? 0
                     : ExhaustiveColorSearch.Search(palettes[paletteIdx], tile[i]).Index;
                 output[i] = new IndexedPixel((short)colorIdx, tile[i].Alpha, (byte)paletteIdx);

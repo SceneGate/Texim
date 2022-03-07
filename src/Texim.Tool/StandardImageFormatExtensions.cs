@@ -20,18 +20,28 @@
 namespace Texim.Tool
 {
     using System;
-    using System.Drawing.Imaging;
+    using SixLabors.ImageSharp.Formats;
+    using SixLabors.ImageSharp.Formats.Bmp;
+    using SixLabors.ImageSharp.Formats.Gif;
+    using SixLabors.ImageSharp.Formats.Jpeg;
+    using SixLabors.ImageSharp.Formats.Pbm;
+    using SixLabors.ImageSharp.Formats.Png;
+    using SixLabors.ImageSharp.Formats.Tga;
+    using SixLabors.ImageSharp.Formats.Tiff;
+    using SixLabors.ImageSharp.Formats.Webp;
 
     public static class StandardImageFormatExtensions
     {
-        public static ImageFormat GetFormat(this StandardImageFormat format) =>
+        public static IImageEncoder GetEncoder(this StandardImageFormat format) =>
             format switch {
-                StandardImageFormat.Bmp => ImageFormat.Bmp,
-                StandardImageFormat.Gif => ImageFormat.Gif,
-                StandardImageFormat.Icon => ImageFormat.Icon,
-                StandardImageFormat.Jpeg => ImageFormat.Jpeg,
-                StandardImageFormat.Png => ImageFormat.Png,
-                StandardImageFormat.Tiff => ImageFormat.Tiff,
+                StandardImageFormat.Bmp => new BmpEncoder(),
+                StandardImageFormat.Gif => new GifEncoder(),
+                StandardImageFormat.Jpeg => new JpegEncoder(),
+                StandardImageFormat.Pbm => new PbmEncoder(),
+                StandardImageFormat.Png => new PngEncoder(),
+                StandardImageFormat.Tiff => new TiffEncoder(),
+                StandardImageFormat.Tga => new TgaEncoder(),
+                StandardImageFormat.Webp => new WebpEncoder(),
                 _ => throw new FormatException("Invalid format"),
             };
     }

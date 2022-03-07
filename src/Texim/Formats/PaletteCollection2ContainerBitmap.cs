@@ -20,19 +20,20 @@
 namespace Texim.Formats
 {
     using System;
-    using System.Drawing.Imaging;
+    using SixLabors.ImageSharp.Formats;
+    using SixLabors.ImageSharp.Formats.Png;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
 
     public class PaletteCollection2ContainerBitmap :
-        IInitializer<ImageFormat>, IConverter<IPaletteCollection, NodeContainerFormat>
+        IInitializer<IImageEncoder>, IConverter<IPaletteCollection, NodeContainerFormat>
     {
-        private ImageFormat format = ImageFormat.Png;
+        private IImageEncoder encoder = new PngEncoder();
 
-        public void Initialize(ImageFormat parameters)
+        public void Initialize(IImageEncoder parameters)
         {
-            format = parameters;
+            encoder = parameters;
         }
 
         public NodeContainerFormat Convert(IPaletteCollection source)
@@ -43,7 +44,7 @@ namespace Texim.Formats
             var container = new NodeContainerFormat();
             for (int i = 0; i < source.Palettes.Count; i++) {
                 var child = new Node($"Palette {i}", source.Palettes[i])
-                    .TransformWith<Palette2Bitmap>();
+                    .TransformWith<Palette2Bitmap, IImageEncoder>(encoder);
                 container.Root.Add(child);
             }
 

@@ -21,7 +21,6 @@ namespace Texim.Compressions.Nitro
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
     using System.Linq;
     using Texim.Images;
     using Texim.Pixels;
@@ -31,7 +30,7 @@ namespace Texim.Compressions.Nitro
     public class MapCompression :
         IInitializer<MapCompressionParams>, IConverter<IIndexedImage, NodeContainerFormat>
     {
-        private Size tileSize = new Size(8, 8);
+        private System.Drawing.Size tileSize = new System.Drawing.Size(8, 8);
         private IIndexedImage mergeImage;
 
         public void Initialize(MapCompressionParams parameters)

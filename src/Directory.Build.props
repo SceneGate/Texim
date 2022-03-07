@@ -6,6 +6,7 @@
         <Copyright>Copyright (C) 2021 SceneGate</Copyright>
 
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <NoWarn>NETSDK1179</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -14,6 +15,7 @@
         <RepositoryUrl>https://github.com/SceneGate/Texim</RepositoryUrl>
         <!-- <PackageIcon>icon.png</PackageIcon> -->
         <PackageTags>scenegate;yarhl;images</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <!-- Deterministic and source link -->

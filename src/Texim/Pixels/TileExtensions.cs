@@ -17,11 +17,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Compressions.Nitro
+namespace Texim.Pixels
 {
     using System;
-    using System.Drawing;
-    using Texim.Pixels;
 
     public static class TileExtensions
     {
@@ -45,12 +43,12 @@ namespace Texim.Compressions.Nitro
             return true;
         }
 
-        public static void FlipHorizontal(this Memory<IndexedPixel> tile, Size tileSize)
+        public static void FlipHorizontal(this Memory<IndexedPixel> tile, System.Drawing.Size tileSize)
         {
             tile.Span.FlipHorizontal(tileSize);
         }
 
-        public static void FlipHorizontal(this Span<IndexedPixel> tile, Size tileSize)
+        public static void FlipHorizontal(this Span<IndexedPixel> tile, System.Drawing.Size tileSize)
         {
             for (int y = 0; y < tileSize.Height; y++) {
                 for (int x = 0; x < tileSize.Width / 2; x++) {
@@ -64,12 +62,12 @@ namespace Texim.Compressions.Nitro
             }
         }
 
-        public static void FlipVertical(this Memory<IndexedPixel> tile, Size tileSize)
+        public static void FlipVertical(this Memory<IndexedPixel> tile, System.Drawing.Size tileSize)
         {
             tile.Span.FlipVertical(tileSize);
         }
 
-        public static void FlipVertical(this Span<IndexedPixel> tile, Size tileSize)
+        public static void FlipVertical(this Span<IndexedPixel> tile, System.Drawing.Size tileSize)
         {
             for (int x = 0; x < tileSize.Width; x++) {
                 for (int y = 0; y < tileSize.Height / 2; y++) {

@@ -20,22 +20,24 @@
 namespace Texim.Formats
 {
     using System;
-    using System.Drawing;
-    using System.Drawing.Imaging;
+    using SixLabors.ImageSharp;
+    using SixLabors.ImageSharp.Formats;
+    using SixLabors.ImageSharp.Formats.Png;
+    using SixLabors.ImageSharp.PixelFormats;
     using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
     public class Palette2Bitmap :
-       IInitializer<ImageFormat>, IConverter<IPalette, BinaryFormat>
+       IInitializer<IImageEncoder>, IConverter<IPalette, BinaryFormat>
     {
         private const int ColorsPerRow = 16;
         private const int ZoomSize = 10;
-        private ImageFormat format = ImageFormat.Png;
+        private IImageEncoder encoder = new PngEncoder();
 
-        public void Initialize(ImageFormat parameters)
+        public void Initialize(IImageEncoder parameters)
         {
-            format = parameters;
+            encoder = parameters;
         }
 
         public BinaryFormat Convert(IPalette source)
@@ -48,23 +50,24 @@ namespace Texim.Formats
             int width = ColorsPerRow * ZoomSize;
             int height = (int)Math.Ceiling((float)colors.Count / ColorsPerRow);
             height *= ZoomSize;
-            using var image = new Bitmap(width, height);
+
+            using var image = new Image<Rgba32>(width, height);
 
             for (int i = 0; i < colors.Count; i++) {
-                Color color = colors[i].ToColor();
+                Rgba32 color = colors[i].ToImageSharpColor();
                 int colorX = (i % ColorsPerRow) * ZoomSize;
                 int colorY = (i / ColorsPerRow) * ZoomSize;
 
                 // Repeat the same color to create a big square
                 for (int zoomX = 0; zoomX < ZoomSize; zoomX++) {
                     for (int zoomY = 0; zoomY < ZoomSize; zoomY++) {
-                        image.SetPixel(colorX + zoomX, colorY + zoomY, color);
+                        image[colorX + zoomX, colorY + zoomY] = color;
                     }
                 }
             }
 
             var binary = new BinaryFormat();
-            image.Save(binary.Stream, format);
+            image.Save(binary.Stream, encoder);
             return binary;
         }
     }

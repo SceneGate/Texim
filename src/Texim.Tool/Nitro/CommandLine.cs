@@ -134,7 +134,7 @@ namespace Texim.Tool.Nitro
 
             var indexedParams = new IndexedImageBitmapParams {
                 Palettes = palette,
-                Format = format.GetFormat(),
+                Encoder = format.GetEncoder(),
             };
             pixels.TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedParams)
                 .Stream.WriteTo(output);

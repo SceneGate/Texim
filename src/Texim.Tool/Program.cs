@@ -33,8 +33,10 @@ namespace Texim.Tool
                 Disgaea.CommandLine.CreateCommand(),
                 MetalMax.CommandLine.CreateCommand(),
                 LondonLife.CommandLine.CreateCommand(),
+                Megaman.CommandLine.CreateCommand(),
                 JumpUltimateStars.CommandLine.CreateCommand(),
                 Raw.CommandLine.CreateCommand(),
+                Darko.CommandLine.CreateCommand(),
             };
 
             return root.InvokeAsync(args);
