@@ -18,6 +18,11 @@ The sprite data is 4 bytes:
 2. byte: Height in tiles (48 pixels)
 3. short: Tile index. Only if it's 0, use 1. Tile 0 is transparent tile.
 
+> **NOTE**:  
+> The sprite IDs from `KShape` do not correspond to the order defined in the
+> DSTX. `KShape` points to blocks of 48x48 in the order defined in the image
+> DSIG, which may be different as the sprites defined here.
+
 ## DSIG
 
 | Offset | Type     | Description                                        |
@@ -58,6 +63,35 @@ The sprite data is 4 bytes:
 | 0x0E   | short  | Unknown                   |
 | 0x10   | short  | Unknown                   |
 | 0x12   | string | Null-terminated file path |
+
+## KShape
+
+| Offset | Type         | Description                  |
+| ------ | ------------ | ---------------------------- |
+| 0x00   | int[]        | First group element index    |
+| 0x20   | int[]        | Number of elements per group |
+| 0x40   | KShapeInfo[] | Info to reconstruct sprites  |
+
+To get the `KShapeInfo` from an image, first get its
+[_Koma element_](#koma-element), then:
+
+1. Read the group index at `KShapeGroupIndex * 4`
+2. Add to this the `KShapeElementIndex`
+3. Multiply by the size of `KShapeInfo`: `0x18` and add `0x40`.
+
+There are 8 groups.
+
+### KShapeInfo
+
+| Offset | Type       | Description                                   |
+| ------ | ---------- | --------------------------------------------- |
+| 0x00   | byte[0x14] | Segment index - 1 (except 0 for transparency) |
+| 0x14   | int        | Unknown                                       |
+
+Each segment is always 48x48 pixels. Start at coordinate (0, 0) and iterate
+horizontally until reaching width 240, then increment Y. If the index is 0,
+skip, it's a transparent segment (you could use the tile 0). The final image
+should be 240x192 pixels.
 
 ## Koma
 

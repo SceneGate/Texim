@@ -17,14 +17,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.IO;
-using Yarhl.FileFormat;
-using Yarhl.FileSystem;
-using Yarhl.IO;
-
 namespace Texim.Tool.JumpUltimateStars
 {
+    using System;
+    using System.IO;
+    using Yarhl.FileFormat;
+    using Yarhl.FileSystem;
+    using Yarhl.IO;
+
     public class BinaryAlar2Container : IConverter<IBinary, NodeContainerFormat>
     {
         private const string STAMP = "ALAR";

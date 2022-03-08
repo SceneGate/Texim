@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool.JumpUltimateStars
-{
-    using System.Collections.ObjectModel;
-    using Yarhl.FileFormat;
+namespace Texim.Sprites;
 
-    public class Koma : Collection<KomaElement>, IFormat
-    {
-        // From ARM9 pointers at 0x0209E840
-        public static string[] NameTable { get; } = new[] {
-            null, "es", "is", "ig",
-            "tr", "ct", "gt", "kn",
-            "kk", "cb", "oj", "nb",
-            "sk", "tc", "jj", "sd",
-            "ss", "tz", "to", "dg",
-            "dn", "ds", "tl", "db",
-            "na", "nk", "hh", "pj",
-            "bu", "bc", "bl", "hs",
-            "hk", "bb", "nn", "mo",
-            "mr", "yo", "yh", "rk",
-            "rb", "op", "dt",
-        };
-    }
+using Texim.Images;
+
+public class Sprite2IndexedImageParams
+{
+    public SpriteRelativeCoordinatesKind RelativeCoordinates { get; set; } = SpriteRelativeCoordinatesKind.Center;
+
+    public System.Drawing.Size TileSize { get; set; } = new System.Drawing.Size(8, 8);
+
+    public IIndexedImage FullImage { get; set; }
+
+    public int OutOfBoundsTileIndex { get; set; } = -1;
 }

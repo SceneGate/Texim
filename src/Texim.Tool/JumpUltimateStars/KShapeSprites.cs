@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,26 +17,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
+namespace Texim.Tool.JumpUltimateStars;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Texim.Sprites;
 using Yarhl.FileFormat;
-using Yarhl.IO;
 
-namespace Texim.Tool.JumpUltimateStars
+public class KShapeSprites : IFormat
 {
-    public class Binary2KShape : IConverter<IBinary, KShape>
+    private readonly Dictionary<(int, int), Sprite> sprites = new ();
+
+    public void AddSprite(int group, int element, Sprite sprite)
     {
-        public KShape Convert(IBinary source)
-        {
-            if (source is null)
-                throw new ArgumentNullException(nameof(source));
+        sprites[(group, element)] = sprite;
+    }
 
-            var shape = new KShape();
-
-            return shape;
-        }
+    public Sprite GetSprite(int group, int element)
+    {
+        return sprites[(group, element)];
     }
 }

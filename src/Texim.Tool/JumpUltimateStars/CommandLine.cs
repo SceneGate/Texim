@@ -17,20 +17,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Drawing;
-using System.IO;
-using Texim.Compressions.Nitro;
-using Texim.Formats;
-using Texim.Images;
-using Texim.Sprites;
-using Yarhl.FileSystem;
-using Yarhl.IO;
-
 namespace Texim.Tool.JumpUltimateStars
 {
+    using System;
+    using System.CommandLine;
+    using System.CommandLine.Invocation;
+    using System.IO;
+    using Texim.Formats;
+    using Texim.Images;
+    using Texim.Sprites;
+    using Yarhl.FileSystem;
+
     public static class CommandLine
     {
         public static Command CreateCommand()
@@ -57,9 +54,9 @@ namespace Texim.Tool.JumpUltimateStars
                 throw new FormatException("Invalid package file");
             }
 
-            KShape shapes = NodeFactory.FromFile(kshape)
-                .TransformWith<Binary2KShape>()
-                .GetFormatAs<KShape>();
+            var shapes = NodeFactory.FromFile(kshape)
+                .TransformWith<BinaryKShape2SpriteCollection>()
+                .GetFormatAs<KShapeSprites>();
 
             Koma komaFormat = NodeFactory.FromFile(koma)
                 .TransformWith<Binary2Koma>()
@@ -73,23 +70,26 @@ namespace Texim.Tool.JumpUltimateStars
                 }
 
                 dtx.TransformWith<BinaryDstx2SpriteImage>();
-                var sprite = dtx.Children["sprite"].GetFormatAs<Sprite>();
                 var image = dtx.Children["image"].GetFormatAs<IndexedPaletteImage>();
 
-                string outputFilePath = Path.Combine(output, komaElement.KomaName + ".png");
-                //var decompressionParams = new MapDecompressionParams {
-                //    Map = shapes[0], // TODO
-                //    TileSize = new Size(48, 48),
-                //};
+                // We ignore the sprite info from the DSTX and we take the one
+                // from the kshape
+                var sprite = shapes.GetSprite(komaElement.KShapeGroupId, komaElement.KShapeElementId);
+
+                string outputFilePath = Path.Combine(
+                    output,
+                    $"{komaElement.KShapeGroupId}",
+                    komaElement.KomaName + ".png");
+
+                var spriteParams = new Sprite2IndexedImageParams {
+                    RelativeCoordinates = SpriteRelativeCoordinatesKind.TopLeft,
+                    FullImage = image,
+                };
                 var indexedImageParams = new IndexedImageBitmapParams {
                    Palettes = image,
                 };
-                var spriteParams = new ImageSegment2IndexedImageParams {
-                    FullImage = image,
-                    OutOfBoundsTileIndex = 0,
-                };
-                dtx.Children["sprite"]
-                    .TransformWith<Sprite2IndexedImage, ImageSegment2IndexedImageParams>(spriteParams)
+                new Node("sprite", sprite)
+                    .TransformWith<Sprite2IndexedImage, Sprite2IndexedImageParams>(spriteParams)
                     .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
                     .Stream.WriteTo(outputFilePath);
             }
