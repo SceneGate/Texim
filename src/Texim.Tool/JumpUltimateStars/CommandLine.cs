@@ -24,7 +24,10 @@ using System.Drawing;
 using System.IO;
 using Texim.Compressions.Nitro;
 using Texim.Formats;
+using Texim.Images;
+using Texim.Sprites;
 using Yarhl.FileSystem;
+using Yarhl.IO;
 
 namespace Texim.Tool.JumpUltimateStars
 {
@@ -69,19 +72,26 @@ namespace Texim.Tool.JumpUltimateStars
                     continue;
                 }
 
-                //string outputFilePath = Path.Combine(output, komaElement.KomaName + ".png");
+                dtx.TransformWith<BinaryDstx2SpriteImage>();
+                var sprite = dtx.Children["sprite"].GetFormatAs<Sprite>();
+                var image = dtx.Children["image"].GetFormatAs<IndexedPaletteImage>();
+
+                string outputFilePath = Path.Combine(output, komaElement.KomaName + ".png");
                 //var decompressionParams = new MapDecompressionParams {
                 //    Map = shapes[0], // TODO
                 //    TileSize = new Size(48, 48),
                 //};
-                //var indexedImageParams = new IndexedImageBitmapParams {
-                //    Palettes = null, // TODO: from DTX
-                //};
-                //dtx
-                    // TODO: .TransformWith<BinaryDtx2Image>()
-                    //.TransformWith<MapDecompression, MapDecompressionParams>(decompressionParams)
-                    //.TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
-                    //.Stream.WriteTo(outputFilePath);
+                var indexedImageParams = new IndexedImageBitmapParams {
+                   Palettes = image,
+                };
+                var spriteParams = new ImageSegment2IndexedImageParams {
+                    FullImage = image,
+                    OutOfBoundsTileIndex = 0,
+                };
+                dtx.Children["sprite"]
+                    .TransformWith<Sprite2IndexedImage, ImageSegment2IndexedImageParams>(spriteParams)
+                    .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
+                    .Stream.WriteTo(outputFilePath);
             }
 
             Console.WriteLine("Done!");

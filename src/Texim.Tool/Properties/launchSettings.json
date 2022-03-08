@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Texim.Tool": {
-      "commandName": "Project",
-      "commandLineArgs": "jus export --package resources\\jus_dtx\\koma.aar --koma resources\\jus_dtx\\koma.bin --kshape resources\\jus_dtx\\kshape.bin --output resources\\jus_dtx\\output",
-      "workingDirectory": "C:\\Users\\benit\\source\\repos\\Texim"
-    }
-  }
-}

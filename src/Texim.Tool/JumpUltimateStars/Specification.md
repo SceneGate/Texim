@@ -2,28 +2,34 @@
 
 ## DSTX
 
-| Offset | Type        | Description |
-| ------ | ----------- | ----------- |
-| 0x00   | char[4]     | DSTX        |
-| 0x04   |
-| 0x05   | type        |
-| 0x06   |
-| 0x07   |
-| 0x08   | DSIG offset |
-| 0x10   | metadata    |
+| Offset | Type    | Description        |
+| ------ | ------- | ------------------ |
+| 0x00   | char[4] | DSTX               |
+| 0x04   | byte    | Unknown            |
+| 0x05   | byte    | Type, must be 0x04 |
+| 0x06   | short   | Number of elements |
+| 0x08   | short   | DSIG offset        |
+| 0x0C   | uint[]  | Sprite data        |
+| ...    | DSIG    | Image with palette |
+
+The sprite data is 4 bytes:
+
+1. byte: Width in tiles (48 pixels)
+2. byte: Height in tiles (48 pixels)
+3. short: Tile index. Only if it's 0, use 1. Tile 0 is transparent tile.
 
 ## DSIG
 
-| Offset | Type               | Description |
-| ------ | ------------------ | ----------- |
-| 0x00   | char[4]            | DSIG        |
-| 0x04   |
-| 0x05   | nds image format   |
-| 0x06   | number of palettes |
-| 0x08   | width              |
-| 0x0A   | height             |
-| 0x0C   | bgr555[]           | palette     |
-| ...    | pixels[]           | image       |
+| Offset | Type     | Description                                        |
+| ------ | -------- | -------------------------------------------------- |
+| 0x00   | char[4]  | DSIG                                               |
+| 0x04   | byte     | Unknown                                            |
+| 0x05   | byte     | nds image format. Different than 0x10, then 8 bpp. |
+| 0x06   | short    | number of palettes                                 |
+| 0x08   | short    | width                                              |
+| 0x0A   | short    | height                                             |
+| 0x0C   | bgr555[] | palette                                            |
+| ...    | pixels[] | image                                              |
 
 ## ALAR
 
