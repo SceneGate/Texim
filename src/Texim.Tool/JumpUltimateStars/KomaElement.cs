@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Tool.JumpUltimateStars
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
-
-    public static class Program
+    public class KomaElement
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                Nitro.CommandLine.CreateCommand(),
-                BlackRockShooter.CommandLine.CreateCommand(),
-                DevilSurvivor.CommandLine.CreateCommand(),
-                Disgaea.CommandLine.CreateCommand(),
-                MetalMax.CommandLine.CreateCommand(),
-                LondonLife.CommandLine.CreateCommand(),
-                Megaman.CommandLine.CreateCommand(),
-                JumpUltimateStars.CommandLine.CreateCommand(),
-                Raw.CommandLine.CreateCommand(),
-                Darko.CommandLine.CreateCommand(),
-            };
+        public int ImageId { get; set; }
 
-            return root.InvokeAsync(args);
-        }
+        public int Unknown2 { get; set; }
+
+        public string KomaName { get; set; }
+
+        public byte Unknown6 { get; set; }
+
+        public byte Unknown7 { get; set; }
+
+        public byte KShapeGroupId { get; set; }
+
+        public byte KShapeElementId { get; set; }
+
+        public byte UnknownA { get; set; }
+
+        public byte UnknownB { get; set; }
     }
 }

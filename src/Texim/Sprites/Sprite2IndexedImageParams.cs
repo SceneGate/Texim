@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Sprites;
+
+using Texim.Images;
+
+public class Sprite2IndexedImageParams
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    public SpriteRelativeCoordinatesKind RelativeCoordinates { get; set; } = SpriteRelativeCoordinatesKind.Center;
 
-    public static class Program
-    {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                Nitro.CommandLine.CreateCommand(),
-                BlackRockShooter.CommandLine.CreateCommand(),
-                DevilSurvivor.CommandLine.CreateCommand(),
-                Disgaea.CommandLine.CreateCommand(),
-                MetalMax.CommandLine.CreateCommand(),
-                LondonLife.CommandLine.CreateCommand(),
-                Megaman.CommandLine.CreateCommand(),
-                JumpUltimateStars.CommandLine.CreateCommand(),
-                Raw.CommandLine.CreateCommand(),
-                Darko.CommandLine.CreateCommand(),
-            };
+    public System.Drawing.Size TileSize { get; set; } = new System.Drawing.Size(8, 8);
 
-            return root.InvokeAsync(args);
-        }
-    }
+    public IIndexedImage FullImage { get; set; }
+
+    public int OutOfBoundsTileIndex { get; set; } = -1;
 }

@@ -26,16 +26,22 @@ using Texim.Pixels;
 using Yarhl.FileFormat;
 
 public class Sprite2IndexedImage :
-    IInitializer<ImageSegment2IndexedImageParams>,
+    IInitializer<Sprite2IndexedImageParams>,
     IConverter<ISprite, IndexedImage>
 {
     private readonly ImageSegment2IndexedImage segmentConverter = new ();
-    private ImageSegment2IndexedImageParams parameters;
+    private Sprite2IndexedImageParams parameters;
 
-    public void Initialize(ImageSegment2IndexedImageParams parameters)
+    public void Initialize(Sprite2IndexedImageParams parameters)
     {
         this.parameters = parameters;
-        segmentConverter.Initialize(parameters);
+
+        var segmentParams = new ImageSegment2IndexedImageParams {
+            FullImage = parameters.FullImage,
+            TileSize = parameters.TileSize,
+            OutOfBoundsTileIndex = parameters.OutOfBoundsTileIndex,
+        };
+        segmentConverter.Initialize(segmentParams);
     }
 
     public IndexedImage Convert(ISprite source)
@@ -48,10 +54,14 @@ public class Sprite2IndexedImage :
         var pixels = new IndexedPixel[source.Width * source.Height];
         Span<IndexedPixel> pixelsSpan = pixels;
 
-        int centerX = source.Width / 2;
-        int centerY = source.Height / 2;
+        (int relativeX, int relativeY) = parameters.RelativeCoordinates switch {
+            SpriteRelativeCoordinatesKind.TopLeft => (0, 0),
+            SpriteRelativeCoordinatesKind.Center => (source.Width / 2, source.Height / 2),
+            _ => throw new FormatException("Unknown relative position"),
+        };
+
         foreach (var segment in source.Segments.OrderBy(s => s.Layer)) {
-            CopySegment(segment, pixelsSpan, source.Width, centerX, centerY);
+            CopySegment(segment, pixelsSpan, source.Width, relativeX, relativeY);
         }
 
         var image = new IndexedImage {
@@ -63,7 +73,7 @@ public class Sprite2IndexedImage :
         return image;
     }
 
-    private void CopySegment(IImageSegment segment, Span<IndexedPixel> output, int width, int centerX, int centerY)
+    private void CopySegment(IImageSegment segment, Span<IndexedPixel> output, int width, int relativeX, int relativeY)
     {
         IndexedImage segmentImage = segmentConverter.Convert(segment);
 
@@ -75,7 +85,7 @@ public class Sprite2IndexedImage :
                     continue;
                 }
 
-                int outIdx = ((centerY + segment.CoordinateY + y) * width) + (centerX + segment.CoordinateX + x);
+                int outIdx = ((relativeY + segment.CoordinateY + y) * width) + (relativeX + segment.CoordinateX + x);
                 output[outIdx] = pixel;
             }
         }

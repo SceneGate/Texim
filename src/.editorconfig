@@ -189,3 +189,4 @@ dotnet_diagnostic.CA1305.severity = none # No culture method for quick test code
 dotnet_diagnostic.CA1307.severity = none # No culture method for quick test code
 dotnet_diagnostic.S2699.severity = none # Assert may be in helper methods
 dotnet_diagnostic.S3966.severity = none # Dispose twice to test implementation
+dotnet_diagnostic.SA1200.severity=warning

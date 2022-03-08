@@ -17,29 +17,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Tool.JumpUltimateStars
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    using System.Collections.ObjectModel;
+    using Yarhl.FileFormat;
 
-    public static class Program
+    public class Koma : Collection<KomaElement>, IFormat
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                Nitro.CommandLine.CreateCommand(),
-                BlackRockShooter.CommandLine.CreateCommand(),
-                DevilSurvivor.CommandLine.CreateCommand(),
-                Disgaea.CommandLine.CreateCommand(),
-                MetalMax.CommandLine.CreateCommand(),
-                LondonLife.CommandLine.CreateCommand(),
-                Megaman.CommandLine.CreateCommand(),
-                JumpUltimateStars.CommandLine.CreateCommand(),
-                Raw.CommandLine.CreateCommand(),
-                Darko.CommandLine.CreateCommand(),
-            };
-
-            return root.InvokeAsync(args);
-        }
+        // From ARM9 pointers at 0x0209E840
+        public static string[] NameTable { get; } = new[] {
+            null, "es", "is", "ig",
+            "tr", "ct", "gt", "kn",
+            "kk", "cb", "oj", "nb",
+            "sk", "tc", "jj", "sd",
+            "ss", "tz", "to", "dg",
+            "dn", "ds", "tl", "db",
+            "na", "nk", "hh", "pj",
+            "bu", "bc", "bl", "hs",
+            "hk", "bb", "nn", "mo",
+            "mr", "yo", "yh", "rk",
+            "rb", "op", "dt",
+        };
     }
 }

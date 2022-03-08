@@ -53,9 +53,10 @@ public static class CommandLine
         var image = node.Children["pixels"].GetFormatAs<IndexedImage>();
         var palettes = node.Children["palettes"].GetFormatAs<PaletteCollection>();
 
-        var spriteParams = new ImageSegment2IndexedImageParams {
+        var spriteParams = new Sprite2IndexedImageParams {
             FullImage = image,
             TileSize = new System.Drawing.Size(8, 8),
+            RelativeCoordinates = SpriteRelativeCoordinatesKind.Center,
         };
         var bitmapParams = new IndexedImageBitmapParams {
             Palettes = palettes,
@@ -65,7 +66,7 @@ public static class CommandLine
             string name = animation.Name;
             foreach (var frame in animation.Children) {
                 string outputFile = Path.Combine(output, name, $"{frame.Name}.png");
-                frame.TransformWith<Sprite2IndexedImage, ImageSegment2IndexedImageParams>(spriteParams)
+                frame.TransformWith<Sprite2IndexedImage, Sprite2IndexedImageParams>(spriteParams)
                     .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(bitmapParams)
                     .Stream.WriteTo(outputFile);
             }
