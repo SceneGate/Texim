@@ -25,5 +25,7 @@ namespace Texim.Tool.Nitro
     public interface INitroFormat : IFormat
     {
         Version Version { get; set; }
+
+        byte[] UserExtendedInfo { get; set; }
     }
 }

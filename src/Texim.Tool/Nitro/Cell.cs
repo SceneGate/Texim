@@ -38,4 +38,6 @@ public class Cell : ISprite
     public int BoundaryX { get; set; }
 
     public int BoundaryY { get; set; }
+
+    public uint UserExtendedCellAttribute { get; set; }
 }

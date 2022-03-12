@@ -20,6 +20,7 @@
 namespace Texim.Tool.Nitro;
 
 using System;
+using System.Collections.ObjectModel;
 using Yarhl.FileSystem;
 
 /// <summary>
@@ -37,4 +38,8 @@ public class Ncer : NodeContainerFormat, INitroFormat
     public CellBankAttributes Attributes { get; set; }
 
     public CellTileMappingKind TileMapping { get; set; }
+
+    public byte[] UserExtendedInfo { get; set; }
+
+    public Collection<string> Labels { get; init; } = new Collection<string>();
 }

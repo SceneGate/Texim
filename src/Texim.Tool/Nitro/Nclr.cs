@@ -86,5 +86,7 @@ namespace Texim.Tool.Nitro
         public bool IsExtendedPalette { get; set; }
 
         public NitroTextureFormat TextureFormat { get; set; }
+
+        public byte[] UserExtendedInfo { get; set; }
     }
 }

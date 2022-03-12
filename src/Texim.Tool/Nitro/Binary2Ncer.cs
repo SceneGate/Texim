@@ -38,8 +38,7 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
                 break;
 
             case "LABL":
-            case "UEXT":
-                // TODO
+                model.Labels.Add(ReadLabelSection(reader));
                 break;
 
             default:
@@ -56,7 +55,7 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
         model.Attributes = (CellBankAttributes)reader.ReadUInt16();
         uint cellsDataOffset = reader.ReadUInt32();
         model.TileMapping = (CellTileMappingKind)reader.ReadInt32();
-        uint vramDataOffset = reader.ReadUInt32();
+        _ = reader.ReadUInt32(); // VRAM transfer data info pointer. Unused.
         _ = reader.ReadUInt32(); // unused pointer
         uint extendedDataOffset = reader.ReadUInt32();
 
@@ -69,11 +68,8 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
             model.Root.Add(new Node($"cell{i}", cell));
         }
 
-        // TODO: Read
-        reader.Stream.Position = sectionPos + vramDataOffset;
-
-        // TODO: Read
         reader.Stream.Position = sectionPos + extendedDataOffset;
+        FillUserExtendedCellAttributes(reader, model);
     }
 
     private Cell ReadCell(DataReader reader, Ncer model, long segmentsPosition)
@@ -113,5 +109,35 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
         }
 
         return cell;
+    }
+
+    private void FillUserExtendedCellAttributes(DataReader reader, Ncer model)
+    {
+        if (reader.ReadString(4) != "TACU") {
+            throw new FormatException("Invalid user extended cell section");
+        }
+
+        _ = reader.ReadUInt32(); // section size
+
+        long sectionPos = reader.Stream.Position;
+        ushort numCells = reader.ReadUInt16();
+        if (model.Root.Children.Count != numCells) {
+            throw new FormatException("Extension cells doesn't match number of cells");
+        }
+
+        ushort attributesPerCell = reader.ReadUInt16(); // must be 1
+        if (attributesPerCell != 1) {
+            throw new FormatException("Unknown cell extension section format");
+        }
+
+        uint pointerOffset = reader.ReadUInt32();
+        for (int i = 0; i < numCells; i++) {
+            reader.Stream.Position = sectionPos + pointerOffset + (i * 4);
+            uint attributeOffset = reader.ReadUInt32();
+
+            reader.Stream.Position = sectionPos + pointerOffset + attributeOffset;
+            model.Root.Children[i].GetFormatAs<Cell>() !
+                .UserExtendedCellAttribute = reader.ReadUInt32();
+        }
     }
 }

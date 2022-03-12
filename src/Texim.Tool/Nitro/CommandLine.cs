@@ -180,6 +180,7 @@ namespace Texim.Tool.Nitro
                 IsTiled = pixels.IsTiled,
             };
 
+            Console.WriteLine($"Exporting {sprites.Children.Count} sprites");
             foreach (Node sprite in sprites.Children) {
                 if (sprite.GetFormatAs<Cell>() !.Segments.Count == 0) {
                     continue;

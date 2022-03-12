@@ -20,6 +20,7 @@
 namespace Texim.Tool.Nitro
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Yarhl.FileFormat;
     using Yarhl.IO;
@@ -49,6 +50,35 @@ namespace Texim.Tool.Nitro
 
         protected virtual void PostProcessing(T model)
         {
+        }
+
+        protected IEnumerable<string> ReadLabelSection(DataReader reader)
+        {
+            // Reading this section is very tricky as there isn't a number of elements
+            // or a way to map each name to an entry of the format.
+            // There is an offset table and then a list of null-terminated strings.
+            // Each offset is relative to the start of list of strings, so there isn't
+            // a way to determine how many offsets or where is the last one.
+            // We keep reading, assuming each offset is incremental and not larger than
+            // 128 bytes (in that case we may have read 4 bytes of the string).
+            var offsets = new List<int>();
+            int lastOffset = 0;
+            while (!reader.Stream.EndOfStream) {
+                int offset = reader.ReadInt32();
+                if (offset < lastOffset || offset > lastOffset + 128) {
+                    reader.Stream.Position -= 4;
+                    break;
+                }
+
+                offsets.Add(offset);
+                lastOffset = offset;
+            }
+
+            long dataPosition = reader.Stream.Position;
+            foreach (int offset in offsets) {
+                reader.Stream.Position = dataPosition + offset;
+                yield return reader.ReadString();
+            }
         }
 
         private void ReadHeader(DataReader reader, T model, out int numSections)
@@ -87,10 +117,20 @@ namespace Texim.Tool.Nitro
                 string id = new string(reader.ReadChars(4).Reverse().ToArray());
                 int size = reader.ReadInt32();
 
-                ReadSection(reader, model, id, size);
+                if (id == "UEXT") {
+                    ReadUserExtendedInfo(reader, model, size);
+                } else {
+                    ReadSection(reader, model, id, size);
+                }
 
                 reader.Stream.Position = sectionPosition + size;
             }
+        }
+
+        private void ReadUserExtendedInfo(DataReader reader, T model, int size)
+        {
+            int dataSize = size - 8;
+            model.UserExtendedInfo = reader.ReadBytes(dataSize);
         }
     }
 }
