@@ -138,7 +138,7 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
             int spriteIndex = reader.ReadByte();
             reader.ReadByte(); // unknown, animation related?
             reader.ReadByte(); // unknown, animation related?
-            int paletteIndex = reader.ReadByte();
+            byte paletteIndex = reader.ReadByte();
 
             reader.Stream.PushCurrentPosition();
             var sprite = ReadSprite(spriteIndex, paletteIndex);
@@ -149,7 +149,7 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
         return spritesNode;
     }
 
-    private Sprite ReadSprite(int index, int paletteIndex)
+    private Sprite ReadSprite(int index, byte paletteIndex)
     {
         reader.Stream.Position = spritesOffset;
         int numSprites = reader.ReadInt32();
@@ -180,13 +180,13 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
             var (width, height) = GetSize(shape, sizeMode);
 
             sprite.Segments.Add(new ImageSegment {
-                TileIndex = (short)tileIndex,
+                TileIndex = tileIndex,
                 CoordinateX = coordX,
                 CoordinateY = coordY,
                 Width = width,
                 Height = height,
                 Layer = layer,
-                PaletteIndex = (byte)paletteIndex,
+                PaletteIndex = paletteIndex,
                 HorizontalFlip = false,
                 VerticalFlip = false,
             });

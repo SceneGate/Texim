@@ -94,5 +94,7 @@ namespace Texim.Tool.Nitro
         public int SourceX { get; set; }
 
         public int SourceY { get; set; }
+
+        public byte[] UserExtendedInfo { get; set; }
     }
 }

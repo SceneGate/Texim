@@ -42,18 +42,23 @@ public class ImageSegment2IndexedImage :
         if (parameters is null)
             throw new InvalidOperationException("Missing initialization");
 
-        // It's easier if we swizzle again, with the compressed tiles
-        var swizzling = new TileSwizzling<IndexedPixel>(parameters.TileSize, parameters.FullImage.Width);
-        IndexedPixel[] tiles = swizzling.Swizzle(parameters.FullImage.Pixels);
+        // If it was tiled swizzled, then convert to tiles so we can resolve the references
+        IndexedPixel[] tiles = parameters.FullImage.Pixels;
+        if (parameters.IsTiled) {
+            var swizzling = new TileSwizzling<IndexedPixel>(parameters.TileSize, parameters.FullImage.Width);
+            tiles = swizzling.Swizzle(parameters.FullImage.Pixels);
+        }
 
         var segmentTiles = GetSegmentTiles(tiles, source);
 
         // Unswizzle but this time with the final image size
-        var unswizzling = new TileSwizzling<IndexedPixel>(parameters.TileSize, source.Width);
-        var segmentPixels = unswizzling.Unswizzle(segmentTiles);
+        if (parameters.IsTiled) {
+            var unswizzling = new TileSwizzling<IndexedPixel>(parameters.TileSize, source.Width);
+            segmentTiles = unswizzling.Unswizzle(segmentTiles);
+        }
 
         // We flip treating the full image unswizzle as a tile
-        Span<IndexedPixel> spanSegment = segmentPixels;
+        Span<IndexedPixel> spanSegment = segmentTiles;
         if (source.HorizontalFlip) {
             spanSegment.FlipHorizontal(new System.Drawing.Size(source.Width, source.Height));
         }
@@ -65,7 +70,7 @@ public class ImageSegment2IndexedImage :
         return new IndexedImage {
             Height = source.Height,
             Width = source.Width,
-            Pixels = segmentPixels,
+            Pixels = segmentTiles,
         };
     }
 

@@ -27,5 +27,7 @@ public class ImageSegment2IndexedImageParams
 
     public IIndexedImage FullImage { get; set; }
 
+    public bool IsTiled { get; set; } = true;
+
     public int OutOfBoundsTileIndex { get; set; } = -1;
 }

@@ -74,5 +74,7 @@ namespace Texim.Tool.Nitro
         public NitroPaletteMode PaletteMode { get; set; }
 
         public NitroBackgroundMode BackgroundMode { get; set; }
+
+        public byte[] UserExtendedInfo { get; set; }
     }
 }

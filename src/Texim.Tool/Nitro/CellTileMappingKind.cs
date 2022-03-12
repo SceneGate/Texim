@@ -17,25 +17,19 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Tool.Nitro;
 
-public class ImageSegment : IImageSegment
+public enum CellTileMappingKind
 {
-    public int Layer { get; set; }
+    Tile1D_32k,
+    Tile1D_64k,
+    Tile1D_128k,
+    Tile1D_256k,
+    Tile2D,
+    Max,
+}
 
-    public int CoordinateX { get; set; }
-
-    public int CoordinateY { get; set; }
-
-    public int Width { get; init; }
-
-    public int Height { get; init; }
-
-    public int TileIndex { get; init; }
-
-    public bool HorizontalFlip { get; init; }
-
-    public bool VerticalFlip { get; init; }
-
-    public byte PaletteIndex { get; set; }
+public static class CellTileMappingKindExtensions
+{
+    public static int GetTileBlockSize(this CellTileMappingKind kind) => (1 << (5 + (int)kind)) / 64;
 }

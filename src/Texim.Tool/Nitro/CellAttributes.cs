@@ -17,25 +17,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Tool.Nitro;
 
-public class ImageSegment : IImageSegment
+using System;
+
+public class CellAttributes
 {
-    public int Layer { get; set; }
+    public bool UseFlipFlags => throw new NotSupportedException("Unknown flag");
 
-    public int CoordinateX { get; set; }
+    public int RenderingOptimizationFlags => throw new NotSupportedException("Unknown flags");
 
-    public int CoordinateY { get; set; }
+    public int UnknownFlags { get; set; }
 
-    public int Width { get; init; }
+    public bool IsSquare { get; set; }
 
-    public int Height { get; init; }
+    public int SquareDimension { get; set; }
 
-    public int TileIndex { get; init; }
-
-    public bool HorizontalFlip { get; init; }
-
-    public bool VerticalFlip { get; init; }
-
-    public byte PaletteIndex { get; set; }
+    public static CellAttributes FromBinary(ushort data) =>
+        new CellAttributes {
+            IsSquare = ((data >> 11) & 1) == 0,
+            SquareDimension = (data & 0x3F) * 8,
+            UnknownFlags = data >> 6,
+        };
 }

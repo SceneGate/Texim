@@ -40,6 +40,7 @@ public class Sprite2IndexedImage :
             FullImage = parameters.FullImage,
             TileSize = parameters.TileSize,
             OutOfBoundsTileIndex = parameters.OutOfBoundsTileIndex,
+            IsTiled = parameters.IsTiled,
         };
         segmentConverter.Initialize(segmentParams);
     }
@@ -60,7 +61,7 @@ public class Sprite2IndexedImage :
             _ => throw new FormatException("Unknown relative position"),
         };
 
-        foreach (var segment in source.Segments.OrderBy(s => s.Layer)) {
+        foreach (var segment in source.Segments.OrderBy(s => s.Layer).Reverse()) {
             CopySegment(segment, pixelsSpan, source.Width, relativeX, relativeY);
         }
 

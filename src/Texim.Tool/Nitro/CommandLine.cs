@@ -29,6 +29,7 @@ namespace Texim.Tool.Nitro
     using Texim.Images;
     using Texim.Palettes;
     using Texim.Processing;
+    using Texim.Sprites;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using Yarhl.IO;
@@ -52,6 +53,16 @@ namespace Texim.Tool.Nitro
                 new Option<StandardImageFormat>("format", "Output image format", ArgumentArity.ZeroOrOne),
             };
             exportImage.Handler = CommandHandler.Create<string, string, string, string, StandardImageFormat>(ExportImage);
+
+            var exportSprite = new Command("export_sprite", "Export Nitro files into an sprite image") {
+                new Option<string>("--nclr", "nitro palette file", ArgumentArity.ExactlyOne),
+                new Option<string>("--ncgr", "nitro pixel file", ArgumentArity.ExactlyOne),
+                new Option<string>("--ncer", "nitro cell file", ArgumentArity.ZeroOrOne),
+                new Option<string>("--output", "Output folder", ArgumentArity.ExactlyOne),
+                new Option<StandardImageFormat>("format", "Output image format", ArgumentArity.ZeroOrOne),
+            };
+            exportSprite.Handler =
+                CommandHandler.Create<string, string, string, string, StandardImageFormat>(ExportSprite);
 
             var importImage = new Command("import_image", "Import an image as Nitro image") {
                 new Option<string>("--input", "the input image file", ArgumentArity.ExactlyOne),
@@ -77,6 +88,7 @@ namespace Texim.Tool.Nitro
             return new Command("nitro", "Nintendo DS standard formats") {
                 exportPalette,
                 exportImage,
+                exportSprite,
                 importImage,
                 importCompressedImage,
             };
@@ -138,6 +150,47 @@ namespace Texim.Tool.Nitro
             };
             pixels.TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedParams)
                 .Stream.WriteTo(output);
+        }
+
+        private static void ExportSprite(
+            string nclr,
+            string ncgr,
+            string ncer,
+            string output,
+            StandardImageFormat format)
+        {
+            var palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
+                .TransformWith<Binary2Nclr>()
+                .GetFormatAs<Nclr>();
+
+            var pixels = NodeFactory.FromFile(ncgr, FileOpenMode.Read)
+                .TransformWith<Binary2Ncgr>()
+                .GetFormatAs<Ncgr>() !;
+
+            var indexedParams = new IndexedImageBitmapParams {
+                Palettes = palette,
+                Encoder = format.GetEncoder(),
+            };
+
+            var sprites = NodeFactory.FromFile(ncer, FileOpenMode.Read)
+                .TransformWith<Binary2Ncer>();
+            var spriteParams = new Sprite2IndexedImageParams {
+                FullImage = pixels,
+                RelativeCoordinates = SpriteRelativeCoordinatesKind.Center,
+                IsTiled = pixels.IsTiled,
+            };
+
+            Console.WriteLine($"Exporting {sprites.Children.Count} sprites");
+            foreach (Node sprite in sprites.Children) {
+                if (sprite.GetFormatAs<Cell>() !.Segments.Count == 0) {
+                    continue;
+                }
+
+                string outputImage = Path.Combine(output, sprite.Name + ".png");
+                sprite.TransformWith<Sprite2IndexedImage, Sprite2IndexedImageParams>(spriteParams)
+                    .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedParams)
+                    .Stream!.WriteTo(outputImage);
+            }
         }
 
         private static void ImportImage(string input, string nclr, string output, string ncgr, int paletteIndex = 0)

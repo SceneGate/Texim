@@ -31,7 +31,7 @@ public interface IImageSegment
 
     int Height { get; }
 
-    short TileIndex { get; }
+    int TileIndex { get; }
 
     bool HorizontalFlip { get; }
 
