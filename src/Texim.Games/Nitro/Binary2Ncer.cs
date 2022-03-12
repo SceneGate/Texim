@@ -68,8 +68,10 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
             model.Root.Add(new Node($"cell{i}", cell));
         }
 
-        reader.Stream.Position = sectionPos + extendedDataOffset;
-        FillUserExtendedCellAttributes(reader, model);
+        if (extendedDataOffset != 0) {
+            reader.Stream.Position = sectionPos + extendedDataOffset;
+            FillUserExtendedCellAttributes(reader, model);
+        }
     }
 
     private Cell ReadCell(DataReader reader, Ncer model, long segmentsPosition)
