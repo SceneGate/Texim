@@ -82,7 +82,7 @@ public class BinaryKShape2SpriteCollection : IConverter<IBinary, KShapeSprites>
                 var segment = new ImageSegment {
                     Width = SegmentDimensions,
                     Height = SegmentDimensions,
-                    TileIndex = (short)tileIdx,
+                    TileIndex = tileIdx,
                     CoordinateX = x,
                     CoordinateY = y,
                 };

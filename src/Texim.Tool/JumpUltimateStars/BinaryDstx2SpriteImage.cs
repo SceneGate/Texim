@@ -83,7 +83,7 @@ public class BinaryDstx2SpriteImage : IConverter<IBinary, NodeContainerFormat>
             var segment = new ImageSegment {
                 Width = width * 8,
                 Height = height * 8,
-                TileIndex = (tileIndex == 0) ? (short)1 : tileIndex,
+                TileIndex = (tileIndex == 0) ? 1 : tileIndex,
                 CoordinateX = 0,
                 CoordinateY = y,
             };

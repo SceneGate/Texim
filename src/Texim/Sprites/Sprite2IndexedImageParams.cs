@@ -27,6 +27,8 @@ public class Sprite2IndexedImageParams
 
     public System.Drawing.Size TileSize { get; set; } = new System.Drawing.Size(8, 8);
 
+    public bool IsTiled { get; set; } = true;
+
     public IIndexedImage FullImage { get; set; }
 
     public int OutOfBoundsTileIndex { get; set; } = -1;

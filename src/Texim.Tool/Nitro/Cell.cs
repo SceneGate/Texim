@@ -1,4 +1,4 @@
-// Copyright (c) 2022 SceneGate
+﻿// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,25 +17,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Tool.Nitro;
 
-public class ImageSegment : IImageSegment
+using System.Collections.ObjectModel;
+using Sprites;
+
+/// <summary>
+/// Nitro sprite definition.
+/// </summary>
+public class Cell : ISprite
 {
-    public int Layer { get; set; }
+    public Collection<IImageSegment> Segments { get; init; } = new Collection<IImageSegment>();
 
-    public int CoordinateX { get; set; }
+    public int Width { get; set; }
 
-    public int CoordinateY { get; set; }
+    public int Height { get; set; }
 
-    public int Width { get; init; }
+    public CellAttributes Attributes { get; set; }
 
-    public int Height { get; init; }
+    public int BoundaryX { get; set; }
 
-    public int TileIndex { get; init; }
-
-    public bool HorizontalFlip { get; init; }
-
-    public bool VerticalFlip { get; init; }
-
-    public byte PaletteIndex { get; set; }
+    public int BoundaryY { get; set; }
 }
