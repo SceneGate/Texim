@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.Nitro;
+
+using System.Collections.ObjectModel;
+using Sprites;
+
+/// <summary>
+/// Nitro sprite definition.
+/// </summary>
+public class Cell : ISprite
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    public Collection<IImageSegment> Segments { get; init; } = new Collection<IImageSegment>();
 
-    public static class Program
-    {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
+    public int Width { get; set; }
 
-            return root.InvokeAsync(args);
-        }
-    }
+    public int Height { get; set; }
+
+    public CellAttributes Attributes { get; set; }
+
+    public int BoundaryX { get; set; }
+
+    public int BoundaryY { get; set; }
+
+    public uint UserExtendedCellAttribute { get; set; }
 }

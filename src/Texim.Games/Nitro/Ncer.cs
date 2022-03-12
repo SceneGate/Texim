@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.Nitro;
+
+using System;
+using System.Collections.ObjectModel;
+using Yarhl.FileSystem;
+
+/// <summary>
+/// Nitro CEll Resource. Format that contains sprite definitions.
+/// </summary>
+public class Ncer : NodeContainerFormat, INitroFormat
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
-
-    public static class Program
+    public Ncer()
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
-
-            return root.InvokeAsync(args);
-        }
+        Version = new Version(1, 0);
     }
+
+    public Version Version { get; set; }
+
+    public CellBankAttributes Attributes { get; set; }
+
+    public CellTileMappingKind TileMapping { get; set; }
+
+    public byte[] UserExtendedInfo { get; set; }
+
+    public Collection<string> Labels { get; init; } = new Collection<string>();
 }

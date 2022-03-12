@@ -17,29 +17,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.DevilSurvivor
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    using System;
+    using Texim.Colors;
+    using Texim.Palettes;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
 
-    public static class Program
+    public class DsTex2Palette : IConverter<IBinary, Palette>
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
+        private const int NumColors = 256;
 
-            return root.InvokeAsync(args);
+        public Palette Convert(IBinary source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            source.Stream.Position = 0;
+            DataReader reader = new DataReader(source.Stream);
+
+            var colors = reader.ReadColors<Bgr555>(NumColors);
+            return new Palette(colors);
         }
     }
 }

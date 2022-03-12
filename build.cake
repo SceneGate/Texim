@@ -7,6 +7,7 @@ Task("Define-Project")
     info.WarningsAsErrors = false;
 
     info.AddLibraryProjects("Texim");
+    info.AddLibraryProjects("Texim.Games");
     info.AddApplicationProjects("Texim.Tool");
 
     info.PreviewNuGetFeed = "https://pkgs.dev.azure.com/SceneGate/SceneGate/_packaging/SceneGate-Preview/nuget/v3/index.json";

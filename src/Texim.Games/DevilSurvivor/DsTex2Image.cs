@@ -17,29 +17,42 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.DevilSurvivor
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    using System;
+    using Texim.Images;
+    using Texim.Pixels;
+    using Yarhl.FileFormat;
+    using Yarhl.IO;
 
-    public static class Program
+    public class DsTex2Image :
+        IConverter<IBinary, IndexedImage>,
+        IConverter<IIndexedImage, BinaryFormat>
     {
-        public static Task<int> Main(string[] args)
+        public IndexedImage Convert(IBinary source)
         {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
 
-            return root.InvokeAsync(args);
+            source.Stream.Position = 0;
+            var reader = new DataReader(source.Stream);
+
+            IndexedPixel[] pixels = reader.ReadBytes((int)source.Stream.Length)
+                .DecodePixelsAs<IndexedA3I5>();
+
+            return new IndexedImage(128, 128, pixels);
+        }
+
+        public BinaryFormat Convert(IIndexedImage source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var binary = new BinaryFormat();
+            var writer = new DataWriter(binary.Stream);
+
+            writer.Write<IndexedA3I5>(source.Pixels);
+            return binary;
         }
     }
 }
