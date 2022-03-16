@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,26 +20,33 @@
 namespace Texim.Tool
 {
     using System.CommandLine;
-    using System.Threading.Tasks;
+    using System.CommandLine.Invocation;
+    using Texim.Formats;
+    using Texim.Games.BlackRockShooter;
+    using Yarhl.FileSystem;
+    using Yarhl.IO;
 
-    public static class Program
+    public static class BlackRockShooterCommandLine
     {
-        public static Task<int> Main(string[] args)
+        public static Command CreateCommand()
         {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
+            var export = new Command("export", "Export PTMD into an image") {
+                new Option<string>("--input", "the input PTMD file", ArgumentArity.ExactlyOne),
+                new Option<string>("--output", "the output image file", ArgumentArity.ExactlyOne),
             };
+            export.Handler = CommandHandler.Create<string, string>(Export);
 
-            return root.InvokeAsync(args);
+            return new Command("blackrockshooter", "Black Rock Shooter game") {
+                export,
+            };
+        }
+
+        private static void Export(string input, string output)
+        {
+            NodeFactory.FromFile(input, FileOpenMode.Read)
+                .TransformWith<Ptmd2Image>()
+                .TransformWith<FullImage2Bitmap>()
+                .Stream!.WriteTo(output);
         }
     }
 }

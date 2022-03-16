@@ -23,9 +23,11 @@ using Texim.Images;
 
 public class ImageSegment2IndexedImageParams
 {
-    public System.Drawing.Size TileSize { get; set; }
+    public System.Drawing.Size TileSize { get; set; } = new System.Drawing.Size(8, 8);
 
-    public IndexedImage FullImage { get; set; }
+    public IIndexedImage FullImage { get; set; }
+
+    public bool IsTiled { get; set; } = true;
 
     public int OutOfBoundsTileIndex { get; set; } = -1;
 }

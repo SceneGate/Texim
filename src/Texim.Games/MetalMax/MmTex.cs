@@ -17,29 +17,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.MetalMax
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    using System.Collections.ObjectModel;
+    using Texim.Colors;
+    using Texim.Images;
+    using Texim.Palettes;
+    using Texim.Pixels;
 
-    public static class Program
+    public class MmTex : IPalette, IIndexedImage
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
+        public Collection<Rgb> Colors { get; set; } = new Collection<Rgb>();
 
-            return root.InvokeAsync(args);
-        }
+        public IndexedPixel[] Pixels { get; set; }
+
+        public int Width { get; set; }
+
+        public int Height { get; set; }
+
+        public int NumImages { get; set; }
+
+        public uint UnknownSize { get; set; }
+
+        public uint Unknown { get; set; }
     }
 }

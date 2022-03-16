@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,37 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.Raw
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    using System;
+    using Texim.Colors;
+    using Texim.Formats;
 
-    public static class Program
+    public class PaletteConfiguration
     {
-        public static Task<int> Main(string[] args)
+        public string Path { get; set; }
+
+        public long Offset { get; set; }
+
+        public int Size { get; set; }
+
+        public string Encoding { get; set; }
+
+        public int PaletteColors { get; set; }
+
+        public RawPaletteParams GetParams()
         {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
+            IColorEncoding encoding = Encoding.ToUpperInvariant() switch {
+                "BGR555" => Bgr555.Instance,
+                _ => throw new NotSupportedException("Unknown color encoding"),
             };
 
-            return root.InvokeAsync(args);
+            return new RawPaletteParams {
+                Offset = Offset,
+                Size = Size,
+                ColorEncoding = encoding,
+                ColorsPerPalette = PaletteColors,
+            };
         }
     }
 }

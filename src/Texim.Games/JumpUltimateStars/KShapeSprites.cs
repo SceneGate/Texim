@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.JumpUltimateStars;
+
+using System.Collections.Generic;
+using Texim.Sprites;
+using Yarhl.FileFormat;
+
+public class KShapeSprites : IFormat
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    private readonly Dictionary<(int, int), Sprite> sprites = new ();
 
-    public static class Program
+    public void AddSprite(int group, int element, Sprite sprite)
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
+        sprites[(group, element)] = sprite;
+    }
 
-            return root.InvokeAsync(args);
-        }
+    public Sprite GetSprite(int group, int element)
+    {
+        return sprites[(group, element)];
     }
 }

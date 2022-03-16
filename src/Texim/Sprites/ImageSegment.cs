@@ -31,7 +31,7 @@ public class ImageSegment : IImageSegment
 
     public int Height { get; init; }
 
-    public short TileIndex { get; init; }
+    public int TileIndex { get; init; }
 
     public bool HorizontalFlip { get; init; }
 

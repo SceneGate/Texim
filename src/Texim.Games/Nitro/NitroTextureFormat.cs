@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.Nitro
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
-
-    public static class Program
+    public enum NitroTextureFormat
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
-
-            return root.InvokeAsync(args);
-        }
+        None = 0,
+        IndexedA3I5 = 1,
+        Indexed2Bpp = 2,
+        Indexed4Bpp = 3,
+        Indexed8Bpp = 4,
+        Texel4x4 = 5,
+        IndexedA5I3 = 6,
+        Abgr555 = 7,
     }
 }

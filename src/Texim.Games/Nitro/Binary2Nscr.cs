@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.Nitro
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    using System.Linq;
+    using Texim.Compressions.Nitro;
+    using Yarhl.IO;
 
-    public static class Program
+    public class Binary2Nscr : NitroDeserializer<Nscr>
     {
-        public static Task<int> Main(string[] args)
-        {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
+        protected override string Stamp => "NSCR";
 
-            return root.InvokeAsync(args);
+        protected override void ReadSection(DataReader reader, Nscr model, string id, int size)
+        {
+            if (id == "SCRN") {
+                ReadScrn(reader, model);
+            }
+        }
+
+        private void ReadScrn(DataReader reader, Nscr model)
+        {
+            model.Width = reader.ReadUInt16();
+            model.Height = reader.ReadUInt16();
+            model.PaletteMode = (NitroPaletteMode)reader.ReadUInt16();
+            model.BackgroundMode = (NitroBackgroundMode)reader.ReadUInt16();
+
+            int length = reader.ReadInt32();
+            if (model.BackgroundMode == NitroBackgroundMode.Affine) {
+                model.Maps = reader.ReadBytes(length)
+                    .Select(b => new MapInfo(b))
+                    .ToArray();
+            } else {
+                model.Maps = reader.ReadMapInfos(length / 2);
+            }
         }
     }
 }

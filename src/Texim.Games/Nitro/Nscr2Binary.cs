@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,29 +17,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Tool
+namespace Texim.Games.Nitro
 {
-    using System.CommandLine;
-    using System.Threading.Tasks;
+    using System.Linq;
+    using Texim.Compressions.Nitro;
+    using Yarhl.IO;
 
-    public static class Program
+    public class Nscr2Binary : NitroSerializer<Nscr>
     {
-        public static Task<int> Main(string[] args)
+        public Nscr2Binary()
         {
-            var root = new RootCommand("Proof-of-concept library and tool for image formats") {
-                NitroCommandLine.CreateCommand(),
-                BlackRockShooterCommandLine.CreateCommand(),
-                DevilSurvivorCommandLine.CreateCommand(),
-                DisgaeaCommandLine.CreateCommand(),
-                MetalMaxCommandLine.CreateCommand(),
-                LondonLifeCommandLine.CreateCommand(),
-                MegamanCommandLine.CreateCommand(),
-                JumpUltimateStarsCommandLine.CreateCommand(),
-                RawCommandLine.CreateCommand(),
-                DarkoCommandLine.CreateCommand(),
-            };
+            RegisterSection("SCRN", WriteScrn);
+        }
 
-            return root.InvokeAsync(args);
+        protected override string Stamp => "NSCR";
+
+        private void WriteScrn(DataWriter writer, Nscr model)
+        {
+            writer.Write((ushort)model.Width);
+            writer.Write((ushort)model.Height);
+            writer.Write((ushort)model.PaletteMode);
+            writer.Write((ushort)model.BackgroundMode);
+
+            if (model.BackgroundMode == NitroBackgroundMode.Affine) {
+                writer.Write(model.Maps.Length);
+                writer.Write(model.Maps.Select(m => (byte)m.TileIndex).ToArray());
+            } else {
+                writer.Write(model.Maps.Length * 2);
+                writer.Write(model.Maps);
+            }
         }
     }
 }
