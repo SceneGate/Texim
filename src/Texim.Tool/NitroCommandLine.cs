@@ -20,10 +20,14 @@
 namespace Texim.Tool
 {
     using System;
+    using System.Collections.Generic;
     using System.CommandLine;
     using System.CommandLine.Invocation;
+    using System.Drawing;
     using System.IO;
     using System.Linq;
+    using Colors;
+    using Pixels;
     using Texim.Compressions.Nitro;
     using Texim.Formats;
     using Texim.Games.Nitro;
@@ -86,12 +90,23 @@ namespace Texim.Tool
             };
             importCompressedImage.Handler = CommandHandler.Create<string, string, string, bool, string, bool, string, string>(ImportCompressedImage);
 
+            var importSprite = new Command("import_sprite", "Import an sprite as Nitro format") {
+                new Option<string>("--input", "the input directory with the images", ArgumentArity.ExactlyOne),
+                new Option<string>("--nclr", "the palette to use", ArgumentArity.ExactlyOne),
+                new Option<string>("--ncgr", "optional original NCGR to copy params", ArgumentArity.ZeroOrOne),
+                new Option<string>("--ncer", "optional original NCER to copy params", ArgumentArity.ZeroOrOne),
+                new Option<string>("--out-ncgr", "the output nitro image file", ArgumentArity.ExactlyOne),
+                new Option<string>("--out-ncer", "the output nitro sprite file", ArgumentArity.ExactlyOne),
+            };
+            importSprite.Handler = CommandHandler.Create<string, string, string, string, string, string>(ImportSprites);
+
             return new Command("nitro", "Nintendo DS standard formats") {
                 exportPalette,
                 exportImage,
                 exportSprite,
                 importImage,
                 importCompressedImage,
+                importSprite,
             };
         }
 
@@ -303,6 +318,143 @@ namespace Texim.Tool
 
             using var binaryNscr = new Nscr2Binary().Convert(newNscr);
             binaryNscr.Stream.WriteTo(outNscr);
+        }
+
+        private static void ImportSprites(string input, string nclr, string ncgr, string ncer, string outNcgr, string outNcer)
+        {
+            IPaletteCollection palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
+                .TransformWith<Binary2Nclr>()
+                .GetFormatAs<Nclr>();
+
+            Ncgr image = NodeFactory.FromFile(ncgr, FileOpenMode.Read)
+                .TransformWith<Binary2Ncgr>()
+                .GetFormatAs<Ncgr>() !;
+
+            var mergeImageSwizzling = new TileSwizzling<IndexedPixel>(image.Width);
+            Memory<IndexedPixel> initialTiles = mergeImageSwizzling.Swizzle(image.Pixels).AsMemory();
+
+            var tileSize = new Size(8, 8);
+            int pixelsPerTile = tileSize.Width * tileSize.Height;
+
+            // Add the initial tiles in case of creating one pixel data + several maps
+            var uniqueTiles = new List<Memory<IndexedPixel>>();
+            for (int i = 0; i < initialTiles.Length; i += pixelsPerTile) {
+                Memory<IndexedPixel> tile = initialTiles.Slice(i, pixelsPerTile);
+                uniqueTiles.Add(tile);
+            }
+
+            Ncer sprites = NodeFactory.FromFile(ncer, FileOpenMode.Read)
+                .TransformWith<Binary2Ncer>()
+                .GetFormatAs<Ncer>() !;
+
+            var segmentation = new ImageSegmentation();
+
+            foreach (string newImagePath in Directory.GetFiles(input)) {
+                // This method will import only matching sprites. It will not replace / remove existing tiles but always
+                // append. As a consequence the image maybe bigger than the VRAM accepts.
+                string name = Path.GetFileNameWithoutExtension(newImagePath);
+                int index = int.Parse(name["cell".Length..]);
+                if (index > sprites.Root.Children.Count) {
+                    throw new InvalidOperationException("Index too large");
+                }
+
+                FullImage newImage = NodeFactory.FromFile(newImagePath, FileOpenMode.Read)
+                    .TransformWith<Bitmap2FullImage>()
+                    .GetFormatAs<FullImage>() !;
+
+                // First replace sprite definition (Cell and OAMs)
+                (Sprite newSprite, FullImage newImageTrimmed) = segmentation.Segment(newImage);
+
+                Cell originalCell = sprites.Root.Children[index].GetFormatAs<Cell>() !;
+                var newCell = new Cell(originalCell, newSprite.Segments) {
+                    Width = newSprite.Width,
+                    Height = newSprite.Height,
+                };
+
+                sprites.Root.Children[index].ChangeFormat(newCell);
+
+                // Now add the new tiles to the image.
+                foreach (ObjectAttributeMemory obj in newCell.Segments) {
+                    // We need to quantize each subimage with the best palette.
+                    Rgb[] subImage = new Rgb[0];
+
+                    // We simulate like the subimage is a big tile for the quantization
+                    var quantization = new FixedPaletteTileQuantization(
+                        palette,
+                        new Size(obj.Width, obj.Height),
+                        obj.Width);
+                    quantization.FirstAsTransparent = true;
+                    (IndexedPixel[] pixels, _) = quantization.Quantize(subImage);
+
+                    // Now find unique pixels
+                    var swizzling = new TileSwizzling<IndexedPixel>(obj.Width);
+                    Memory<IndexedPixel> tiles = swizzling.Swizzle(pixels).AsMemory();
+                    int numTiles = tiles.Length / pixelsPerTile;
+
+                    for (int i = 0; i < numTiles; i++) {
+                        var tile = tiles.Slice(i * pixelsPerTile, pixelsPerTile);
+                        int repeatedIdx = uniqueTiles.FindIndex(t => t.HasEquivalentIndexes(tile));
+                        if (repeatedIdx != -1) {
+                            obj.HorizontalFlip = false;
+                            obj.VerticalFlip = false;
+                            obj.TileIndex = (short)repeatedIdx;
+                            obj.PaletteIndex = pixels[0].PaletteIndex;
+                            continue;
+                        }
+
+                        tile.FlipHorizontal(tileSize);
+                        repeatedIdx = uniqueTiles.FindIndex(t => t.HasEquivalentIndexes(tile));
+                        if (repeatedIdx != -1) {
+                            obj.HorizontalFlip = true;
+                            obj.VerticalFlip = false;
+                            obj.TileIndex = (short)repeatedIdx;
+                            obj.PaletteIndex = pixels[0].PaletteIndex;
+                            continue;
+                        }
+
+                        tile.FlipVertical(tileSize);
+                        repeatedIdx = uniqueTiles.FindIndex(t => t.HasEquivalentIndexes(tile));
+                        if (repeatedIdx != -1) {
+                            obj.HorizontalFlip = true;
+                            obj.VerticalFlip = true;
+                            obj.TileIndex = (short)repeatedIdx;
+                            obj.PaletteIndex = pixels[0].PaletteIndex;
+                            continue;
+                        }
+
+                        tile.FlipHorizontal(tileSize);
+                        repeatedIdx = uniqueTiles.FindIndex(t => t.HasEquivalentIndexes(tile));
+                        if (repeatedIdx != -1) {
+                            obj.HorizontalFlip = false;
+                            obj.VerticalFlip = true;
+                            obj.TileIndex = (short)repeatedIdx;
+                            obj.PaletteIndex = pixels[0].PaletteIndex;
+                            continue;
+                        }
+
+                        tile.FlipVertical(tileSize);
+                        obj.HorizontalFlip = false;
+                        obj.VerticalFlip = false;
+                        obj.TileIndex = (short)uniqueTiles.Count;
+                        obj.PaletteIndex = pixels[0].PaletteIndex;
+                        uniqueTiles.Add(tile);
+                    }
+                }
+            }
+
+            var uniquePixels = uniqueTiles.SelectMany(t => t.ToArray()).ToArray();
+            var unswizzling = new TileSwizzling<IndexedPixel>(tileSize, 8);
+            uniquePixels = unswizzling.Unswizzle(uniquePixels);
+
+            image.Pixels = uniquePixels;
+            image.Width = 8;
+            image.Height = uniquePixels.Length / 8;
+
+            using var newImageNode = new Node("image", image);
+            newImageNode.TransformWith<Ncgr2Binary>().Stream!.WriteTo(outNcgr);
+
+            using var newSpriteNode = new Node("sprites", sprites);
+            newSpriteNode.TransformWith<Ncer2Binary>().Stream!.WriteTo(outNcer);
         }
     }
 }

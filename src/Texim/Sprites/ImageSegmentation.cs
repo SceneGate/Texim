@@ -22,6 +22,7 @@ namespace Texim.Sprites;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Colors;
 using Texim.Images;
 using Texim.Pixels;
 
@@ -36,22 +37,22 @@ public class ImageSegmentation : IImageSegmentation
 
     private readonly int[,] splitMode = Modes[1];
 
-    public Sprite Segment(IIndexedImage frame)
+    public (Sprite, FullImage) Segment(FullImage frame)
     {
-        (int startX, int startY, IIndexedImage trimmed) = TrimImage(frame);
+        (int startX, int startY, FullImage trimmed) = TrimImage(frame);
 
-        var segments = CreateObjects(frame, startX, startY, 0, 0, frame.Height);
+        var segments = CreateObjects(trimmed, startX, startY, 0, 0, trimmed.Height);
 
         // Return new frame
         var sprite = new Sprite {
             Segments = new Collection<IImageSegment>(segments),
-            Width = frame.Width,
-            Height = frame.Height,
+            Width = trimmed.Width,
+            Height = trimmed.Height,
         };
-        return sprite;
+        return (sprite, trimmed);
     }
 
-    private List<IImageSegment> CreateObjects(IIndexedImage frame, int startX, int startY, int x, int y, int maxHeight)
+    private List<IImageSegment> CreateObjects(FullImage frame, int startX, int startY, int x, int y, int maxHeight)
     {
         var segments = new List<IImageSegment>();
 
@@ -71,9 +72,7 @@ public class ImageSegmentation : IImageSegmentation
         diffY -= diffY % 8;
         y = diffY + y;
 
-        int width = 0;
-        int height = 0;
-        GetObjectSize(frame, x, y, frame.Width, maxHeight, out width, out height);
+        GetObjectSize(frame, x, y, frame.Width, maxHeight, out int width, out int height);
 
         if (width != 0 && height != 0) {
             var segment = new ImageSegment {
@@ -105,7 +104,7 @@ public class ImageSegmentation : IImageSegmentation
     }
 
     private void GetObjectSize(
-        IIndexedImage frame,
+        FullImage frame,
         int x,
         int y,
         int maxWidth,
@@ -179,7 +178,7 @@ public class ImageSegmentation : IImageSegmentation
         return true;
     }
 
-    private static (int x, int y, IIndexedImage trimmed) TrimImage(IIndexedImage image)
+    private static (int x, int y, FullImage trimmed) TrimImage(FullImage image)
     {
         // Get border points to get dimensions
         int xStart = SearchNoTransparentPoint(image, 1);
@@ -200,23 +199,22 @@ public class ImageSegmentation : IImageSegmentation
             return (0, 0, image);
         }
 
-        var newPixels = new IndexedPixel[width * height];
+        var newPixels = new Rgb[width * height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                newPixels[(y * width) + x] = image.Pixels[((yStart + y) * image.Width) + (xStart + x)];
+                newPixels[(y * width) + x] = image.Pixels[((yStart + y) * image.Width) + xStart + x];
             }
         }
 
-        var newImage = new IndexedImage {
-            Width = width,
-            Height = height,
+        var newImage = new FullImage(width, height) {
+            Pixels = newPixels,
         };
 
         return (xStart, yStart, newImage);
     }
 
     private static int SearchNoTransparentPoint(
-        IIndexedImage image,
+        FullImage image,
         int direction,
         int xStart = 0,
         int yStart = 0,
@@ -232,16 +230,17 @@ public class ImageSegmentation : IImageSegmentation
         }
 
         int point = -1;
-        var pixels = image.Pixels;
+        Rgb[] pixels = image.Pixels;
         int width = image.Width;
         bool stop = false;
 
-            // Get top most
+        // Get top most
         if (direction == 0) {
             for (int y = yStart; y < yEnd && !stop; y++) {
                 for (int x = xStart; x < xEnd && !stop; x++) {
-                    if (pixels[(y * width) + x].Alpha == 0)
+                    if (pixels[(y * width) + x].Alpha == 0) {
                         continue;
+                    }
 
                     point = y;
                     stop = true;
@@ -252,8 +251,9 @@ public class ImageSegmentation : IImageSegmentation
         } else if (direction == 1) {
             for (int x = xStart; x < xEnd && !stop; x++) {
                 for (int y = yStart; y < yEnd && !stop; y++) {
-                    if (pixels[(y * width) + x].Alpha == 0)
+                    if (pixels[(y * width) + x].Alpha == 0) {
                         continue;
+                    }
 
                     point = x;
                     stop = true;
@@ -291,15 +291,15 @@ public class ImageSegmentation : IImageSegmentation
     }
 
     private static bool IsTransparent(
-        IIndexedImage image,
+        FullImage image,
         int xStart,
         int xRange,
         int yStart,
         int yRange)
     {
         bool isTransparent = true;
-        int xEnd = (xStart + xRange > image.Width) ? image.Width : xStart + xRange;
-        int yEnd = (yStart + yRange > image.Height) ? image.Height : yStart + yRange;
+        int xEnd = xStart + xRange > image.Width ? image.Width : xStart + xRange;
+        int yEnd = yStart + yRange > image.Height ? image.Height : yStart + yRange;
 
         var pixels = image.Pixels;
         bool stop = false;

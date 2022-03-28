@@ -17,11 +17,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Games.Nitro;
 
-using Texim.Images;
+using Yarhl.IO;
 
-public interface IImageSegmentation
+public class Ncer2Binary : NitroSerializer<Ncer>
 {
-    (Sprite, FullImage) Segment(FullImage frame);
+    public Ncer2Binary()
+    {
+        RegisterSection("CEBK", WriteCellBank);
+        RegisterSection("LABL", (writer, model) => WriteLabelSection(writer, model.Labels));
+    }
+
+    protected override string Stamp => "NCER";
+
+    private void WriteCellBank(DataWriter writer, Ncer model)
+    {
+
+    }
 }

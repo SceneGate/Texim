@@ -54,6 +54,11 @@ namespace Texim.Games.Nitro
             sections.Add((id, writer));
         }
 
+        protected void WriteLabelSection(DataWriter writer, IEnumerable<string> labels)
+        {
+
+        }
+
         private void WriteHeader(DataWriter writer, T model)
         {
             writer.Write(Stamp.ToCharArray().Reverse().ToArray());

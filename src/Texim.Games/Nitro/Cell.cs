@@ -19,7 +19,10 @@
 // SOFTWARE.
 namespace Texim.Games.Nitro;
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Sprites;
 
 /// <summary>
@@ -27,6 +30,21 @@ using Sprites;
 /// </summary>
 public class Cell : ISprite
 {
+    public Cell()
+    {
+    }
+
+    public Cell(Cell other, IEnumerable<IImageSegment> segments)
+    {
+        Segments = new Collection<IImageSegment>(segments.ToList());
+        Width = other.Width;
+        Height = other.Height;
+        Attributes = other.Attributes;
+        BoundaryX = other.BoundaryX;
+        BoundaryY = other.BoundaryY;
+        UserExtendedCellAttribute = other.UserExtendedCellAttribute;
+    }
+
     public Collection<IImageSegment> Segments { get; init; } = new Collection<IImageSegment>();
 
     public int Width { get; set; }

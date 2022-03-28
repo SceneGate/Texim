@@ -61,7 +61,7 @@ public class Sprite2IndexedImage :
             _ => throw new FormatException("Unknown relative position"),
         };
 
-        foreach (var segment in source.Segments.OrderBy(s => s.Layer).Reverse()) {
+        foreach (var segment in source.Segments.OrderByDescending(s => s.Layer)) {
             CopySegment(segment, pixelsSpan, source.Width, relativeX, relativeY);
         }
 
