@@ -336,7 +336,6 @@ namespace Texim.Tool
             var tileSize = new Size(8, 8);
             int pixelsPerTile = tileSize.Width * tileSize.Height;
 
-            // Add the initial tiles in case of creating one pixel data + several maps
             var uniqueTiles = new List<Memory<IndexedPixel>>();
             for (int i = 0; i < initialTiles.Length; i += pixelsPerTile) {
                 Memory<IndexedPixel> tile = initialTiles.Slice(i, pixelsPerTile);
@@ -354,6 +353,7 @@ namespace Texim.Tool
                 // append. As a consequence the image maybe bigger than the VRAM accepts.
                 string name = Path.GetFileNameWithoutExtension(newImagePath);
                 int index = int.Parse(name["cell".Length..]);
+                Console.WriteLine($"Index: {index}");
                 if (index > sprites.Root.Children.Count) {
                     throw new InvalidOperationException("Index too large");
                 }
@@ -374,9 +374,9 @@ namespace Texim.Tool
                 sprites.Root.Children[index].ChangeFormat(newCell);
 
                 // Now add the new tiles to the image.
-                foreach (ObjectAttributeMemory obj in newCell.Segments) {
+                foreach (ObjectAttributeMemory obj in originalCell.Segments) {
                     // We need to quantize each subimage with the best palette.
-                    Rgb[] subImage = new Rgb[0];
+                    Rgb[] subImage = SubImage(newImageTrimmed.Pixels, newImageTrimmed.Width, obj);
 
                     // We simulate like the subimage is a big tile for the quantization
                     var quantization = new FixedPaletteTileQuantization(
@@ -455,6 +455,20 @@ namespace Texim.Tool
 
             using var newSpriteNode = new Node("sprites", sprites);
             newSpriteNode.TransformWith<Ncer2Binary>().Stream!.WriteTo(outNcer);
+        }
+
+        private static Rgb[] SubImage(Rgb[] image, int width, ObjectAttributeMemory segment)
+        {
+            Rgb[] subimage = new Rgb[segment.Width * segment.Height];
+            int idx = 0;
+            for (int x = 0; x < segment.Width; x++) {
+                for (int y = 0; y < segment.Height; y++) {
+                    int fullIndex = (segment.CoordinateY + y) * width + segment.CoordinateX + x;
+                    subimage[idx++] = image[fullIndex];
+                }
+            }
+
+                return subimage;
         }
     }
 }
