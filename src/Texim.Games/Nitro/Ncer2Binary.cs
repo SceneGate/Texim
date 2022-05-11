@@ -33,6 +33,16 @@ public class Ncer2Binary : NitroSerializer<Ncer>
 
     private void WriteCellBank(DataWriter writer, Ncer model)
     {
+        long sectionPos = writer.Stream.Position;
+
+        writer.Write((ushort)model.Root.Children.Count);
+        writer.Write((ushort)model.Attributes);
+        writer.Write(0x00); // TODO: data offset
+        writer.Write((uint)model.TileMapping);
+        writer.Write(0x00); // VRAM transfer data info pointer
+        writer.Write(0x00); // unused pointer
+        writer.Write(0x00); // TODO: extended data offset
+
 
     }
 }
