@@ -24,12 +24,26 @@ namespace Texim.Colors
     using System.IO;
     using System.Linq;
 
+    /// <summary>
+    /// BGR555 color encoding: 5 bits per channel in blue, green, red order.
+    /// </summary>
     public class Bgr555 : IColorEncoding
     {
+        /// <summary>
+        /// Gets the number of bytes required to encode a color.
+        /// </summary>
         public static int BytesPerColor => 2;
 
+        /// <summary>
+        /// Gets a singleton instance of this class.
+        /// </summary>
         public static Bgr555 Instance { get; } = new Bgr555();
 
+        /// <summary>
+        /// Decode a color from an unsigned integer of 16-bits.
+        /// </summary>
+        /// <param name="value">The binary encoded color.</param>
+        /// <returns>The decoded color.</returns>
         public static Rgb FromUInt16(ushort value)
         {
             return new Rgb {
@@ -40,6 +54,11 @@ namespace Texim.Colors
             };
         }
 
+        /// <summary>
+        /// Encode a color as an unsigned integer of 16-bits.
+        /// </summary>
+        /// <param name="color">The color to binary encode.</param>
+        /// <returns>The binary encoded color.</returns>
         public static ushort ToUInt16(Rgb color)
         {
             return (ushort)((color.Red >> 3)
@@ -47,6 +66,7 @@ namespace Texim.Colors
                 | ((color.Blue >> 3) << 10));
         }
 
+        /// <inheritdoc/>
         public Rgb Decode(Stream stream)
         {
             if (stream == null)
@@ -56,6 +76,7 @@ namespace Texim.Colors
             return FromUInt16(data);
         }
 
+        /// <inheritdoc/>
         public Rgb[] Decode(Stream stream, int numColors)
         {
             if (stream == null)
@@ -72,6 +93,7 @@ namespace Texim.Colors
             return Decode(buffer);
         }
 
+        /// <inheritdoc/>
         public Rgb[] Decode(Span<byte> data)
         {
             int numColors = data.Length / BytesPerColor;
@@ -84,12 +106,14 @@ namespace Texim.Colors
             return colors;
         }
 
+        /// <inheritdoc/>
         public byte[] Encode(Rgb color)
         {
             ushort data = ToUInt16(color);
             return new[] { (byte)(data & 0xFF), (byte)(data >> 8) };
         }
 
+        /// <inheritdoc/>
         public byte[] Encode(IEnumerable<Rgb> colors)
         {
             if (colors == null)
