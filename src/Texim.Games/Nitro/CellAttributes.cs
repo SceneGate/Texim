@@ -39,4 +39,9 @@ public class CellAttributes
             SquareDimension = (data & 0x3F) * 8,
             UnknownFlags = data >> 6,
         };
+
+    public ushort ToBinary() =>
+        (ushort)(((SquareDimension / 8) & 0x3F) |
+        ((UnknownFlags & 0x1F) << 6) |
+        (IsSquare ? 0 : 1) << 11);
 }

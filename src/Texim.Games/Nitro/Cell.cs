@@ -40,8 +40,10 @@ public class Cell : ISprite
         Width = other.Width;
         Height = other.Height;
         Attributes = other.Attributes;
-        BoundaryX = other.BoundaryX;
-        BoundaryY = other.BoundaryY;
+        BoundaryXStart = other.BoundaryXStart;
+        BoundaryXEnd = other.BoundaryXEnd;
+        BoundaryYStart = other.BoundaryYStart;
+        BoundaryXEnd = other.BoundaryXEnd;
         UserExtendedCellAttribute = other.UserExtendedCellAttribute;
     }
 
@@ -53,9 +55,13 @@ public class Cell : ISprite
 
     public CellAttributes Attributes { get; set; }
 
-    public int BoundaryX { get; set; }
+    public int BoundaryXStart { get; set; }
 
-    public int BoundaryY { get; set; }
+    public int BoundaryXEnd { get; set; }
+
+    public int BoundaryYStart { get; set; }
+
+    public int BoundaryYEnd { get; set; }
 
     public uint UserExtendedCellAttribute { get; set; }
 }

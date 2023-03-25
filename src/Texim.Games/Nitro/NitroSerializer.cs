@@ -29,8 +29,7 @@ namespace Texim.Games.Nitro
     public abstract class NitroSerializer<T> : IConverter<T, BinaryFormat>
         where T : INitroFormat
     {
-        private readonly List<(string Id, Action<DataWriter, T> Writer)> sections =
-            new List<(string, Action<DataWriter, T>)>();
+        private readonly List<(string Id, Action<DataWriter, T> Writer)> registeredSections = new();
 
         protected abstract string Stamp { get; }
 
@@ -42,8 +41,13 @@ namespace Texim.Games.Nitro
             var binary = new BinaryFormat();
             var writer = new DataWriter(binary.Stream);
 
-            WriteHeader(writer, source);
-            WriteSections(writer, source);
+            var sections = registeredSections.ToList();
+            if (source.UserExtendedInfo.Length > 0) {
+                sections.Add(("UEXT", WriteUserExtendedInfo));
+            }
+
+            WriteHeader(writer, source, sections);
+            WriteSections(writer, source, sections);
             UpdateFileSize(writer);
 
             return binary;
@@ -51,15 +55,31 @@ namespace Texim.Games.Nitro
 
         protected void RegisterSection(string id, Action<DataWriter, T> writer)
         {
-            sections.Add((id, writer));
+            registeredSections.Add((id, writer));
         }
 
         protected void WriteLabelSection(DataWriter writer, IEnumerable<string> labels)
         {
+            var labelList = labels.ToArray();
+            long sectionPos = writer.Stream.Position;
 
+            // pre-fill offset table
+            writer.WriteTimes(0x00, labelList.Length * sizeof(uint));
+
+            // write each table with the table
+            long dataPos = writer.Stream.Position;
+            for (int i = 0; i < labelList.Length; i++) {
+                uint labelOffset = (uint)(writer.Stream.Position - dataPos);
+
+                writer.Stream.PushToPosition(sectionPos + (i * sizeof(uint)));
+                writer.Write(labelOffset);
+                writer.Stream.PopPosition();
+
+                writer.Write(labelList[i]);
+            }
         }
 
-        private void WriteHeader(DataWriter writer, T model)
+        private void WriteHeader(DataWriter writer, T model, List<(string Id, Action<DataWriter, T> Writer)> sections)
         {
             writer.Write(Stamp.ToCharArray().Reverse().ToArray());
             writer.Write((ushort)0xFEFF); // endianness
@@ -76,7 +96,7 @@ namespace Texim.Games.Nitro
             writer.Write((uint)writer.Stream.Length);
         }
 
-        private void WriteSections(DataWriter writer, T model)
+        private void WriteSections(DataWriter writer, T model, List<(string Id, Action<DataWriter, T> Writer)> sections)
         {
             foreach (var section in sections) {
                 writer.Write(section.Id.ToCharArray().Reverse().ToArray());
@@ -89,8 +109,11 @@ namespace Texim.Games.Nitro
                 writer.Stream.Position = dataPosition - 4;
                 writer.Write((uint)dataLength);
 
-                writer.Stream.Seek(0, SeekOrigin.End);
+                _ = writer.Stream.Seek(0, SeekOrigin.End);
             }
         }
+
+        private void WriteUserExtendedInfo(DataWriter writer, T model) =>
+            writer.Write(model.UserExtendedInfo);
     }
 }
