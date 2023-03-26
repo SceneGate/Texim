@@ -42,7 +42,7 @@ namespace Texim.Games.Nitro
             var writer = new DataWriter(binary.Stream);
 
             var sections = registeredSections.ToList();
-            if (source.UserExtendedInfo.Length > 0) {
+            if (source.UserExtendedInfo is { Length: > 0 }) {
                 sections.Add(("UEXT", WriteUserExtendedInfo));
             }
 

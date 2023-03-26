@@ -40,7 +40,7 @@ namespace Texim.Processing
 
         public int MaxColors { get; }
 
-        public (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels)
+        public QuantizationResult Quantize(Rgb[] pixels)
         {
             // Convert to pixel reference to keep track of pixel indexes
             var pixelrefs = new PixelRef[pixels.Length];
@@ -74,7 +74,10 @@ namespace Texim.Processing
                 }
             }
 
-            return (indexed, new PaletteCollection(palette));
+            return new QuantizationResult {
+                Pixels = indexed,
+                Palettes = new PaletteCollection(palette)
+            };
         }
 
         private (PixelRef[], PixelRef[]) MedianCut(PixelRef[] bucket)

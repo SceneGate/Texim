@@ -36,7 +36,11 @@ public class Cell : ISprite
 
     public Cell(Cell other, IEnumerable<IImageSegment> segments)
     {
-        Segments = new Collection<IImageSegment>(segments.ToList());
+        Segments = new Collection<IImageSegment>();
+        foreach (IImageSegment segment in segments) {
+            Segments.Add(segment is ObjectAttributeMemory ? segment : new ObjectAttributeMemory(segment));
+        }
+
         Width = other.Width;
         Height = other.Height;
         Attributes = other.Attributes;

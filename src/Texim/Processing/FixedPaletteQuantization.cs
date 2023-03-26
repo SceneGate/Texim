@@ -36,7 +36,7 @@ namespace Texim.Processing
 
         public int TransparentIndex { get; set; }
 
-        public (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels)
+        public QuantizationResult Quantize(Rgb[] pixels)
         {
             var indexed = new IndexedPixel[pixels.Length];
 
@@ -48,7 +48,10 @@ namespace Texim.Processing
             }
 
             var collection = new PaletteCollection(palette);
-            return (indexed, collection);
+            return new QuantizationResult {
+                Pixels = indexed,
+                Palettes = collection,
+            };
         }
     }
 }

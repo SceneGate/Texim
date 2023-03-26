@@ -20,6 +20,7 @@
 namespace Texim.Processing
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Texim.Colors;
     using Texim.Palettes;
@@ -45,7 +46,7 @@ namespace Texim.Processing
 
         public bool FirstAsTransparent { get; set; }
 
-        public (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels)
+        public QuantizationResult Quantize(Rgb[] pixels)
         {
             // Swizzle to work with tiles
             var colorSwizzling = new TileSwizzling<Rgb>(tileSize, width);
@@ -56,16 +57,22 @@ namespace Texim.Processing
             ReadOnlySpan<Rgb> input = tiles;
 
             int tileLength = tileSize.Width * tileSize.Height;
+            var paletteIndexes = new List<byte>();
             for (int i = 0; i < pixels.Length; i += tileLength) {
                 var tileIn = input.Slice(i, tileLength);
                 var tileOut = output.Slice(i, tileLength);
                 int paletteIdx = SearchNearestPalette(tileIn);
                 ApproximateTile(tileIn, paletteIdx, tileOut);
+                paletteIndexes.Add((byte)paletteIdx);
             }
 
             // Unswizzle to return
             var indexSwizzling = new TileSwizzling<IndexedPixel>(tileSize, width);
-            return (indexSwizzling.Unswizzle(indexed), paletteCollection);
+            return new FixedPaletteTileQuantizationResult {
+                Pixels = indexSwizzling.Unswizzle(indexed),
+                Palettes = paletteCollection,
+                PaletteIndexes = paletteIndexes.ToArray(),
+            };
         }
 
         private void ApproximateTile(ReadOnlySpan<Rgb> tile, int paletteIdx, Span<IndexedPixel> output)

@@ -61,7 +61,13 @@ public class Sprite2IndexedImage :
             _ => throw new FormatException("Unknown relative position"),
         };
 
-        foreach (var segment in source.Segments.OrderByDescending(s => s.Layer)) {
+        // First draw should be bottom layers. Order is by layer and order of segment definition (first top ones).
+        var orderedSegments = source.Segments
+            .Select((x, idx) => new { Id = idx, Seg = x })
+            .OrderByDescending(x => x.Seg.Layer)
+            .ThenByDescending(x => x.Id)
+            .Select(x => x.Seg);
+        foreach (var segment in orderedSegments) {
             CopySegment(segment, pixelsSpan, source.Width, relativeX, relativeY);
         }
 

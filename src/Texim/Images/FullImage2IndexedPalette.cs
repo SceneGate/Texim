@@ -40,14 +40,14 @@ namespace Texim.Images
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            (IndexedPixel[] pixels, IPaletteCollection palette) = quantization.Quantize(source.Pixels);
+            var result = quantization.Quantize(source.Pixels);
 
             var indexed = new IndexedPaletteImage {
                 Width = source.Width,
                 Height = source.Height,
-                Pixels = pixels,
+                Pixels = result.Pixels,
             };
-            indexed.Palettes.Add(palette.Palettes);
+            indexed.Palettes.Add(result.Palettes.Palettes);
 
             return indexed;
         }

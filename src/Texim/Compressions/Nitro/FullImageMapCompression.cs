@@ -50,9 +50,9 @@ namespace Texim.Compressions.Nitro
                 parameters.Palettes,
                 parameters.TileSize,
                 source.Width);
-            (IndexedPixel[] tiles, _) = quantization.Quantize(source.Pixels);
+            var result = quantization.Quantize(source.Pixels);
 
-            var fullIndexedImage = new IndexedImage(source.Width, source.Height, tiles);
+            var fullIndexedImage = new IndexedImage(source.Width, source.Height, result.Pixels);
 
             var compression = new MapCompression();
             compression.Initialize(parameters);

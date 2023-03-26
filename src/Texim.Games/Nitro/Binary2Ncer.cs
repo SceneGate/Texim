@@ -65,7 +65,7 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
         for (int i = 0; i < numCells; i++) {
             reader.Stream.Position = sectionPos + cellsDataOffset + (i * cellInfoSize);
             Cell cell = ReadCell(reader, model, segmentsPosition);
-            model.Root.Add(new Node($"cell{i}", cell));
+            model.Root.Add(new Node($"cell{i:D3}", cell));
         }
 
         if (extendedDataOffset != 0) {
