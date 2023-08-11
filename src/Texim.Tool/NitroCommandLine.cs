@@ -399,7 +399,7 @@ namespace Texim.Tool
 
                 // First replace sprite definition (Cell and OAMs)
                 // We keep the original metadata, just replace OAMs.
-                (Sprite newSprite, FullImage newImageTrimmed) = segmentation.Segment(newImage);
+                (Sprite newSprite, FullImage _) = segmentation.Segment(newImage);
 
                 Cell originalCell = sprites.Root.Children[index].GetFormatAs<Cell>() !;
                 var newCell = new Cell(originalCell, newSprite.Segments) {
@@ -408,6 +408,12 @@ namespace Texim.Tool
                 };
 
                 sprites.Root.Children[index].ChangeFormat(newCell);
+
+                // Get the minimum pixel segment, in pixels as we are filling pixels
+                int blockSize = sprites.TileMapping.GetTileBlockSize() * pixelsPerTile;
+                if (image.Format == NitroTextureFormat.Indexed4Bpp) {
+                    blockSize *= 2;
+                }
 
                 // Now add the new tiles to the image.
                 foreach (ObjectAttributeMemory obj in newCell.Segments) {
@@ -446,6 +452,10 @@ namespace Texim.Tool
                     // and put the start index in the OAM.
                     int tileIndex = SearchSequence(uniqueTiledPixels, objTiles, pixelsPerTile);
                     if (tileIndex == -1) {
+                        if (objTiles.Length < blockSize) {
+                            objTiles = objTiles.Concat(new IndexedPixel[blockSize - objTiles.Length]).ToArray();
+                        }
+
                         // Add sequence to the pixels.
                         tileIndex = uniqueTiledPixels.Count / pixelsPerTile;
                         uniqueTiledPixels.AddRange(objTiles);
