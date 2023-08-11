@@ -72,7 +72,7 @@ public class ImageSegmentation : IImageSegmentation
         diffY -= diffY % 8;
         y = diffY + y;
 
-        GetObjectSize(frame, x, y, frame.Width, maxHeight, out int width, out int height);
+        (int width, int height) = GetObjectSize(frame, x, y, frame.Width, maxHeight - diffY);
 
         if (width != 0 && height != 0) {
             var segment = new ImageSegment {
@@ -103,18 +103,16 @@ public class ImageSegmentation : IImageSegmentation
         return segments;
     }
 
-    private void GetObjectSize(
+    private (int width, int height) GetObjectSize(
         FullImage frame,
         int x,
         int y,
         int maxWidth,
-        int maxHeight,
-        out int width,
-        out int height)
+        int maxHeight)
     {
         int minWidthConstraint = 0;
-        width = 0;
-        height = 0;
+        int width = 0;
+        int height = 0;
 
         // Try to get a valid object size
         // The problem is the width can get fixed to 64 and in that case the height can not be 8 or 16.
@@ -122,8 +120,9 @@ public class ImageSegmentation : IImageSegmentation
             // Get object width
             width = 0;
             for (int i = minWidthConstraint; i < this.splitMode.GetLength(0) && width == 0; i++) {
-                if (this.splitMode[i, 1] > maxWidth - x)
+                if (this.splitMode[i, 1] > maxWidth - x) {
                     continue;
+                }
 
                 int xRange = this.splitMode[i, 1] - this.splitMode[i, 0];
                 if (!IsTransparent(frame, x + this.splitMode[i, 0], xRange, y, maxHeight)) {
@@ -133,7 +132,7 @@ public class ImageSegmentation : IImageSegmentation
 
             // Everything is transparent, skip
             if (width == 0) {
-                return;
+                return (width, height);
             }
 
             // Get object height
@@ -155,6 +154,8 @@ public class ImageSegmentation : IImageSegmentation
 
             minWidthConstraint++;
         }
+
+        return (width, height);
     }
 
     private static bool IsValidSize(int width, int height)
