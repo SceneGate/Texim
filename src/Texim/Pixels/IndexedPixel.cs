@@ -19,6 +19,9 @@
 // SOFTWARE.
 namespace Texim.Pixels
 {
+    using System.Diagnostics;
+
+    [DebuggerDisplay("I:{Index},A:{Alpha},P:{PaletteIndex}")]
     public readonly struct IndexedPixel
     {
         public IndexedPixel(short index)

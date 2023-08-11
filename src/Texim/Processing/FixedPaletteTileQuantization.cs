@@ -106,7 +106,10 @@ namespace Texim.Processing
         {
             int totalDistance = 0;
             for (int i = 0; i < tile.Length; i++) {
-                totalDistance += ExhaustiveColorSearch.Search(palette, tile[i]).Distance;
+                int distance = (FirstAsTransparent && tile[i].Alpha <= 128)
+                    ? 0
+                    : ExhaustiveColorSearch.Search(palette, tile[i]).Distance;
+                totalDistance += distance;
             }
 
             return totalDistance;
