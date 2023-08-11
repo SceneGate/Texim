@@ -367,7 +367,9 @@ namespace Texim.Tool
             // saves 0xFFFF as width. Having 8 as false width is the same as swizzling
             // tileSize.Width == imageWidth -> nop operation (but we need a copy).
             var imageSwizzler = new TileSwizzling<IndexedPixel>(image.Width);
-            var uniqueTiledPixels = imageSwizzler.Swizzle(image.Pixels).ToList();
+            var uniqueTiledPixels = image.IsTiled
+                ? imageSwizzler.Swizzle(image.Pixels).ToList()
+                : image.Pixels.ToList();
 
             // Convert the lineal pixels into a list of tiles (groups of tileSize pixels)
             var tileSize = new Size(8, 8);
@@ -431,8 +433,13 @@ namespace Texim.Tool
                     obj.HorizontalFlip = false; // not supported
                     obj.VerticalFlip = false; // not supported
 
-                    var segmentSwizzler = new TileSwizzling<IndexedPixel>(obj.Width);
-                    var objTiles = segmentSwizzler.Swizzle(quantizationResult.Pixels);
+                    IndexedPixel[] objTiles;
+                    if (image.IsTiled) {
+                        var segmentSwizzler = new TileSwizzling<IndexedPixel>(obj.Width);
+                        objTiles = segmentSwizzler.Swizzle(quantizationResult.Pixels);
+                    } else {
+                        objTiles = quantizationResult.Pixels;
+                    }
 
                     // Now find unique pixels.
                     // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
@@ -452,7 +459,9 @@ namespace Texim.Tool
             }
 
             Console.WriteLine($"Previous pixels: {image.Pixels.Length}, new pixels: {uniqueTiledPixels.Count}");
-            image.Pixels = imageSwizzler.Unswizzle(uniqueTiledPixels);
+            image.Pixels = image.IsTiled
+                ? imageSwizzler.Unswizzle(uniqueTiledPixels)
+                : uniqueTiledPixels.ToArray();
             image.Height = uniqueTiledPixels.Count / image.Width;
 
             using var newImageNode = new Node("image", image);
