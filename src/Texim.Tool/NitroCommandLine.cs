@@ -394,7 +394,7 @@ namespace Texim.Tool
                 }
 
                 FullImage newImage = NodeFactory.FromFile(newImagePath, FileOpenMode.Read)
-                    .TransformWith<Bitmap2FullImage>()
+                        .TransformWith<Bitmap2FullImage>()
                     .GetFormatAs<FullImage>() !;
 
                 // First replace sprite definition (Cell and OAMs)
@@ -450,7 +450,7 @@ namespace Texim.Tool
                     // Now find unique pixels.
                     // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
                     // and put the start index in the OAM.
-                    int tileIndex = SearchSequence(uniqueTiledPixels, objTiles, pixelsPerTile);
+                    int tileIndex = SearchSequence(uniqueTiledPixels, objTiles, pixelsPerTile, blockSize);
                     if (tileIndex == -1) {
                         if (objTiles.Length < blockSize) {
                             objTiles = objTiles.Concat(new IndexedPixel[blockSize - objTiles.Length]).ToArray();
@@ -495,13 +495,13 @@ namespace Texim.Tool
             return subImage;
         }
 
-        private static int SearchSequence(List<IndexedPixel> pixels, ReadOnlySpan<IndexedPixel> newPixels, int tileSize)
+        private static int SearchSequence(List<IndexedPixel> pixels, ReadOnlySpan<IndexedPixel> newPixels, int tileSize, int blockSize)
         {
             int tileNumber = -1;
 
             for (int tilePos = 0;
-                 tilePos + tileSize < pixels.Count && tileNumber == -1;
-                 tilePos += tileSize) {
+                 tilePos + blockSize < pixels.Count && tileNumber == -1;
+                 tilePos += blockSize) {
 
                 if (tilePos + newPixels.Length > pixels.Count) {
                     break;
@@ -523,7 +523,7 @@ namespace Texim.Tool
         {
             bool hasSequence = true;
             for (int i = 0; i < newPixels.Length && hasSequence; i++) {
-                if (!pixels[tilePos + i].Equals(newPixels[i])) {
+                if (pixels[tilePos + i].Index != newPixels[i].Index) {
                     hasSequence = false;
                 }
             }

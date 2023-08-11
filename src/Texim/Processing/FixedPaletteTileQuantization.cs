@@ -77,10 +77,19 @@ namespace Texim.Processing
 
         private void ApproximateTile(ReadOnlySpan<Rgb> tile, int paletteIdx, Span<IndexedPixel> output)
         {
+            Rgb[] palette = palettes[paletteIdx];
+            var nonTransparentPalette = palette[1..];
             for (int i = 0; i < tile.Length; i++) {
-                int colorIdx = (FirstAsTransparent && tile[i].Alpha <= 128)
-                    ? 0
-                    : ExhaustiveColorSearch.Search(palettes[paletteIdx], tile[i]).Index;
+                int colorIdx;
+                if (FirstAsTransparent) {
+                    // Do not search with color 0 if it's not transparent!
+                    colorIdx = (tile[i].Alpha <= 128)
+                        ? 0
+                        : ExhaustiveColorSearch.Search(nonTransparentPalette, tile[i]).Index + 1;
+                } else {
+                    colorIdx = ExhaustiveColorSearch.Search(palette, tile[i]).Index;
+                }
+
                 byte alpha = FirstAsTransparent ? (byte)255 : tile[i].Alpha;
                 output[i] = new IndexedPixel((short)colorIdx, alpha, (byte)paletteIdx);
             }
@@ -106,9 +115,16 @@ namespace Texim.Processing
         {
             int totalDistance = 0;
             for (int i = 0; i < tile.Length; i++) {
-                int distance = (FirstAsTransparent && tile[i].Alpha <= 128)
-                    ? 0
-                    : ExhaustiveColorSearch.Search(palette, tile[i]).Distance;
+                int distance;
+                if (FirstAsTransparent) {
+                    // Do not search with color 0 if it's not transparent!
+                    distance = (tile[i].Alpha <= 128)
+                        ? 0
+                        : ExhaustiveColorSearch.Search(palette[1..], tile[i]).Distance;
+                } else {
+                    distance = ExhaustiveColorSearch.Search(palette, tile[i]).Distance;
+                }
+
                 totalDistance += distance;
             }
 
