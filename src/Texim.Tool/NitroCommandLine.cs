@@ -361,8 +361,13 @@ namespace Texim.Tool
                 .TransformWith<Binary2Ncgr>()
                 .GetFormatAs<Ncgr>() !;
 
-            var uniquePixels = new List<IndexedPixel>();
-            uniquePixels.AddRange(image.Pixels);
+            // We had to swizzle. We can't compare lineal pixels as there isn't
+            // a constant "image width" that generates a valid sequence of lineal
+            // pixels. Each segment has a different width. That's why NCGR usually
+            // saves 0xFFFF as width. Having 8 as false width is the same as swizzling
+            // tileSize.Width == imageWidth -> nop operation (but we need a copy).
+            var imageSwizzler = new TileSwizzling<IndexedPixel>(image.Width);
+            var uniqueTiledPixels = imageSwizzler.Swizzle(image.Pixels).ToList();
 
             // Convert the lineal pixels into a list of tiles (groups of tileSize pixels)
             var tileSize = new Size(8, 8);
@@ -407,8 +412,6 @@ namespace Texim.Tool
                     // We need to quantize each subimage with the best palette. (RGB pixel -> index pixel as rest of NCGR)
                     // This will return the section of the image for the OAM.
                     Rgb[] subImage = SubImage(newImage.Pixels, newImage.Width, obj);
-                    var test1 = new FullImage(obj.Width, obj.Height) { Pixels = subImage };
-                    new FullImage2Bitmap().Convert(test1).Stream.WriteTo("/tmp/texim/segment.png");
 
                     // We simulate like the subimage is a big tile for the quantization
                     // It will search for the best matching palette (e.g. cases of 16 palettes of 16 colors).
@@ -423,34 +426,34 @@ namespace Texim.Tool
                     quantization.FirstAsTransparent = true;
                     var quantizationResult = (quantization.Quantize(subImage) as FixedPaletteTileQuantizationResult) !;
 
-                    var test2 = new IndexedImage(obj.Width, obj.Height) { Pixels = quantizationResult.Pixels };
-                    var c2 = new IndexedImage2Bitmap();
-                    c2.Initialize(new IndexedImageBitmapParams() { Palettes = quantizationResult.Palettes });
-                    c2.Convert(test2).Stream.WriteTo("/tmp/texim/segment_quant.png");
-
                     // OAMs can have only one palette index, that's why we use a big tile.
                     obj.PaletteIndex = quantizationResult.PaletteIndexes[0];
                     obj.HorizontalFlip = false; // not supported
                     obj.VerticalFlip = false; // not supported
 
+                    var segmentSwizzler = new TileSwizzling<IndexedPixel>(obj.Width);
+                    var objTiles = segmentSwizzler.Swizzle(quantizationResult.Pixels);
+
                     // Now find unique pixels.
                     // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
-                    // and put the start index in the OAM. We search using lineal tiles, rather in tile structures
-                    // as it's the same as we don't need to swizzle back and forward.
-                    int tileIndex = SearchSequence(uniquePixels, quantizationResult.Pixels, pixelsPerTile);
+                    // and put the start index in the OAM.
+                    int tileIndex = SearchSequence(uniqueTiledPixels, objTiles, pixelsPerTile);
                     if (tileIndex == -1) {
                         // Add sequence to the pixels.
-                        tileIndex = uniquePixels.Count / pixelsPerTile;
-                        uniquePixels.AddRange(quantizationResult.Pixels);
+                        tileIndex = uniqueTiledPixels.Count / pixelsPerTile;
+                        uniqueTiledPixels.AddRange(objTiles);
                     }
 
+                    obj.PaletteMode = image.Format == NitroTextureFormat.Indexed8Bpp
+                        ? NitroPaletteMode.Palette256x1
+                        : NitroPaletteMode.Palette16x16;
                     obj.TileIndex = tileIndex;
                 }
             }
 
-            Console.WriteLine($"Previous pixels: {image.Pixels.Length}, new pixels: {uniquePixels.Count}");
-            image.Pixels = uniquePixels.ToArray();
-            image.Height = uniquePixels.Count / image.Width;
+            Console.WriteLine($"Previous pixels: {image.Pixels.Length}, new pixels: {uniqueTiledPixels.Count}");
+            image.Pixels = imageSwizzler.Unswizzle(uniqueTiledPixels);
+            image.Height = uniqueTiledPixels.Count / image.Width;
 
             using var newImageNode = new Node("image", image);
             newImageNode.TransformWith<Ncgr2Binary>().Stream!.WriteTo(outNcgr);
@@ -473,7 +476,7 @@ namespace Texim.Tool
             return subImage;
         }
 
-        private static int SearchSequence(List<IndexedPixel> pixels, Span<IndexedPixel> newPixels, int tileSize)
+        private static int SearchSequence(List<IndexedPixel> pixels, ReadOnlySpan<IndexedPixel> newPixels, int tileSize)
         {
             int tileNumber = -1;
 
@@ -497,7 +500,7 @@ namespace Texim.Tool
             return tileNumber;
         }
 
-        private static bool HasSequence(List<IndexedPixel> pixels, Span<IndexedPixel> newPixels, int tilePos)
+        private static bool HasSequence(List<IndexedPixel> pixels, ReadOnlySpan<IndexedPixel> newPixels, int tilePos)
         {
             bool hasSequence = true;
             for (int i = 0; i < newPixels.Length && hasSequence; i++) {

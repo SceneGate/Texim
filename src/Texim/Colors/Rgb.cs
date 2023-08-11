@@ -19,6 +19,9 @@
 // SOFTWARE.
 namespace Texim.Colors
 {
+    using System.Diagnostics;
+
+    [DebuggerDisplay("rgba({Red},{Green},{Blue},{Alpha})")]
     public readonly struct Rgb
     {
         public Rgb(System.Drawing.Color color)

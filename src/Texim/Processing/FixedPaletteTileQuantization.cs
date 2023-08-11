@@ -81,7 +81,8 @@ namespace Texim.Processing
                 int colorIdx = (FirstAsTransparent && tile[i].Alpha <= 128)
                     ? 0
                     : ExhaustiveColorSearch.Search(palettes[paletteIdx], tile[i]).Index;
-                output[i] = new IndexedPixel((short)colorIdx, tile[i].Alpha, (byte)paletteIdx);
+                byte alpha = FirstAsTransparent ? (byte)255 : tile[i].Alpha;
+                output[i] = new IndexedPixel((short)colorIdx, alpha, (byte)paletteIdx);
             }
         }
 

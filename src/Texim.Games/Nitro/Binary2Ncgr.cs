@@ -80,7 +80,8 @@ namespace Texim.Games.Nitro
                 model.Height *= 8;
             }
 
-            if (model.IsTiled) {
+            // Swizzling when tile size width and image width is the same does nothing.
+            if (model.IsTiled && model.Width != 8) {
                 var swizzling = new TileSwizzling<IndexedPixel>(model.Width);
                 pixels = swizzling.Unswizzle(pixels);
             }
