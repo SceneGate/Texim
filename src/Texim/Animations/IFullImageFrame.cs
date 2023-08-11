@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,16 +17,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Pixels;
+namespace Texim.Animations;
 
-using Yarhl.IO;
+using Texim.Images;
 
-public class Indexed4BppBigEndian : Indexed4Bpp
+public interface IFullImageFrame
 {
-    public Indexed4BppBigEndian()
-    {
-        Endianness = EndiannessMode.BigEndian;
-    }
-    
-    public static new Indexed4Bpp Instance { get; } = new Indexed4BppBigEndian();
+    IFullImage Image { get; }
+
+    int Duration { get; }
 }
