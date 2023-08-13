@@ -60,7 +60,7 @@ namespace Texim.Games.Nitro
 
         protected void WriteLabelSection(DataWriter writer, IEnumerable<string> labels)
         {
-            var labelList = labels.ToArray();
+            string[] labelList = labels.ToArray();
             long sectionPos = writer.Stream.Position;
 
             // pre-fill offset table

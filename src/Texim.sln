@@ -1,16 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.6.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim", "Texim\Texim.csproj", "{CEBAF316-25AF-4DF6-AC0D-0690E65EA986}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Texim", "Texim\Texim.csproj", "{CEBAF316-25AF-4DF6-AC0D-0690E65EA986}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.Tool", "Texim.Tool\Texim.Tool.csproj", "{DC42B751-8302-400F-8528-9BB79DAE6B9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Texim.Tool", "Texim.Tool\Texim.Tool.csproj", "{DC42B751-8302-400F-8528-9BB79DAE6B9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.PerformanceTest", "Texim.PerformanceTest\Texim.PerformanceTest.csproj", "{748619CD-2836-4E4C-BAD7-DD000737D0E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Texim.PerformanceTest", "Texim.PerformanceTest\Texim.PerformanceTest.csproj", "{748619CD-2836-4E4C-BAD7-DD000737D0E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.Games", "Texim.Games\Texim.Games.csproj", "{BC0A3664-F79B-46AF-AA7D-D6D8C1CE2713}"
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.Tests", "Texim.Tests\Texim.Tests.csproj", "{E2110B39-9BAD-4894-A273-0F86C18AF955}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Texim.Games", "Texim.Games\Texim.Games.csproj", "{BC0A3664-F79B-46AF-AA7D-D6D8C1CE2713}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Texim.Tests", "Texim.Tests\Texim.Tests.csproj", "{E2110B39-9BAD-4894-A273-0F86C18AF955}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1C4853F3-CFB3-44AE-BDD6-D1417FCD3B4B}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		nuget.config = nuget.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +28,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CEBAF316-25AF-4DF6-AC0D-0690E65EA986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -85,5 +90,11 @@ Global
 		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x64.Build.0 = Release|Any CPU
 		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x86.ActiveCfg = Release|Any CPU
 		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0AD1A11F-E951-4AEC-B954-6F10B2036F5A}
 	EndGlobalSection
 EndGlobal

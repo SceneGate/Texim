@@ -30,7 +30,7 @@ public class BinaryDstx2SpriteImage : IConverter<IBinary, NodeContainerFormat>
     private const string Stamp = "DSTX";
     private const int Type = 0x04;
 
-    private readonly BinaryDsig2IndexedPaletteImage dsigConverter = new ();
+    private readonly BinaryDsig2IndexedPaletteImage dsigConverter = new();
 
     public NodeContainerFormat Convert(IBinary source)
     {
@@ -47,7 +47,7 @@ public class BinaryDstx2SpriteImage : IConverter<IBinary, NodeContainerFormat>
             throw new FormatException($"Invalid stamp '{stamp}'");
         }
 
-        reader.ReadByte(); // unknown
+        _ = reader.ReadByte(); // unknown
         byte type = reader.ReadByte();
         if (type != Type) {
             throw new FormatException($"Invalid type: 0x{type:X2}");
@@ -55,7 +55,7 @@ public class BinaryDstx2SpriteImage : IConverter<IBinary, NodeContainerFormat>
 
         int numSegments = reader.ReadInt16();
         int dsigOffset = reader.ReadInt16();
-        reader.ReadInt16(); // unknown
+        _ = reader.ReadInt16(); // unknown
 
         var sprite = ReadSprite(reader, numSegments);
 

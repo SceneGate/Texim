@@ -163,6 +163,8 @@ dotnet_diagnostic.IDE1006.severity = warning
 ## Code analyzers
 ### .NET SDK
 dotnet_diagnostic.CA1303.severity = none # We don't translate exception and log messages from English
+dotnet_diagnostic.IDE45.severity = suggestion # 'if' statement can be simplified
+dotnet_diagnostic.IDE46.severity = suggestion # 'if' statement can be simplified
 
 ### StyleCop
 dotnet_diagnostic.SA1101.severity = none # Do not force to prefix local calls with 'this'

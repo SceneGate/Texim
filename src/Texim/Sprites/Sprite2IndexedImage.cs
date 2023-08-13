@@ -29,7 +29,7 @@ public class Sprite2IndexedImage :
     IInitializer<Sprite2IndexedImageParams>,
     IConverter<ISprite, IndexedImage>
 {
-    private readonly ImageSegment2IndexedImage segmentConverter = new ();
+    private readonly ImageSegment2IndexedImage segmentConverter = new();
     private Sprite2IndexedImageParams parameters;
 
     public void Initialize(Sprite2IndexedImageParams parameters)
@@ -92,7 +92,7 @@ public class Sprite2IndexedImage :
                     continue;
                 }
 
-                int outIdx = ((relativeY + segment.CoordinateY + y) * width) + (relativeX + segment.CoordinateX + x);
+                int outIdx = ((relativeY + segment.CoordinateY + y) * width) + relativeX + segment.CoordinateX + x;
                 output[outIdx] = pixel;
             }
         }

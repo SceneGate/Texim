@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Texim.Games.Nitro;
 
-using Sprites;
+using Texim.Sprites;
 
 /// <summary>
 /// Nitro sprite image segment format: Object attribute memory (OAM).

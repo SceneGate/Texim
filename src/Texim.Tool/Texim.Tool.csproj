@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Texim/Texim.csproj" />
-    <ProjectReference Include="..\Texim.Games\Texim.Games.csproj" />
+    <ProjectReference Include="../Texim.Games/Texim.Games.csproj" />
 
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="YamlDotNet" />

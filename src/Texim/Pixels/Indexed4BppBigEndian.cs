@@ -27,6 +27,6 @@ public class Indexed4BppBigEndian : Indexed4Bpp
     {
         Endianness = EndiannessMode.BigEndian;
     }
-    
+
     public static new Indexed4Bpp Instance { get; } = new Indexed4BppBigEndian();
 }

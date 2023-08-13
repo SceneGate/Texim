@@ -1,8 +1,9 @@
-# Build outputs
+# Build outputs and IDEs
 obj/
 bin/
 artifacts/
 .vs/
+launchSettings.json
 
 # Build system
 tools/

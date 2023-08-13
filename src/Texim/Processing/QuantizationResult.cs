@@ -1,7 +1,7 @@
 namespace Texim.Processing;
 
-using Palettes;
-using Pixels;
+using Texim.Palettes;
+using Texim.Pixels;
 
 public class QuantizationResult
 {

@@ -25,7 +25,7 @@ using Yarhl.FileFormat;
 
 public class KShapeSprites : IFormat
 {
-    private readonly Dictionary<(int, int), Sprite> sprites = new ();
+    private readonly Dictionary<(int, int), Sprite> sprites = new();
 
     public void AddSprite(int group, int element, Sprite sprite)
     {

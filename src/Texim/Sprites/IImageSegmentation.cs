@@ -23,5 +23,5 @@ using Texim.Images;
 
 public interface IImageSegmentation
 {
-    (Sprite, FullImage) Segment(FullImage frame);
+    (Sprite Sprite, FullImage TrimmedImage) Segment(FullImage frame);
 }
