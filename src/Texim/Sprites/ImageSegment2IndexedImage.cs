@@ -49,7 +49,8 @@ public class ImageSegment2IndexedImage :
             tiles = swizzling.Swizzle(parameters.FullImage.Pixels);
         }
 
-        var segmentTiles = GetSegmentTiles(tiles, source);
+        int pixelsPerIndex = parameters.TileSize.Width * parameters.TileSize.Height;
+        var segmentTiles = tiles.GetSegmentPixels(source, pixelsPerIndex, parameters.OutOfBoundsTileIndex);
 
         // Unswizzle but this time with the final image size
         if (parameters.IsTiled) {
@@ -72,34 +73,5 @@ public class ImageSegment2IndexedImage :
             Width = source.Width,
             Pixels = segmentTiles,
         };
-    }
-
-    private IndexedPixel[] GetSegmentTiles(IndexedPixel[] source, IImageSegment segment)
-    {
-        var segmentPixels = new IndexedPixel[segment.Width * segment.Height];
-        Span<IndexedPixel> pixelsOut = segmentPixels;
-        Span<IndexedPixel> pixelsIn = source;
-
-        int pixelsPerTile = parameters.TileSize.Width * parameters.TileSize.Height;
-        int numPixels = segment.Width * segment.Height;
-
-        int startIndex = segment.TileIndex * pixelsPerTile;
-        if (startIndex + numPixels > pixelsIn.Length || startIndex < 0) {
-            if (parameters.OutOfBoundsTileIndex == -1) {
-                throw new FormatException($"Required tile index {segment.TileIndex} is out of bounds");
-            } else {
-                startIndex = parameters.OutOfBoundsTileIndex * pixelsPerTile;
-            }
-        }
-
-        Span<IndexedPixel> tilesIn = pixelsIn.Slice(startIndex, numPixels);
-        for (int t = 0; t < numPixels; t++) {
-            pixelsOut[t] = new IndexedPixel(
-                tilesIn[t].Index,
-                tilesIn[t].Alpha,
-                segment.PaletteIndex);
-        }
-
-        return segmentPixels;
     }
 }

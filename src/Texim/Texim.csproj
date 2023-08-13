@@ -10,6 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Texim.Games" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Yarhl" />
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="SixLabors.ImageSharp" />

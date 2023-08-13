@@ -21,12 +21,15 @@ namespace Texim.Tool
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.CommandLine;
     using System.CommandLine.Invocation;
     using System.Drawing;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.InteropServices;
+    using Microsoft.VisualBasic;
     using Texim.Colors;
     using Texim.Compressions.Nitro;
     using Texim.Formats;
@@ -356,13 +359,7 @@ namespace Texim.Tool
             binaryNscr.Stream.WriteTo(outNscr);
         }
 
-        private static void ImportSprites(
-            string input,
-            string nclr,
-            string ncgr,
-            string ncer,
-            string outNcgr,
-            string outNcer)
+        private static void ImportSprites(string input, string nclr, string ncgr, string ncer, string outNcgr, string outNcer)
         {
             // We use the original palette rather than creating a new from the image.
             // FUTURE: save palettes from quantization output.
@@ -392,6 +389,23 @@ namespace Texim.Tool
             }
 
             var uniqueTileSequences = new List<IndexedPixel>();
+            var baseCellConverterParameters = new FullImage2NitroCellParams {
+                Palettes = palette,
+                IsImageTiled = image.IsTiled,
+                MinimumPixelsPerSegment = blockSize,
+                PixelsPerIndex = pixelsPerTile,
+                PixelSequences = uniqueTileSequences,
+                RelativeCoordinates = SpriteRelativeCoordinatesKind.Center,
+                Has8bppDepth = image.Format == NitroTextureFormat.Indexed8Bpp,
+            };
+            var cellImageUpdaterParameters = new SpriteImageUpdaterParams {
+                MinimumPixelsPerSegment = blockSize,
+                PixelsPerIndex = pixelsPerTile,
+                PixelSequences = uniqueTileSequences,
+                Image = image,
+            };
+            var cellImageUpdater = new SpriteImageUpdater();
+            cellImageUpdater.Initialize(cellImageUpdaterParameters);
 
             for (int cellIndex = 0; cellIndex < numSprites; cellIndex++) {
                 string cellPath = Path.Combine(input, $"cell{cellIndex:D3}.png");
@@ -402,11 +416,19 @@ namespace Texim.Tool
                 // The name MUST BE "cell<INDEX>". This is the name the Binary2Ncer gives to its children.
                 if (File.Exists(cellPath)) {
                     Console.WriteLine($"  - Importing cell {cellIndex}");
-                    var newCell = ImportModifiedCell(cellPath, blockSize, pixelsPerTile, originalCell, uniqueTileSequences, palette, image);
+                    var cellConverterParameters = baseCellConverterParameters with {
+                        ReferenceCell = originalCell,
+                    };
+
+                    using var sprite = NodeFactory.FromFile(cellPath, FileOpenMode.Read)
+                        .TransformWith<Bitmap2FullImage>()
+                        .TransformWith<FullImage2NitroCell, FullImage2NitroCellParams>(cellConverterParameters);
+                    var newCell = sprite.GetFormatAs<Cell>()!;
+
                     spriteCollectionNode.Children[cellIndex].ChangeFormat(newCell);
                 } else {
                     Console.WriteLine($"  - Re-using cell {cellIndex}");
-                    ImportOriginalCell(originalCell, blockSize, pixelsPerTile, uniqueTileSequences, image);
+                    _ = cellImageUpdater.Convert(originalCell);
                 }
             }
 
@@ -423,193 +445,6 @@ namespace Texim.Tool
 
             spriteCollectionNode.TransformWith<Ncer2Binary>()
                 .Stream!.WriteTo(outNcer);
-        }
-
-        private static void ImportOriginalCell(Cell originalCell, int blockSize, int pixelsPerTile, List<IndexedPixel> uniqueTileSequences, Ncgr image)
-        {
-            foreach (ObjectAttributeMemory segment in originalCell.Segments.Cast<ObjectAttributeMemory>()) {
-                // No need to swizzle because the next methods retrieves the tiles in the same format from the image.
-                IndexedPixel[] segmentTiles = GetSegmentTiles(image.Pixels, segment);
-
-                // Now find unique pixels.
-                // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
-                // and put the start index in the OAM.
-                int tileIndex = SearchSequence(uniqueTileSequences, segmentTiles, blockSize);
-                if (tileIndex == -1) {
-                    if (segmentTiles.Length < blockSize) {
-                        segmentTiles = segmentTiles.Concat(new IndexedPixel[blockSize - segmentTiles.Length]).ToArray();
-                    }
-
-                    // Add sequence to the pixels.
-                    segment.TileIndex = uniqueTileSequences.Count / pixelsPerTile;
-                    uniqueTileSequences.AddRange(segmentTiles);
-                } else {
-                    segment.TileIndex = tileIndex / pixelsPerTile;
-                }
-            }
-        }
-
-        private static IndexedPixel[] GetSegmentTiles(IndexedPixel[] source, IImageSegment segment)
-        {
-            var segmentPixels = new IndexedPixel[segment.Width * segment.Height];
-            Span<IndexedPixel> pixelsOut = segmentPixels;
-            Span<IndexedPixel> pixelsIn = source;
-
-            var tileSize = new Size(8, 8);
-            int pixelsPerTile = tileSize.Width * tileSize.Height;
-            int numPixels = segment.Width * segment.Height;
-
-            int startIndex = segment.TileIndex * pixelsPerTile;
-            if (startIndex + numPixels > pixelsIn.Length || startIndex < 0) {
-                throw new FormatException($"Required tile index {segment.TileIndex} is out of bounds");
-            }
-
-            Span<IndexedPixel> tilesIn = pixelsIn.Slice(startIndex, numPixels);
-            for (int t = 0; t < numPixels; t++) {
-                pixelsOut[t] = new IndexedPixel(
-                    tilesIn[t].Index,
-                    tilesIn[t].Alpha,
-                    segment.PaletteIndex);
-            }
-
-            return segmentPixels;
-        }
-
-        private static Cell ImportModifiedCell(
-            string spriteImagePath,
-            int blockSize,
-            int pixelsPerTile,
-            Cell originalCell,
-            List<IndexedPixel> uniqueTileSequences,
-            Nclr palette,
-            Ncgr image)
-        {
-            // Open the new image file (without palette quantization).
-            using var binaryNewImage = new BinaryFormat(DataStreamFactory.FromFile(spriteImagePath, FileOpenMode.Read));
-            var bitmap2FullImage = new Bitmap2FullImage();
-            FullImage newImage = bitmap2FullImage.Convert(binaryNewImage);
-
-            // First segment the cell into smaller parts (OAMs).
-            // FUTURE: Check if the image fits in the existing cells, if so, re-use
-            // It's hard to segment properly our image as the original source image
-            // would have proper size (not full canvas) and proper layers. If we can
-            // re-use the original cells we will achieve better tile re-using.
-            var segmentation = new ImageSegmentation();
-            (Sprite newSprite, _) = segmentation.Segment(newImage);
-
-            // Create new cell from the metadata of the original.
-            var newCell = new Cell(originalCell, newSprite.Segments) {
-                Width = newSprite.Width,
-                Height = newSprite.Height,
-            };
-
-            // Now over its segments (OAMs), let's update its tile index and
-            // finding if there are matching sequences. Add them the new to the NCGR image.
-            foreach (ObjectAttributeMemory segment in newCell.Segments.Cast<ObjectAttributeMemory>()) {
-                // Tiles are indexed pixels. We need to quantize first that section of the image.
-                Rgb[] segmentImage = SubImage(newImage.Pixels, newImage.Width, segment);
-
-                // We simulate like the subimage is a big tile for the quantization so it finds only one palette.
-                // It will search for the best matching palette (e.g. cases of 16 palettes of 16 colors).
-                // LIMITATION: this may find a different palette than the original (case of palettes having same colors)
-                //    in that case it may not get the same indexes, so the compression will fail to find a matching tile.
-                //    Recommendation is to order colors in palettes, so even if they find different indexes are same.
-                // LIMITATION: We use the original palette, no new colors allowed.
-                var quantization = new FixedPaletteTileQuantization(
-                    palette,
-                    new Size(segment.Width, segment.Height),
-                    segment.Width);
-                quantization.FirstAsTransparent = true;
-                var quantizationResult = (quantization.Quantize(segmentImage) as FixedPaletteTileQuantizationResult)!;
-
-                // OAMs can have only one palette index, that's why we use a big tile.
-                segment.PaletteIndex = quantizationResult.PaletteIndexes[0];
-                segment.HorizontalFlip = false; // not supported
-                segment.VerticalFlip = false; // not supported
-
-                // We had to swizzle. We can't compare lineal pixels as there isn't
-                // a constant "image width" that generates a valid sequence of lineal
-                // pixels. Each segment has a different width. That's why NCGR usually
-                // saves 0xFFFF as width. Having 8 as false width is the same as swizzling
-                // tileSize.Width == imageWidth -> nop operation (but we need a copy).
-                IndexedPixel[] segmentTiles;
-                if (image.IsTiled) {
-                    var segmentSwizzler = new TileSwizzling<IndexedPixel>(segment.Width);
-                    segmentTiles = segmentSwizzler.Swizzle(quantizationResult.Pixels);
-                } else {
-                    segmentTiles = quantizationResult.Pixels;
-                }
-
-                // Now find unique pixels.
-                // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
-                // and put the start index in the OAM.
-                // Even if the image is not tiled, the OAM saves the index divided by tiles.
-                int tileIndex = SearchSequence(uniqueTileSequences, segmentTiles, blockSize);
-                if (tileIndex == -1) {
-                    if (segmentTiles.Length < blockSize) {
-                        segmentTiles = segmentTiles.Concat(new IndexedPixel[blockSize - segmentTiles.Length]).ToArray();
-                    }
-
-                    // Add sequence to the pixels.
-                    segment.TileIndex = uniqueTileSequences.Count / pixelsPerTile;
-                    uniqueTileSequences.AddRange(segmentTiles);
-                } else {
-                    segment.TileIndex = tileIndex / pixelsPerTile;
-                }
-
-                segment.PaletteMode = image.Format == NitroTextureFormat.Indexed8Bpp
-                    ? NitroPaletteMode.Palette256x1
-                    : NitroPaletteMode.Palette16x16;
-            }
-
-            return newCell;
-        }
-
-        private static Rgb[] SubImage(Rgb[] image, int width, IImageSegment segment)
-        {
-            var subImage = new Rgb[segment.Width * segment.Height];
-            int idx = 0;
-            for (int y = 0; y < segment.Height; y++) {
-                for (int x = 0; x < segment.Width; x++) {
-                    int fullIndex = ((segment.CoordinateY + y + 128) * width) + segment.CoordinateX + x + 256;
-                    subImage[idx++] = image[fullIndex];
-                }
-            }
-
-            return subImage;
-        }
-
-        private static int SearchSequence(List<IndexedPixel> pixels, ReadOnlySpan<IndexedPixel> newPixels, int blockSize)
-        {
-            int foundPos = -1;
-
-            for (int current = 0; current + blockSize < pixels.Count && foundPos == -1; current += blockSize) {
-                if (current + newPixels.Length > pixels.Count) {
-                    break;
-                }
-
-                foundPos = current;
-                if (HasSequence(pixels, newPixels, current)) {
-                    continue;
-                }
-
-                // TODO: try again flipping.
-                foundPos = -1;
-            }
-
-            return foundPos;
-        }
-
-        private static bool HasSequence(List<IndexedPixel> pixels, ReadOnlySpan<IndexedPixel> newPixels, int tilePos)
-        {
-            bool hasSequence = true;
-            for (int i = 0; i < newPixels.Length && hasSequence; i++) {
-                if (pixels[tilePos + i].Index != newPixels[i].Index) {
-                    hasSequence = false;
-                }
-            }
-
-            return hasSequence;
         }
     }
 }

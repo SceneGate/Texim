@@ -1,4 +1,4 @@
-// Copyright (c) 2022 SceneGate
+// Copyright (c) 2023 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,23 +19,33 @@
 // SOFTWARE.
 namespace Texim.Sprites;
 
-public interface IImageSegment
+using System.Collections.Generic;
+using Texim.Images;
+using Texim.Pixels;
+
+public record SpriteImageUpdaterParams
 {
-    int Layer { get; }
+    /// <summary>
+    /// Gets the image to update in the sprite.
+    /// </summary>
+    public IIndexedImage Image { get; init; }
 
-    int CoordinateX { get; }
+    /// <summary>
+    /// Gets the sequence of tiles the converter will use to search and add
+    /// new pixels if not found.
+    /// </summary>
+    public List<IndexedPixel> PixelSequences { get; init; }
 
-    int CoordinateY { get; }
+    /// <summary>
+    /// Gets the minimum amount of pixels a sprite segment should have.
+    /// Usually this is the same as <see cref="PixelsPerIndex"/>, except in
+    /// NCER formats where it multiplies by a block size parameter.
+    /// </summary>
+    public int MinimumPixelsPerSegment { get; init; }
 
-    int Width { get; }
-
-    int Height { get; }
-
-    int TileIndex { get; set; }
-
-    bool HorizontalFlip { get; }
-
-    bool VerticalFlip { get; }
-
-    byte PaletteIndex { get; }
+    /// <summary>
+    /// Gets the amount of pixels each segment tile index increments.
+    /// Usually this is the tile size (64).
+    /// </summary>
+    public int PixelsPerIndex { get; init; }
 }

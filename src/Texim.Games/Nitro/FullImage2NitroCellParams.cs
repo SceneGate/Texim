@@ -1,4 +1,4 @@
-// Copyright (c) 2022 SceneGate
+// Copyright (c) 2023 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,25 +17,20 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Games.Nitro;
 
-public interface IImageSegment
+using Texim.Sprites;
+
+public record FullImage2NitroCellParams : FullImage2SpriteParams
 {
-    int Layer { get; }
+    /// <summary>
+    /// Gets the cell to use to copy the metadata into the new.
+    /// </summary>
+    public Cell ReferenceCell { get; init; }
 
-    int CoordinateX { get; }
-
-    int CoordinateY { get; }
-
-    int Width { get; }
-
-    int Height { get; }
-
-    int TileIndex { get; set; }
-
-    bool HorizontalFlip { get; }
-
-    bool VerticalFlip { get; }
-
-    byte PaletteIndex { get; }
+    /// <summary>
+    /// Gets a value indicating whether the cell image has the format 8 bits per pixel
+    /// or 4 bits per pixel.
+    /// </summary>
+    public bool Has8bppDepth { get; init; }
 }
