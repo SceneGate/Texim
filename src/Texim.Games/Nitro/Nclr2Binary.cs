@@ -39,7 +39,7 @@ namespace Texim.Games.Nitro
             writer.Write((uint)model.TextureFormat);
             writer.Write(model.IsExtendedPalette ? 1 : 0);
             writer.Write(model.Palettes.Sum(p => p.Colors.Count) * 2);
-            writer.Write(0x0C); // relative offset to data
+            writer.Write(0x10); // relative offset to data
 
             var colors = model.Palettes.SelectMany(p => p.Colors);
             writer.Write<Bgr555>(colors);

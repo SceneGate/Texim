@@ -9,6 +9,7 @@ Task("Define-Project")
     info.AddLibraryProjects("Texim");
     info.AddLibraryProjects("Texim.Games");
     info.AddApplicationProjects("Texim.Tool");
+    info.AddTestProjects("Texim.Tests");
 
     info.PreviewNuGetFeed = "https://pkgs.dev.azure.com/SceneGate/SceneGate/_packaging/SceneGate-Preview/nuget/v3/index.json";
     info.StableNuGetFeed = "https://pkgs.dev.azure.com/SceneGate/SceneGate/_packaging/SceneGate-Preview/nuget/v3/index.json";

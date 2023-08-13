@@ -23,16 +23,45 @@ namespace Texim.Colors
     using System.Collections.Generic;
     using System.IO;
 
+    /// <summary>
+    /// Color binary encoding interface.
+    /// </summary>
     public interface IColorEncoding
     {
+        /// <summary>
+        /// Decode a single color from a stream of data.
+        /// </summary>
+        /// <param name="stream">The stream to read the binary encoded color.</param>
+        /// <returns>The decoded color.</returns>
         Rgb Decode(Stream stream);
 
+        /// <summary>
+        /// Decode several colors from a stream of data.
+        /// </summary>
+        /// <param name="stream">The stream to read the binary encoded colors.</param>
+        /// <param name="numColors">The number of colors to decode.</param>
+        /// <returns>The sequence of decoded colors.</returns>
         Rgb[] Decode(Stream stream, int numColors);
 
+        /// <summary>
+        /// Decode as many colors as possible from the span of data.
+        /// </summary>
+        /// <param name="data">The sequence of data to read the binary encoded colors.</param>
+        /// <returns>The sequence of decoded colors.</returns>
         Rgb[] Decode(Span<byte> data);
 
+        /// <summary>
+        /// Encode a single color.
+        /// </summary>
+        /// <param name="color">The color to binary encode.</param>
+        /// <returns>The binary encoded color.</returns>
         byte[] Encode(Rgb color);
 
+        /// <summary>
+        /// Encode a sequence of colors.
+        /// </summary>
+        /// <param name="colors">The sequence of colors to binary encode.</param>
+        /// <returns>The binary encoded colors.</returns>
         byte[] Encode(IEnumerable<Rgb> colors);
     }
 }

@@ -29,7 +29,7 @@ namespace Texim.Processing
 
         public Rgb AlphaColor { get; set; }
 
-        public (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels)
+        public QuantizationResult Quantize(Rgb[] pixels)
         {
             var indexed = new IndexedPixel[pixels.Length];
             var palette = new Palette();
@@ -54,7 +54,10 @@ namespace Texim.Processing
             }
 
             var collection = new PaletteCollection(palette);
-            return (indexed, collection);
+            return new QuantizationResult {
+                Pixels = indexed,
+                Palettes = collection,
+            };
         }
     }
 }

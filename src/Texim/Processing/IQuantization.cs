@@ -25,6 +25,6 @@ namespace Texim.Processing
 
     public interface IQuantization
     {
-        (IndexedPixel[], IPaletteCollection) Quantize(Rgb[] pixels);
+        QuantizationResult Quantize(Rgb[] pixels);
     }
 }

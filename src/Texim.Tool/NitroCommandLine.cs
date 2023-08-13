@@ -20,10 +20,14 @@
 namespace Texim.Tool
 {
     using System;
+    using System.Collections.Generic;
     using System.CommandLine;
     using System.CommandLine.Invocation;
+    using System.Drawing;
     using System.IO;
     using System.Linq;
+    using Colors;
+    using Pixels;
     using Texim.Compressions.Nitro;
     using Texim.Formats;
     using Texim.Games.Nitro;
@@ -61,9 +65,10 @@ namespace Texim.Tool
                 new Option<string>("--ncer", "nitro cell file", ArgumentArity.ZeroOrOne),
                 new Option<string>("--output", "Output folder", ArgumentArity.ExactlyOne),
                 new Option<StandardImageFormat>("format", "Output image format", ArgumentArity.ZeroOrOne),
+                new Option<int>("--cell", () => -1, "optional cell to export only"),
             };
             exportSprite.Handler =
-                CommandHandler.Create<string, string, string, string, StandardImageFormat>(ExportSprite);
+                CommandHandler.Create<string, string, string, string, StandardImageFormat, int>(ExportSprite);
 
             var importImage = new Command("import_image", "Import an image as Nitro image") {
                 new Option<string>("--input", "the input image file", ArgumentArity.ExactlyOne),
@@ -86,13 +91,53 @@ namespace Texim.Tool
             };
             importCompressedImage.Handler = CommandHandler.Create<string, string, string, bool, string, bool, string, string>(ImportCompressedImage);
 
+            var importSprite = new Command("import_sprite", "Import an sprite as Nitro format") {
+                new Option<string>("--input", "the input directory with the images", ArgumentArity.ExactlyOne),
+                new Option<string>("--nclr", "the palette to use", ArgumentArity.ExactlyOne),
+                new Option<string>("--ncgr", "optional original NCGR to copy params", ArgumentArity.ZeroOrOne),
+                new Option<string>("--ncer", "optional original NCER to copy params", ArgumentArity.ZeroOrOne),
+                new Option<string>("--out-ncgr", "the output nitro image file", ArgumentArity.ExactlyOne),
+                new Option<string>("--out-ncer", "the output nitro sprite file", ArgumentArity.ExactlyOne),
+                new Option<int>("--cell", () => -1, "optional cell to import only"),
+            };
+            importSprite.Handler = CommandHandler.Create<string, string, string, string, string, string, int>(ImportSprites);
+
+            var testImportSprite = new Command("test_sprite_import") {
+                new Option<string>("--nclr"),
+                new Option<string>("--ncgr"),
+                new Option<string>("--ncer"),
+                new Option<string>("--temp"),
+                new Option<int>("--cell"),
+            };
+            testImportSprite.Handler = CommandHandler.Create<string, string, string, string, int>(TestImportSprites);
+
             return new Command("nitro", "Nintendo DS standard formats") {
                 exportPalette,
                 exportImage,
                 exportSprite,
                 importImage,
                 importCompressedImage,
+                importSprite,
+                testImportSprite,
             };
+        }
+
+        private static void TestImportSprites(string nclr, string ncgr, string ncer, string temp, int cell)
+        {
+            if (Directory.Exists(temp)) {
+                Directory.Delete(temp, true);
+            }
+
+            string imagesPath = Path.Combine(temp, "images");
+            ExportSprite(nclr, ncgr, ncer, imagesPath, StandardImageFormat.Png, cell);
+
+            string binaryPath = Path.Combine(temp, "binary");
+            string ncgrPath = Path.Combine(binaryPath, "new.ncgr");
+            string ncerPath = Path.Combine(binaryPath, "new.ncer");
+            ImportSprites(imagesPath, nclr, ncgr, ncer, ncgrPath, ncerPath, cell);
+
+            string testImagesPath = Path.Combine(temp, "images_reeee");
+            ExportSprite(nclr, ncgrPath, ncerPath, testImagesPath, StandardImageFormat.Png, cell);
         }
 
         private static void ExportPalette(string input, string output, StandardPaletteFormat format)
@@ -158,7 +203,8 @@ namespace Texim.Tool
             string ncgr,
             string ncer,
             string output,
-            StandardImageFormat format)
+            StandardImageFormat format,
+            int cell)
         {
             var palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
                 .TransformWith<Binary2Nclr>()
@@ -181,8 +227,13 @@ namespace Texim.Tool
                 IsTiled = pixels.IsTiled,
             };
 
-            Console.WriteLine($"Exporting {sprites.Children.Count} sprites");
-            foreach (Node sprite in sprites.Children) {
+            IEnumerable<Node> spritesToExport = sprites.Children;
+            if (cell > -1) {
+                spritesToExport = new Node[] { sprites.Children[cell] };
+            }
+
+            Console.WriteLine($"Exporting {spritesToExport.Count()} sprites");
+            foreach (Node sprite in spritesToExport) {
                 if (sprite.GetFormatAs<Cell>() !.Segments.Count == 0) {
                     continue;
                 }
@@ -232,12 +283,12 @@ namespace Texim.Tool
         {
             IPaletteCollection palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
                 .TransformWith<Binary2Nclr>()
-                .GetFormatAs<Nclr>();
+                .GetFormatAs<Nclr>() !;
 
             if (useSamePalettes) {
                 var paletteIndexes = NodeFactory.FromFile(nscr, FileOpenMode.Read)
                     .TransformWith<Binary2Nscr>()
-                    .GetFormatAs<Nscr>()
+                    .GetFormatAs<Nscr>() !
                     .Maps
                     .Select(m => m.PaletteIndex)
                     .Distinct()
@@ -303,6 +354,195 @@ namespace Texim.Tool
 
             using var binaryNscr = new Nscr2Binary().Convert(newNscr);
             binaryNscr.Stream.WriteTo(outNscr);
+        }
+
+        private static void ImportSprites(string input, string nclr, string ncgr, string ncer, string outNcgr, string outNcer, int cell)
+        {
+            IPaletteCollection palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
+                .TransformWith<Binary2Nclr>()
+                .GetFormatAs<Nclr>();
+
+            // Open the original NCGR as we will use its content as the initial image.
+            // This means that we will only add the new (modified) tiles of the imported images
+            // over the existing NCGR. It won't be built from scratch.
+            // TODO: Create scratch NCGR if requested keeping only the metadata.
+            Ncgr image = NodeFactory.FromFile(ncgr, FileOpenMode.Read)
+                .TransformWith<Binary2Ncgr>()
+                .GetFormatAs<Ncgr>() !;
+
+            // We had to swizzle. We can't compare lineal pixels as there isn't
+            // a constant "image width" that generates a valid sequence of lineal
+            // pixels. Each segment has a different width. That's why NCGR usually
+            // saves 0xFFFF as width. Having 8 as false width is the same as swizzling
+            // tileSize.Width == imageWidth -> nop operation (but we need a copy).
+            var imageSwizzler = new TileSwizzling<IndexedPixel>(image.Width);
+            var uniqueTiledPixels = image.IsTiled
+                ? imageSwizzler.Swizzle(image.Pixels).ToList()
+                : image.Pixels.ToList();
+
+            // Convert the lineal pixels into a list of tiles (groups of tileSize pixels)
+            var tileSize = new Size(8, 8);
+            int pixelsPerTile = tileSize.Width * tileSize.Height;
+
+            Ncer sprites = NodeFactory.FromFile(ncer, FileOpenMode.Read)
+                .TransformWith<Binary2Ncer>()
+                .GetFormatAs<Ncer>() !;
+
+            var segmentation = new ImageSegmentation();
+
+            IEnumerable<string> files = Directory.GetFiles(input).OrderBy(x => x);
+            if (cell > -1) {
+                files = new List<string> { Path.Combine(input, $"cell{cell:D3}.png") };
+            }
+
+            foreach (string newImagePath in files) {
+                // This method will import only matching sprites. It will not replace / remove existing tiles but always
+                // append. As a consequence the image maybe bigger than the VRAM accepts.
+                // The name MUST BE "cell<INDEX>".
+                // This allows to not have to import ALL the images, but only the ones of interest.
+                string name = Path.GetFileNameWithoutExtension(newImagePath);
+                int index = int.Parse(name["cell".Length..]);
+                Console.WriteLine($"Index: {index}");
+                if (index > sprites.Root.Children.Count) {
+                    throw new InvalidOperationException("Index too large");
+                }
+
+                FullImage newImage = NodeFactory.FromFile(newImagePath, FileOpenMode.Read)
+                        .TransformWith<Bitmap2FullImage>()
+                    .GetFormatAs<FullImage>() !;
+
+                // First replace sprite definition (Cell and OAMs)
+                // We keep the original metadata, just replace OAMs.
+                (Sprite newSprite, FullImage _) = segmentation.Segment(newImage);
+
+                Cell originalCell = sprites.Root.Children[index].GetFormatAs<Cell>() !;
+                var newCell = new Cell(originalCell, newSprite.Segments) {
+                    Width = newSprite.Width,
+                    Height = newSprite.Height,
+                };
+
+                sprites.Root.Children[index].ChangeFormat(newCell);
+
+                // Get the minimum pixel segment, in pixels as we are filling pixels
+                int blockSize = sprites.TileMapping.GetTileBlockSize() * pixelsPerTile;
+                if (image.Format == NitroTextureFormat.Indexed4Bpp) {
+                    blockSize *= 2;
+                }
+
+                // Now add the new tiles to the image.
+                foreach (ObjectAttributeMemory obj in newCell.Segments) {
+                    // We need to quantize each subimage with the best palette. (RGB pixel -> index pixel as rest of NCGR)
+                    // This will return the section of the image for the OAM.
+                    Rgb[] subImage = SubImage(newImage.Pixels, newImage.Width, obj);
+
+                    // We simulate like the subimage is a big tile for the quantization
+                    // It will search for the best matching palette (e.g. cases of 16 palettes of 16 colors).
+                    // LIMITATION: this may find a different palette than the original (case of palettes having same colors)
+                    //    in that case it may not get the same indexes, so the compression will fail to find a matching tile.
+                    //    Recommendation is to order colors in palettes, so even if they find different indexes are same.
+                    // LIMITATION: We use the original palette, no new colors allowed.
+                    var quantization = new FixedPaletteTileQuantization(
+                        palette,
+                        new Size(obj.Width, obj.Height),
+                        obj.Width);
+                    quantization.FirstAsTransparent = true;
+                    var quantizationResult = (quantization.Quantize(subImage) as FixedPaletteTileQuantizationResult) !;
+
+                    // OAMs can have only one palette index, that's why we use a big tile.
+                    obj.PaletteIndex = quantizationResult.PaletteIndexes[0];
+                    obj.HorizontalFlip = false; // not supported
+                    obj.VerticalFlip = false; // not supported
+
+                    IndexedPixel[] objTiles;
+                    if (image.IsTiled) {
+                        var segmentSwizzler = new TileSwizzling<IndexedPixel>(obj.Width);
+                        objTiles = segmentSwizzler.Swizzle(quantizationResult.Pixels);
+                    } else {
+                        objTiles = quantizationResult.Pixels;
+                    }
+
+                    // Now find unique pixels.
+                    // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
+                    // and put the start index in the OAM.
+                    int tileIndex = SearchSequence(uniqueTiledPixels, objTiles, pixelsPerTile, blockSize);
+                    if (tileIndex == -1) {
+                        if (objTiles.Length < blockSize) {
+                            objTiles = objTiles.Concat(new IndexedPixel[blockSize - objTiles.Length]).ToArray();
+                        }
+
+                        // Add sequence to the pixels.
+                        tileIndex = uniqueTiledPixels.Count / pixelsPerTile;
+                        uniqueTiledPixels.AddRange(objTiles);
+                    }
+
+                    obj.PaletteMode = image.Format == NitroTextureFormat.Indexed8Bpp
+                        ? NitroPaletteMode.Palette256x1
+                        : NitroPaletteMode.Palette16x16;
+                    obj.TileIndex = tileIndex;
+                }
+            }
+
+            Console.WriteLine($"Previous pixels: {image.Pixels.Length}, new pixels: {uniqueTiledPixels.Count}");
+            image.Pixels = image.IsTiled
+                ? imageSwizzler.Unswizzle(uniqueTiledPixels)
+                : uniqueTiledPixels.ToArray();
+            image.Height = uniqueTiledPixels.Count / image.Width;
+
+            using var newImageNode = new Node("image", image);
+            newImageNode.TransformWith<Ncgr2Binary>().Stream!.WriteTo(outNcgr);
+
+            using var newSpriteNode = new Node("sprites", sprites);
+            newSpriteNode.TransformWith<Ncer2Binary>().Stream!.WriteTo(outNcer);
+        }
+
+        private static Rgb[] SubImage(Rgb[] image, int width, IImageSegment segment)
+        {
+            var subImage = new Rgb[segment.Width * segment.Height];
+            int idx = 0;
+            for (int y = 0; y < segment.Height; y++) {
+                for (int x = 0; x < segment.Width; x++) {
+                    int fullIndex = ((segment.CoordinateY + y + 128) * width) + segment.CoordinateX + x + 256;
+                    subImage[idx++] = image[fullIndex];
+                }
+            }
+
+            return subImage;
+        }
+
+        private static int SearchSequence(List<IndexedPixel> pixels, ReadOnlySpan<IndexedPixel> newPixels, int tileSize, int blockSize)
+        {
+            int tileNumber = -1;
+
+            for (int tilePos = 0;
+                 tilePos + blockSize < pixels.Count && tileNumber == -1;
+                 tilePos += blockSize) {
+
+                if (tilePos + newPixels.Length > pixels.Count) {
+                    break;
+                }
+
+                tileNumber = tilePos / tileSize;
+                if (HasSequence(pixels, newPixels, tilePos)) {
+                    continue;
+                }
+
+                tileNumber = -1;
+                // TODO: try again flipping.
+            }
+
+            return tileNumber;
+        }
+
+        private static bool HasSequence(List<IndexedPixel> pixels, ReadOnlySpan<IndexedPixel> newPixels, int tilePos)
+        {
+            bool hasSequence = true;
+            for (int i = 0; i < newPixels.Length && hasSequence; i++) {
+                if (pixels[tilePos + i].Index != newPixels[i].Index) {
+                    hasSequence = false;
+                }
+            }
+
+            return hasSequence;
         }
     }
 }

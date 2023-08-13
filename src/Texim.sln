@@ -10,6 +10,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.PerformanceTest", "Texim.PerformanceTest\Texim.PerformanceTest.csproj", "{748619CD-2836-4E4C-BAD7-DD000737D0E6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.Games", "Texim.Games\Texim.Games.csproj", "{BC0A3664-F79B-46AF-AA7D-D6D8C1CE2713}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.Tests", "Texim.Tests\Texim.Tests.csproj", "{E2110B39-9BAD-4894-A273-0F86C18AF955}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,5 +73,17 @@ Global
 		{BC0A3664-F79B-46AF-AA7D-D6D8C1CE2713}.Release|x64.Build.0 = Release|Any CPU
 		{BC0A3664-F79B-46AF-AA7D-D6D8C1CE2713}.Release|x86.ActiveCfg = Release|Any CPU
 		{BC0A3664-F79B-46AF-AA7D-D6D8C1CE2713}.Release|x86.Build.0 = Release|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Debug|x64.Build.0 = Debug|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Debug|x86.Build.0 = Debug|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x64.ActiveCfg = Release|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x64.Build.0 = Release|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x86.ActiveCfg = Release|Any CPU
+		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -26,6 +26,29 @@ using Sprites;
 /// </summary>
 public class ObjectAttributeMemory : IImageSegment
 {
+    public ObjectAttributeMemory()
+    {
+    }
+
+    public ObjectAttributeMemory(IImageSegment other)
+    {
+        Layer = other.Layer;
+        CoordinateX = other.CoordinateX;
+        CoordinateY = other.CoordinateY;
+        Width = other.Width;
+        Height = other.Height;
+        TileIndex = other.TileIndex;
+        HorizontalFlip = other.HorizontalFlip;
+        VerticalFlip = other.VerticalFlip;
+        PaletteIndex = other.PaletteIndex;
+        HasRotationOrScaling = false;
+        HasDoubleSize = false;
+        IsDisabled = false;
+        Mode = ObjectAttributeMemoryMode.Normal;
+        IsMosaic = false;
+        PaletteMode = NitroPaletteMode.Palette16x16;
+    }
+
     public int Layer { get; set; }
 
     public int CoordinateX { get; set; }

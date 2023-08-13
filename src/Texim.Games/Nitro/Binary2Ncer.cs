@@ -65,11 +65,12 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
         for (int i = 0; i < numCells; i++) {
             reader.Stream.Position = sectionPos + cellsDataOffset + (i * cellInfoSize);
             Cell cell = ReadCell(reader, model, segmentsPosition);
-            model.Root.Add(new Node($"cell{i}", cell));
+            model.Root.Add(new Node($"cell{i:D3}", cell));
         }
 
         if (extendedDataOffset != 0) {
             reader.Stream.Position = sectionPos + extendedDataOffset;
+            model.HasCellExtendedInfo = true;
             FillUserExtendedCellAttributes(reader, model);
         }
     }
@@ -92,8 +93,10 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
             short minY = reader.ReadInt16();
             cell.Width = maxX - minX;
             cell.Height = maxY - minY;
-            cell.BoundaryX = minX;
-            cell.BoundaryY = minY;
+            cell.BoundaryXStart = minX;
+            cell.BoundaryXEnd = maxX;
+            cell.BoundaryYStart = minY;
+            cell.BoundaryYEnd = maxY;
         } else {
             cell.Width = 512;
             cell.Height = 256;
@@ -137,7 +140,7 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
             reader.Stream.Position = sectionPos + pointerOffset + (i * 4);
             uint attributeOffset = reader.ReadUInt32();
 
-            reader.Stream.Position = sectionPos + pointerOffset + attributeOffset;
+            reader.Stream.Position = sectionPos + attributeOffset;
             model.Root.Children[i].GetFormatAs<Cell>() !
                 .UserExtendedCellAttribute = reader.ReadUInt32();
         }

@@ -39,6 +39,8 @@ public class Ncer : NodeContainerFormat, INitroFormat
 
     public CellTileMappingKind TileMapping { get; set; }
 
+    public bool HasCellExtendedInfo { get; set; }
+
     public byte[] UserExtendedInfo { get; set; }
 
     public Collection<string> Labels { get; init; } = new Collection<string>();
