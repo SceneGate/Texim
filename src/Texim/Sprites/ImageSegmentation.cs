@@ -22,9 +22,8 @@ namespace Texim.Sprites;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Colors;
+using Texim.Colors;
 using Texim.Images;
-using Texim.Pixels;
 
 public class ImageSegmentation : IImageSegmentation
 {
@@ -37,7 +36,7 @@ public class ImageSegmentation : IImageSegmentation
 
     private readonly int[,] splitMode = Modes[1];
 
-    public (Sprite, FullImage) Segment(FullImage frame)
+    public (Sprite Sprite, FullImage TrimmedImage) Segment(FullImage frame)
     {
         (int startX, int startY, FullImage trimmed) = TrimImage(frame);
 
@@ -103,7 +102,7 @@ public class ImageSegmentation : IImageSegmentation
         return segments;
     }
 
-    private (int width, int height) GetObjectSize(
+    private (int Width, int Height) GetObjectSize(
         FullImage frame,
         int x,
         int y,
@@ -158,6 +157,10 @@ public class ImageSegmentation : IImageSegmentation
         return (width, height);
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+        "StyleCop.CSharp.OrderingRules",
+        "SA1204:Static elements should appear before instance elements",
+        Justification = "Readability of the algorithm")]
     private static bool IsValidSize(int width, int height)
     {
         if (width < 0 || width > 64 || width % 8 != 0) {
@@ -179,7 +182,7 @@ public class ImageSegmentation : IImageSegmentation
         return true;
     }
 
-    private static (int x, int y, FullImage trimmed) TrimImage(FullImage image)
+    private static (int X, int Y, FullImage Trimmed) TrimImage(FullImage image)
     {
         // Get border points to get dimensions
         int xStart = SearchNoTransparentPoint(image, 1);

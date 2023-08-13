@@ -23,4 +23,5 @@
         "Unswizzle",
         "Vram"
     ],
+    "dotnet.defaultSolution": "src/Texim.sln",
 }

@@ -76,11 +76,11 @@ namespace Texim.Processing
 
             return new QuantizationResult {
                 Pixels = indexed,
-                Palettes = new PaletteCollection(palette)
+                Palettes = new PaletteCollection(palette),
             };
         }
 
-        private (PixelRef[], PixelRef[]) MedianCut(PixelRef[] bucket)
+        private (PixelRef[] FirstHalf, PixelRef[] LastHalf) MedianCut(PixelRef[] bucket)
         {
             long rangeRed = bucket.Max(c => c.Color.Red) - bucket.Min(c => c.Color.Red);
             long rangeGreen = bucket.Max(c => c.Color.Green) - bucket.Min(c => c.Color.Green);

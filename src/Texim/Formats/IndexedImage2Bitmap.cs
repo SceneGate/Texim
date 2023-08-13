@@ -36,8 +36,7 @@ namespace Texim.Formats
 
         public void Initialize(IndexedImageBitmapParams parameters)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            ArgumentNullException.ThrowIfNull(parameters);
 
             this.parameters = parameters;
         }
@@ -48,7 +47,7 @@ namespace Texim.Formats
                 throw new ArgumentNullException(nameof(source));
 
             // Preconvert to colors for faster iteration later
-            SixRgb[] PaletteToColors(IPalette pal) =>
+            static SixRgb[] PaletteToColors(IPalette pal) =>
                 pal.Colors.Select(c => c.ToImageSharpColor()).ToArray();
 
             SixRgb[][] palettes = (parameters.Palettes != null)

@@ -27,15 +27,15 @@ public class ImageSegment : IImageSegment
 
     public int CoordinateY { get; set; }
 
-    public int Width { get; init; }
+    public int Width { get; set; }
 
-    public int Height { get; init; }
+    public int Height { get; set; }
 
-    public int TileIndex { get; init; }
+    public int TileIndex { get; set; }
 
-    public bool HorizontalFlip { get; init; }
+    public bool HorizontalFlip { get; set; }
 
-    public bool VerticalFlip { get; init; }
+    public bool VerticalFlip { get; set; }
 
     public byte PaletteIndex { get; set; }
 }

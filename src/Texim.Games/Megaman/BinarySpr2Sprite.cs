@@ -195,7 +195,7 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
         return sprite;
     }
 
-    private (int width, int height) GetSize(int shape, int mode)
+    private (int Width, int Height) GetSize(int shape, int mode)
     {
         int[,] sizeMatrix = new int[3, 4] {
             { 8, 16, 32, 64 }, // Square
@@ -207,7 +207,7 @@ public class BinarySpr2Sprite : IConverter<IBinary, NodeContainerFormat>
             0 => (sizeMatrix[0, mode], sizeMatrix[0, mode]),
             1 => (sizeMatrix[1, mode], sizeMatrix[2, mode]),
             2 => (sizeMatrix[2, mode], sizeMatrix[1, mode]),
-            _ => throw new FormatException("Unknown size mode")
+            _ => throw new FormatException("Unknown size mode"),
         };
     }
 }

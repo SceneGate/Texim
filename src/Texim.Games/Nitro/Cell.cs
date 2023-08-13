@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 SceneGate
+// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,11 +19,9 @@
 // SOFTWARE.
 namespace Texim.Games.Nitro;
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using Sprites;
+using Texim.Sprites;
 
 /// <summary>
 /// Nitro sprite definition.

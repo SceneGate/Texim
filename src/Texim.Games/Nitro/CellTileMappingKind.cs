@@ -29,6 +29,10 @@ public enum CellTileMappingKind
     Max,
 }
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "StyleCop.CSharp.DocumentationRules",
+    "SA1649:File name should match first type name",
+    Justification = "Extension of the same enum")]
 public static class CellTileMappingKindExtensions
 {
     public static int GetTileBlockSize(this CellTileMappingKind kind) => (1 << (5 + (int)kind)) / 64;

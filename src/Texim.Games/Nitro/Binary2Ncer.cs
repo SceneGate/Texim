@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 SceneGate
+// Copyright (c) 2022 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -141,7 +141,7 @@ public class Binary2Ncer : NitroDeserializer<Ncer>
             uint attributeOffset = reader.ReadUInt32();
 
             reader.Stream.Position = sectionPos + attributeOffset;
-            model.Root.Children[i].GetFormatAs<Cell>() !
+            model.Root.Children[i].GetFormatAs<Cell>()!
                 .UserExtendedCellAttribute = reader.ReadUInt32();
         }
     }

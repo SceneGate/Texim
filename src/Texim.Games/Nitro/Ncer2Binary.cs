@@ -108,7 +108,7 @@ public class Ncer2Binary : NitroSerializer<Ncer>
         writer.Write(dataOffset);
 
         // Offsets
-        uint cellOffset = (uint)cells.Length * sizeof(uint) + dataOffset;
+        uint cellOffset = ((uint)cells.Length * sizeof(uint)) + dataOffset;
         for (int i = 0; i < cells.Length; i++) {
             writer.Write(cellOffset);
             cellOffset += sizeof(uint);
