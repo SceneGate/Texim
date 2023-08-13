@@ -65,9 +65,10 @@ namespace Texim.Tool
                 new Option<string>("--ncer", "nitro cell file", ArgumentArity.ZeroOrOne),
                 new Option<string>("--output", "Output folder", ArgumentArity.ExactlyOne),
                 new Option<StandardImageFormat>("format", "Output image format", ArgumentArity.ZeroOrOne),
+                new Option<int>("--cell", () => -1, "optional cell to export only"),
             };
             exportSprite.Handler =
-                CommandHandler.Create<string, string, string, string, StandardImageFormat>(ExportSprite);
+                CommandHandler.Create<string, string, string, string, StandardImageFormat, int>(ExportSprite);
 
             var importImage = new Command("import_image", "Import an image as Nitro image") {
                 new Option<string>("--input", "the input image file", ArgumentArity.ExactlyOne),
@@ -97,16 +98,18 @@ namespace Texim.Tool
                 new Option<string>("--ncer", "optional original NCER to copy params", ArgumentArity.ZeroOrOne),
                 new Option<string>("--out-ncgr", "the output nitro image file", ArgumentArity.ExactlyOne),
                 new Option<string>("--out-ncer", "the output nitro sprite file", ArgumentArity.ExactlyOne),
+                new Option<int>("--cell", () => -1, "optional cell to import only"),
             };
-            importSprite.Handler = CommandHandler.Create<string, string, string, string, string, string>(ImportSprites);
+            importSprite.Handler = CommandHandler.Create<string, string, string, string, string, string, int>(ImportSprites);
 
             var testImportSprite = new Command("test_sprite_import") {
                 new Option<string>("--nclr"),
                 new Option<string>("--ncgr"),
                 new Option<string>("--ncer"),
                 new Option<string>("--temp"),
+                new Option<int>("--cell"),
             };
-            testImportSprite.Handler = CommandHandler.Create<string, string, string, string>(TestImportSprites);
+            testImportSprite.Handler = CommandHandler.Create<string, string, string, string, int>(TestImportSprites);
 
             return new Command("nitro", "Nintendo DS standard formats") {
                 exportPalette,
@@ -115,26 +118,26 @@ namespace Texim.Tool
                 importImage,
                 importCompressedImage,
                 importSprite,
-                testImportSprite
+                testImportSprite,
             };
         }
 
-        private static void TestImportSprites(string nclr, string ncgr, string ncer, string temp)
+        private static void TestImportSprites(string nclr, string ncgr, string ncer, string temp, int cell)
         {
             if (Directory.Exists(temp)) {
                 Directory.Delete(temp, true);
             }
 
             string imagesPath = Path.Combine(temp, "images");
-            ExportSprite(nclr, ncgr, ncer, imagesPath, StandardImageFormat.Png);
+            ExportSprite(nclr, ncgr, ncer, imagesPath, StandardImageFormat.Png, cell);
 
             string binaryPath = Path.Combine(temp, "binary");
             string ncgrPath = Path.Combine(binaryPath, "new.ncgr");
             string ncerPath = Path.Combine(binaryPath, "new.ncer");
-            ImportSprites(imagesPath, nclr, ncgr, ncer, ncgrPath, ncerPath);
+            ImportSprites(imagesPath, nclr, ncgr, ncer, ncgrPath, ncerPath, cell);
 
             string testImagesPath = Path.Combine(temp, "images_reeee");
-            ExportSprite(nclr, ncgrPath, ncerPath, testImagesPath, StandardImageFormat.Png);
+            ExportSprite(nclr, ncgrPath, ncerPath, testImagesPath, StandardImageFormat.Png, cell);
         }
 
         private static void ExportPalette(string input, string output, StandardPaletteFormat format)
@@ -200,7 +203,8 @@ namespace Texim.Tool
             string ncgr,
             string ncer,
             string output,
-            StandardImageFormat format)
+            StandardImageFormat format,
+            int cell)
         {
             var palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
                 .TransformWith<Binary2Nclr>()
@@ -223,8 +227,13 @@ namespace Texim.Tool
                 IsTiled = pixels.IsTiled,
             };
 
-            Console.WriteLine($"Exporting {sprites.Children.Count} sprites");
-            foreach (Node sprite in sprites.Children) {
+            IEnumerable<Node> spritesToExport = sprites.Children;
+            if (cell > -1) {
+                spritesToExport = new Node[] { sprites.Children[cell] };
+            }
+
+            Console.WriteLine($"Exporting {spritesToExport.Count()} sprites");
+            foreach (Node sprite in spritesToExport) {
                 if (sprite.GetFormatAs<Cell>() !.Segments.Count == 0) {
                     continue;
                 }
@@ -347,7 +356,7 @@ namespace Texim.Tool
             binaryNscr.Stream.WriteTo(outNscr);
         }
 
-        private static void ImportSprites(string input, string nclr, string ncgr, string ncer, string outNcgr, string outNcer)
+        private static void ImportSprites(string input, string nclr, string ncgr, string ncer, string outNcgr, string outNcer, int cell)
         {
             IPaletteCollection palette = NodeFactory.FromFile(nclr, FileOpenMode.Read)
                 .TransformWith<Binary2Nclr>()
@@ -381,7 +390,12 @@ namespace Texim.Tool
 
             var segmentation = new ImageSegmentation();
 
-            foreach (string newImagePath in Directory.GetFiles(input).OrderBy(x => x)) {
+            IEnumerable<string> files = Directory.GetFiles(input).OrderBy(x => x);
+            if (cell > -1) {
+                files = new List<string> { Path.Combine(input, $"cell{cell:D3}.png") };
+            }
+
+            foreach (string newImagePath in files) {
                 // This method will import only matching sprites. It will not replace / remove existing tiles but always
                 // append. As a consequence the image maybe bigger than the VRAM accepts.
                 // The name MUST BE "cell<INDEX>".

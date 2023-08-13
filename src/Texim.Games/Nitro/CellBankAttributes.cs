@@ -24,5 +24,6 @@ using System;
 [Flags]
 public enum CellBankAttributes
 {
+    None = 0,
     CellsWithBoundary = 1 << 0,
 }
