@@ -35,8 +35,14 @@ namespace Texim.Games.Nitro
 
         private void WriteChar(DataWriter writer, Ncgr model)
         {
-            writer.Write((ushort)(model.Height / 8));
-            writer.Write((ushort)(model.Width / 8));
+            if (model.HasNullSize) {
+                writer.Write((ushort)0xFFFF);
+                writer.Write((ushort)0xFFFF);
+            } else {
+                writer.Write((ushort)(model.Height / 8));
+                writer.Write((ushort)(model.Width / 8));
+            }
+
             writer.Write((uint)model.Format);
             writer.Write((uint)model.TileMapping);
 

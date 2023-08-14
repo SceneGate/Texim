@@ -36,6 +36,7 @@ namespace Texim.Games.Nitro
             Version = ncgr.Version;
             Height = ncgr.Height;
             Width = ncgr.Width;
+            HasNullSize = ncgr.HasNullSize;
             Pixels = ncgr.Pixels.ToArray();
             Format = ncgr.Format;
             TileMapping = ncgr.TileMapping;
@@ -76,6 +77,8 @@ namespace Texim.Games.Nitro
         public int Height { get; set; }
 
         public int Width { get; set; }
+
+        public bool HasNullSize { get; set; }
 
         public IndexedPixel[] Pixels { get; set; }
 

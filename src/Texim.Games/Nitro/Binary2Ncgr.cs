@@ -73,6 +73,7 @@ namespace Texim.Games.Nitro
             // file NCER or NSCR. In that case we assume the width is just one
             // tile, so 8.
             if (model.Width == 0xFFFF || model.Height == 0xFFFF) {
+                model.HasNullSize = true;
                 model.Width = 8; // tile width
                 model.Height = pixels.Length / model.Width;
             } else {
