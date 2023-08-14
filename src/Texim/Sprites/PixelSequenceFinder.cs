@@ -31,7 +31,7 @@ public static class PixelSequenceFinder
     {
         int foundPos = -1;
 
-        for (int current = 0; current + blockSize < pixels.Length && foundPos == -1; current += blockSize) {
+        for (int current = 0; current + blockSize <= pixels.Length && foundPos == -1; current += blockSize) {
             if (current + sequence.Length > pixels.Length) {
                 break;
             }

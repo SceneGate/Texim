@@ -50,8 +50,7 @@ public class FullImage2Sprite :
         // It's hard to segment properly our image as the original source image
         // would have proper size (not full canvas) and proper layers. If we can
         // re-use the original cells we will achieve better tile re-using.
-        var segmentation = new ImageSegmentation();
-        (Sprite newSprite, _) = segmentation.Segment(source);
+        (Sprite newSprite, _) = parameters.Segmentation.Segment(source);
 
         // Now over its segments (OAMs), let's update its tile index and
         // finding if there are matching sequences. Add them the new to the NCGR image.

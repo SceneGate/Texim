@@ -60,4 +60,10 @@ public record FullImage2SpriteParams
     /// It must match with the value used in <see cref="Sprite2IndexedImageParams.RelativeCoordinates"/> when exporting.
     /// </summary>
     public SpriteRelativeCoordinatesKind RelativeCoordinates { get; init; } = SpriteRelativeCoordinatesKind.Center;
+
+    /// <summary>
+    /// Gets the algorithm to segment the image.
+    /// By default, the one that works for Nintendo DS.
+    /// </summary>
+    public IImageSegmentation Segmentation { get; init; } = new ImageSegmentation();
 }

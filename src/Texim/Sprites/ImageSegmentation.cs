@@ -25,6 +25,9 @@ using System.Collections.ObjectModel;
 using Texim.Colors;
 using Texim.Images;
 
+/// <summary>
+/// Image segmentation algorithm for Nintendo DS.
+/// </summary>
 public class ImageSegmentation : IImageSegmentation
 {
     // First value is the limit and the second is the side.
