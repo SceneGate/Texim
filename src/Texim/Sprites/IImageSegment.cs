@@ -19,7 +19,9 @@
 // SOFTWARE.
 namespace Texim.Sprites;
 
-public interface IImageSegment
+using Yarhl.FileFormat;
+
+public interface IImageSegment : IFormat
 {
     int Layer { get; }
 

@@ -20,8 +20,9 @@
 namespace Texim.Animations;
 
 using Texim.Images;
+using Yarhl.FileFormat;
 
-public interface IFullImageFrame
+public interface IFullImageFrame : IFormat
 {
     IFullImage Image { get; }
 

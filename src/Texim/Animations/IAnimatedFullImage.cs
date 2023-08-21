@@ -20,8 +20,9 @@
 namespace Texim.Animations;
 
 using System.Collections.ObjectModel;
+using Yarhl.FileFormat;
 
-public interface IAnimatedFullImage
+public interface IAnimatedFullImage : IFormat
 {
     Collection<IFullImageFrame> Frames { get; }
 
