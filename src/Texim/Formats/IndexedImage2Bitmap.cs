@@ -28,13 +28,11 @@ namespace Texim.Formats
     using Yarhl.IO;
     using SixRgb = SixLabors.ImageSharp.PixelFormats.Rgba32;
 
-    public class IndexedImage2Bitmap :
-        IInitializer<IndexedImageBitmapParams>,
-        IConverter<IIndexedImage, BinaryFormat>
+    public class IndexedImage2Bitmap : IConverter<IIndexedImage, BinaryFormat>
     {
-        private IndexedImageBitmapParams parameters;
+        private readonly IndexedImageBitmapParams parameters;
 
-        public void Initialize(IndexedImageBitmapParams parameters)
+        public IndexedImage2Bitmap(IndexedImageBitmapParams parameters)
         {
             ArgumentNullException.ThrowIfNull(parameters);
 
@@ -43,8 +41,7 @@ namespace Texim.Formats
 
         public BinaryFormat Convert(IIndexedImage source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             // Preconvert to colors for faster iteration later
             static SixRgb[] PaletteToColors(IPalette pal) =>

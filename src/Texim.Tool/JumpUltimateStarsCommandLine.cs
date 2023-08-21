@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -90,8 +90,8 @@ namespace Texim.Tool
                    Palettes = image,
                 };
                 new Node("sprite", sprite)
-                    .TransformWith<Sprite2IndexedImage, Sprite2IndexedImageParams>(spriteParams)
-                    .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
+                    .TransformWith(new Sprite2IndexedImage(spriteParams))
+                    .TransformWith(new IndexedImage2Bitmap(indexedImageParams))
                     .Stream.WriteTo(outputFilePath);
             }
 

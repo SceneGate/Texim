@@ -36,17 +36,17 @@ namespace Texim.Games.Raw
             string palettePath = Path.Combine(inputPath, config.Palette.Path);
             var paletteParams = config.Palette.GetParams();
             var paletteNode = NodeFactory.FromFile(palettePath, FileOpenMode.Read)
-                .TransformWith<RawBinary2PaletteCollection, RawPaletteParams>(paletteParams);
+                .TransformWith(new RawBinary2PaletteCollection(paletteParams));
 
             string pixelsPath = Path.Combine(inputPath, config.Pixels.Path);
             var pixelsParams = config.Pixels.GetParams();
             var pixelsNode = NodeFactory.FromFile(pixelsPath, FileOpenMode.Read)
-                .TransformWith<RawBinary2IndexedImage, RawIndexedImageParams>(pixelsParams);
+                .TransformWith(new RawBinary2IndexedImage(pixelsParams));
 
             string mapPath = Path.Combine(inputPath, config.Map.Path);
             var mapParams = config.Map.GetParams();
             var mapNode = NodeFactory.FromFile(mapPath, FileOpenMode.Read)
-                .TransformWith<RawBinary2ScreenMap, RawScreenMapParams>(mapParams);
+                .TransformWith(new RawBinary2ScreenMap(mapParams));
 
             if (config.Pixels.MissingBgTile) {
                 var newImage = AppendBackgroundTile(pixelsNode.GetFormatAs<IndexedImage>());
@@ -61,8 +61,8 @@ namespace Texim.Games.Raw
             var indexedImageParams = new IndexedImageBitmapParams {
                 Palettes = paletteNode.GetFormatAs<PaletteCollection>(),
             };
-            pixelsNode.TransformWith<MapDecompression, MapDecompressionParams>(decompressionParams)
-                .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedImageParams)
+            pixelsNode.TransformWith(new MapDecompression(decompressionParams))
+                .TransformWith(new IndexedImage2Bitmap(indexedImageParams))
                 .Stream.WriteTo(outputFilePath);
         }
 

@@ -19,13 +19,12 @@
 // SOFTWARE.
 namespace Texim.Images
 {
+    using System.Threading;
     using Texim.Palettes;
     using Texim.Pixels;
 
     public class IndexedImage : IIndexedImage
     {
-        private static Indexed2FullImage fullImageConverter = new Indexed2FullImage();
-
         public IndexedImage()
         {
         }
@@ -52,13 +51,13 @@ namespace Texim.Images
 
         public FullImage CreateFullImage(IPalette palette)
         {
-            fullImageConverter.Initialize(palette);
+            var fullImageConverter = new Indexed2FullImage(palette);
             return fullImageConverter.Convert(this);
         }
 
         public FullImage CreateFullImage(IPaletteCollection palettes)
         {
-            fullImageConverter.Initialize(palettes);
+            var fullImageConverter = new Indexed2FullImage(palettes);
             return fullImageConverter.Convert(this);
         }
     }

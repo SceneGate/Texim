@@ -21,28 +21,24 @@ namespace Texim.Compressions.Nitro
 {
     using System;
     using Texim.Images;
-    using Texim.Pixels;
     using Texim.Processing;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
 
-    public class FullImageMapCompression :
-        IInitializer<FullImageMapCompressionParams>, IConverter<IFullImage, NodeContainerFormat>
+    public class FullImageMapCompression : IConverter<IFullImage, NodeContainerFormat>
     {
-        private FullImageMapCompressionParams parameters;
+        private readonly FullImageMapCompressionParams parameters;
 
-        public void Initialize(FullImageMapCompressionParams parameters)
+        public FullImageMapCompression(FullImageMapCompressionParams parameters)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            ArgumentNullException.ThrowIfNull(parameters);
 
             this.parameters = parameters;
         }
 
         public NodeContainerFormat Convert(IFullImage source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             // TODO: Avoid several swizzling by providing an argument to quantization
             // and compression (in and out, out here too).
@@ -54,8 +50,7 @@ namespace Texim.Compressions.Nitro
 
             var fullIndexedImage = new IndexedImage(source.Width, source.Height, result.Pixels);
 
-            var compression = new MapCompression();
-            compression.Initialize(parameters);
+            var compression = new MapCompression(parameters);
             return compression.Convert(fullIndexedImage);
         }
     }

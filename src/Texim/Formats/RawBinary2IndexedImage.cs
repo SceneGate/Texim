@@ -26,17 +26,18 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class RawBinary2IndexedImage :
-        IInitializer<RawIndexedImageParams>, IConverter<IBinary, IndexedImage>
+    public class RawBinary2IndexedImage : IConverter<IBinary, IndexedImage>
     {
-        private RawIndexedImageParams parameters = RawIndexedImageParams.Default;
+        private readonly RawIndexedImageParams parameters;
 
-        public void Initialize(RawIndexedImageParams parameters)
+        public RawBinary2IndexedImage()
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            parameters = RawIndexedImageParams.Default;
+        }
 
-            this.parameters = parameters;
+        public RawBinary2IndexedImage(RawIndexedImageParams parameters)
+        {
+            this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
         public IndexedImage Convert(IBinary source)

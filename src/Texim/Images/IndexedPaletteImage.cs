@@ -25,8 +25,6 @@ namespace Texim.Images
 
     public class IndexedPaletteImage : IIndexedImage, IPaletteCollection
     {
-        private static Indexed2FullImage fullImageConverter = new Indexed2FullImage();
-
         public int Width { get; init; }
 
         public int Height { get; init; }
@@ -37,7 +35,7 @@ namespace Texim.Images
 
         public FullImage CreateFullImage()
         {
-            fullImageConverter.Initialize(this);
+            var fullImageConverter = new Indexed2FullImage(this);
             return fullImageConverter.Convert(this);
         }
     }

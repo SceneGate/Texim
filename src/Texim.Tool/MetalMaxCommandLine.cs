@@ -58,7 +58,7 @@ namespace Texim.Tool
             var parameters = new IndexedImageBitmapParams {
                 Palette = node.GetFormatAs<MmTex>(),
             };
-            node.TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(parameters)
+            node.TransformWith(new IndexedImage2Bitmap(parameters))
                 .Stream.WriteTo(output);
         }
 
@@ -71,7 +71,7 @@ namespace Texim.Tool
             var quantization = new FixedPaletteQuantization(originalTex);
             using var newNode = NodeFactory.FromFile(input, FileOpenMode.Read)
                 .TransformWith<Bitmap2FullImage>()
-                .TransformWith<FullImage2IndexedPalette, IQuantization>(quantization);
+                .TransformWith(new FullImage2IndexedPalette(quantization));
 
             IIndexedImage newImage = newNode.GetFormatAs<IIndexedImage>();
             var newMmtex = new MmTex {

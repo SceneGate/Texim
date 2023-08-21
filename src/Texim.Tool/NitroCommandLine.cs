@@ -190,14 +190,14 @@ namespace Texim.Tool
                     .GetFormatAs<Nscr>();
 
                 var mapParams = new MapDecompressionParams { Map = map };
-                _ = pixels.TransformWith<MapDecompression, MapDecompressionParams>(mapParams);
+                _ = pixels.TransformWith(new MapDecompression(mapParams));
             }
 
             var indexedParams = new IndexedImageBitmapParams {
                 Palettes = palette,
                 Encoder = format.GetEncoder(),
             };
-            pixels.TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedParams)
+            pixels.TransformWith(new IndexedImage2Bitmap(indexedParams))
                 .Stream.WriteTo(output);
         }
 
@@ -242,8 +242,8 @@ namespace Texim.Tool
                 }
 
                 string outputImage = Path.Combine(output, sprite.Name + ".png");
-                sprite.TransformWith<Sprite2IndexedImage, Sprite2IndexedImageParams>(spriteParams)
-                    .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(indexedParams)
+                sprite.TransformWith(new Sprite2IndexedImage(spriteParams))
+                    .TransformWith(new IndexedImage2Bitmap(indexedParams))
                     .Stream!.WriteTo(outputImage);
             }
         }
@@ -257,7 +257,7 @@ namespace Texim.Tool
             var quantization = new FixedPaletteQuantization(palette.Palettes[paletteIndex]);
             var newPixels = NodeFactory.FromFile(input, FileOpenMode.Read)
                 .TransformWith<Bitmap2FullImage>()
-                .TransformWith<FullImage2IndexedPalette, IQuantization>(quantization)
+                .TransformWith(new FullImage2IndexedPalette(quantization))
                 .GetFormatAs<IndexedImage>();
 
             Ncgr newNcgr;
@@ -328,7 +328,7 @@ namespace Texim.Tool
 
             var compressed = NodeFactory.FromFile(input, FileOpenMode.Read)
                 .TransformWith<Bitmap2FullImage>()
-                .TransformWith<FullImageMapCompression, FullImageMapCompressionParams>(compressionParams);
+                .TransformWith(new FullImageMapCompression(compressionParams));
             var newImage = compressed.Children[0].GetFormatAs<IndexedImage>();
             var map = compressed.Children[1].GetFormatAs<ScreenMap>();
 
@@ -404,8 +404,7 @@ namespace Texim.Tool
                 PixelSequences = uniqueTileSequences,
                 Image = image,
             };
-            var cellImageUpdater = new SpriteImageUpdater();
-            cellImageUpdater.Initialize(cellImageUpdaterParameters);
+            var cellImageUpdater = new SpriteImageUpdater(cellImageUpdaterParameters);
 
             for (int cellIndex = 0; cellIndex < numSprites; cellIndex++) {
                 string cellPath = Path.Combine(input, $"cell{cellIndex:D3}.png");
@@ -422,7 +421,7 @@ namespace Texim.Tool
 
                     using var sprite = NodeFactory.FromFile(cellPath, FileOpenMode.Read)
                         .TransformWith<Bitmap2FullImage>()
-                        .TransformWith<FullImage2NitroCell, FullImage2NitroCellParams>(cellConverterParameters);
+                        .TransformWith(new FullImage2NitroCell(cellConverterParameters));
                     var newCell = sprite.GetFormatAs<Cell>()!;
 
                     spriteCollectionNode.Children[cellIndex].ChangeFormat(newCell);

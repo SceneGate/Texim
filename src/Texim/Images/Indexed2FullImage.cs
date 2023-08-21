@@ -25,33 +25,25 @@ namespace Texim.Images
     using Texim.Pixels;
     using Yarhl.FileFormat;
 
-    public class Indexed2FullImage :
-        IInitializer<IPalette>, IInitializer<IPaletteCollection>, IConverter<IIndexedImage, FullImage>
+    public class Indexed2FullImage : IConverter<IIndexedImage, FullImage>
     {
-        private readonly PaletteCollection palettes = new PaletteCollection();
+        private readonly PaletteCollection palettes;
 
-        public void Initialize(IPalette parameters)
+        public Indexed2FullImage(IPalette palette)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            palettes.Palettes.Clear();
-            palettes.Palettes.Add(parameters);
+            ArgumentNullException.ThrowIfNull(palette);
+            palettes = new PaletteCollection(palette);
         }
 
-        public void Initialize(IPaletteCollection parameters)
+        public Indexed2FullImage(IPaletteCollection parameters)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            palettes.Palettes.Clear();
-            palettes.Palettes.Add(parameters.Palettes);
+            ArgumentNullException.ThrowIfNull(parameters);
+            palettes = new PaletteCollection(parameters.Palettes);
         }
 
         public FullImage Convert(IIndexedImage source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             var image = new FullImage(source.Width, source.Height);
             for (int i = 0; i < source.Pixels.Length; i++) {

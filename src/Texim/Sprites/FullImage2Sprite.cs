@@ -28,13 +28,11 @@ using Texim.Pixels;
 using Texim.Processing;
 using Yarhl.FileFormat;
 
-public class FullImage2Sprite :
-    IInitializer<FullImage2SpriteParams>,
-    IConverter<FullImage, ISprite>
+public class FullImage2Sprite : IConverter<FullImage, ISprite>
 {
-    private FullImage2SpriteParams parameters;
+    private readonly FullImage2SpriteParams parameters;
 
-    public void Initialize(FullImage2SpriteParams parameters)
+    public FullImage2Sprite(FullImage2SpriteParams parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
         this.parameters = parameters;
@@ -43,7 +41,6 @@ public class FullImage2Sprite :
     public virtual ISprite Convert(FullImage source)
     {
         ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(parameters);
 
         // First segment the cell into smaller parts (OAMs).
         // FUTURE: Check if the image fits in the existing cells, if so, re-use

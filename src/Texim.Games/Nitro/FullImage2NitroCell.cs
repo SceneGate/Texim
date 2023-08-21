@@ -23,20 +23,17 @@ using System;
 using System.Linq;
 using Texim.Images;
 using Texim.Sprites;
-using Yarhl.FileFormat;
 
-public class FullImage2NitroCell :
-    FullImage2Sprite,
-    IInitializer<FullImage2NitroCellParams>
+public class FullImage2NitroCell : FullImage2Sprite
 {
-    private FullImage2NitroCellParams parameters;
+    private readonly FullImage2NitroCellParams parameters;
 
-    public void Initialize(FullImage2NitroCellParams parameters)
+    public FullImage2NitroCell(FullImage2NitroCellParams parameters)
+        : base(parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
         this.parameters = parameters;
-        base.Initialize(parameters);
     }
 
     public override ISprite Convert(FullImage source)

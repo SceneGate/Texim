@@ -28,23 +28,25 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class FullImage2Bitmap :
-        IInitializer<IImageEncoder>, IConverter<IFullImage, BinaryFormat>
+    public class FullImage2Bitmap : IConverter<IFullImage, BinaryFormat>
     {
-        private IImageEncoder encoder = new PngEncoder();
+        private readonly IImageEncoder encoder;
 
-        public void Initialize(IImageEncoder parameters)
+        public FullImage2Bitmap()
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            encoder = new PngEncoder();
+        }
+
+        public FullImage2Bitmap(IImageEncoder parameters)
+        {
+            ArgumentNullException.ThrowIfNull(parameters);
 
             encoder = parameters;
         }
 
         public BinaryFormat Convert(IFullImage source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             using var image = new Image<Rgba32>(source.Width, source.Height);
             for (int x = 0; x < source.Width; x++) {

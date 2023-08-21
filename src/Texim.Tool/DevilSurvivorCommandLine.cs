@@ -63,7 +63,7 @@ namespace Texim.Tool
             };
             NodeFactory.FromFile(image, FileOpenMode.Read)
                 .TransformWith<DsTex2Image>()
-                .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(exporterParameters)
+                .TransformWith(new IndexedImage2Bitmap(exporterParameters))
                 .Stream.WriteTo(output);
         }
 
@@ -77,7 +77,7 @@ namespace Texim.Tool
             };
             NodeFactory.FromFile(image, FileOpenMode.Read)
                 .TransformWith<Bitmap2FullImage>()
-                .TransformWith<FullImage2IndexedPalette, IQuantization>(quantization)
+                .TransformWith(new FullImage2IndexedPalette(quantization))
                 .TransformWith<DsTex2Image>()
                 .Stream.WriteTo(output);
         }

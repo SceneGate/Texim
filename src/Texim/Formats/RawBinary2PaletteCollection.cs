@@ -25,17 +25,18 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class RawBinary2PaletteCollection :
-        IInitializer<RawPaletteParams>, IConverter<BinaryFormat, PaletteCollection>
+    public class RawBinary2PaletteCollection : IConverter<BinaryFormat, PaletteCollection>
     {
-        private RawPaletteParams parameters = RawPaletteParams.Default;
+        private readonly RawPaletteParams parameters;
 
-        public void Initialize(RawPaletteParams parameters)
+        public RawBinary2PaletteCollection()
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            parameters = RawPaletteParams.Default;
+        }
 
-            this.parameters = parameters;
+        public RawBinary2PaletteCollection(RawPaletteParams parameters)
+        {
+            this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
         public PaletteCollection Convert(BinaryFormat source)

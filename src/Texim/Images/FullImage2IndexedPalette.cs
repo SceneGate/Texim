@@ -20,17 +20,14 @@
 namespace Texim.Images
 {
     using System;
-    using Texim.Palettes;
-    using Texim.Pixels;
     using Texim.Processing;
     using Yarhl.FileFormat;
 
-    public class FullImage2IndexedPalette :
-        IInitializer<IQuantization>, IConverter<IFullImage, IndexedPaletteImage>
+    public class FullImage2IndexedPalette : IConverter<IFullImage, IndexedPaletteImage>
     {
-        private IQuantization quantization;
+        private readonly IQuantization quantization;
 
-        public void Initialize(IQuantization parameters)
+        public FullImage2IndexedPalette(IQuantization parameters)
         {
             quantization = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }

@@ -25,13 +25,11 @@ using System.Runtime.InteropServices;
 using Texim.Pixels;
 using Yarhl.FileFormat;
 
-public class SpriteImageUpdater :
-    IInitializer<SpriteImageUpdaterParams>,
-    IConverter<ISprite, ISprite>
+public class SpriteImageUpdater : IConverter<ISprite, ISprite>
 {
-    private SpriteImageUpdaterParams parameters;
+    private readonly SpriteImageUpdaterParams parameters;
 
-    public void Initialize(SpriteImageUpdaterParams parameters)
+    public SpriteImageUpdater(SpriteImageUpdaterParams parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
         this.parameters = parameters;
