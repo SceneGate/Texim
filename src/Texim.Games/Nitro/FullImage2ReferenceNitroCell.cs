@@ -263,10 +263,26 @@ public class FullImage2ReferenceNitroCell :
         // We only support one palette per segment.
         newSegment.PaletteIndex = paletteIndex;
 
-        var segmentSize = new Size(segmentStructure.Width, segmentStructure.Height);
+        int tileIndex;
+        bool horizontalFlip = false;
+        bool verticalFlip = false;
+
         var existingTiles = CollectionsMarshal.AsSpan(parameters.PixelSequences);
-        var tileSearch = PixelSequenceFinder.SearchFlipping(existingTiles, segmentTiles, parameters.MinimumPixelsPerSegment, segmentSize);
-        if (tileSearch.TileIdx == -1) {
+        if (parameters.SupportsFlipping) {
+            var segmentSize = new Size(segmentStructure.Width, segmentStructure.Height);
+            (tileIndex, horizontalFlip, verticalFlip) = PixelSequenceFinder.SearchFlipping(
+                existingTiles,
+                segmentTiles,
+                parameters.MinimumPixelsPerSegment,
+                segmentSize);
+        } else {
+            tileIndex = PixelSequenceFinder.Search(
+                existingTiles,
+                segmentTiles,
+                parameters.MinimumPixelsPerSegment);
+        }
+
+        if (tileIndex == -1) {
             if (segmentTiles.Length < parameters.MinimumPixelsPerSegment) {
                 int paddingPixelNum = parameters.MinimumPixelsPerSegment - segmentTiles.Length;
                 segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
@@ -276,11 +292,11 @@ public class FullImage2ReferenceNitroCell :
             newSegment.TileIndex = parameters.PixelSequences.Count / parameters.PixelsPerIndex;
             parameters.PixelSequences.AddRange(segmentTiles);
         } else {
-            newSegment.TileIndex = tileSearch.TileIdx / parameters.PixelsPerIndex;
+            newSegment.TileIndex = tileIndex / parameters.PixelsPerIndex;
         }
 
-        newSegment.HorizontalFlip = tileSearch.HorizontalFlip;
-        newSegment.VerticalFlip = tileSearch.VerticalFlip;
+        newSegment.HorizontalFlip = horizontalFlip;
+        newSegment.VerticalFlip = verticalFlip;
 
         newSegment.PaletteMode = parameters.Has8bppDepth
                 ? NitroPaletteMode.Palette256x1
