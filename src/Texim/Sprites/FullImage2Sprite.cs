@@ -101,11 +101,26 @@ public class FullImage2Sprite :
         // We only support one palette per segment.
         newSegment.PaletteIndex = paletteIndex;
 
-        var segmentSize = new Size(segmentStructure.Width, segmentStructure.Height);
-        var existingTiles = CollectionsMarshal.AsSpan(Parameters.PixelSequences);
-        var tileSearch = PixelSequenceFinder.SearchFlipping(existingTiles, segmentTiles, Parameters.MinimumPixelsPerSegment, segmentSize);
+        int tileIndex;
+        bool horizontalFlip = false;
+        bool verticalFlip = false;
 
-        if (tileSearch.TileIdx == -1) {
+        var existingTiles = CollectionsMarshal.AsSpan(Parameters.PixelSequences);
+        if (Parameters.SupportsFlipping) {
+            var segmentSize = new Size(segmentStructure.Width, segmentStructure.Height);
+            (tileIndex, horizontalFlip, verticalFlip) = PixelSequenceFinder.SearchFlipping(
+                existingTiles,
+                segmentTiles,
+                Parameters.MinimumPixelsPerSegment,
+                segmentSize);
+        } else {
+            tileIndex = PixelSequenceFinder.Search(
+                existingTiles,
+                segmentTiles,
+                Parameters.MinimumPixelsPerSegment);
+        }
+
+        if (tileIndex == -1) {
             if (segmentTiles.Length < Parameters.MinimumPixelsPerSegment) {
                 int paddingPixelNum = Parameters.MinimumPixelsPerSegment - segmentTiles.Length;
                 segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
@@ -115,11 +130,11 @@ public class FullImage2Sprite :
             newSegment.TileIndex = Parameters.PixelSequences.Count / Parameters.PixelsPerIndex;
             Parameters.PixelSequences.AddRange(segmentTiles);
         } else {
-            newSegment.TileIndex = tileSearch.TileIdx / Parameters.PixelsPerIndex;
+            newSegment.TileIndex = tileIndex / Parameters.PixelsPerIndex;
         }
 
-        newSegment.HorizontalFlip = tileSearch.HorizontalFlip;
-        newSegment.VerticalFlip = tileSearch.VerticalFlip;
+        newSegment.HorizontalFlip = horizontalFlip;
+        newSegment.VerticalFlip = verticalFlip;
 
         return newSegment;
     }

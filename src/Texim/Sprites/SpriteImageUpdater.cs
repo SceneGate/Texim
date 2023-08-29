@@ -46,14 +46,16 @@ public class SpriteImageUpdater :
             // No need to swizzle because the next methods retrieves the tiles in the same format from the image.
             IndexedPixel[] segmentTiles = parameters.Image.Pixels.GetSegmentPixels(segment, parameters.PixelsPerIndex);
 
-            // Apply the flipping so it doesn't break the next algo searching the data.
-            Span<IndexedPixel> spanSegment = segmentTiles;
-            if (segment.HorizontalFlip) {
-                spanSegment.FlipHorizontal(new Size(segment.Width, segment.Height));
-            }
+            if (parameters.SupportsFlipping) {
+                // Apply the flipping so it doesn't break the next algo searching the data.
+                Span<IndexedPixel> spanSegment = segmentTiles;
+                if (segment.HorizontalFlip) {
+                    spanSegment.FlipHorizontal(new Size(segment.Width, segment.Height));
+                }
 
-            if (segment.VerticalFlip) {
-                spanSegment.FlipVertical(new Size(segment.Width, segment.Height));
+                if (segment.VerticalFlip) {
+                    spanSegment.FlipVertical(new Size(segment.Width, segment.Height));
+                }
             }
 
             // Now find unique pixels.
@@ -67,11 +69,26 @@ public class SpriteImageUpdater :
 
     protected virtual void AssignImageToSegment(IImageSegment segment, IndexedPixel[] segmentTiles)
     {
-        var segmentSize = new Size(segment.Width, segment.Height);
-        var existingTiles = CollectionsMarshal.AsSpan(parameters.PixelSequences);
-        var tileSearch = PixelSequenceFinder.SearchFlipping(existingTiles, segmentTiles, parameters.MinimumPixelsPerSegment, segmentSize);
+        int tileIndex;
+        bool horizontalFlip = segment.HorizontalFlip;
+        bool verticalFlip = segment.VerticalFlip;
 
-        if (tileSearch.TileIdx == -1) {
+        var existingTiles = CollectionsMarshal.AsSpan(parameters.PixelSequences);
+        if (parameters.SupportsFlipping) {
+            var segmentSize = new Size(segment.Width, segment.Height);
+            (tileIndex, horizontalFlip, verticalFlip) = PixelSequenceFinder.SearchFlipping(
+                existingTiles,
+                segmentTiles,
+                parameters.MinimumPixelsPerSegment,
+                segmentSize);
+        } else {
+            tileIndex = PixelSequenceFinder.Search(
+                existingTiles,
+                segmentTiles,
+                parameters.MinimumPixelsPerSegment);
+        }
+
+        if (tileIndex == -1) {
             if (segmentTiles.Length < parameters.MinimumPixelsPerSegment) {
                 int paddingPixelNum = parameters.MinimumPixelsPerSegment - segmentTiles.Length;
                 segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
@@ -81,10 +98,10 @@ public class SpriteImageUpdater :
             segment.TileIndex = parameters.PixelSequences.Count / parameters.PixelsPerIndex;
             parameters.PixelSequences.AddRange(segmentTiles);
         } else {
-            segment.TileIndex = tileSearch.TileIdx / parameters.PixelsPerIndex;
+            segment.TileIndex = tileIndex / parameters.PixelsPerIndex;
         }
 
-        segment.HorizontalFlip = tileSearch.HorizontalFlip;
-        segment.VerticalFlip = tileSearch.VerticalFlip;
+        segment.HorizontalFlip = horizontalFlip;
+        segment.VerticalFlip = verticalFlip;
     }
 }

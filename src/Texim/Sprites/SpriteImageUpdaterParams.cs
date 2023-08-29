@@ -48,4 +48,13 @@ public record SpriteImageUpdaterParams
     /// Usually this is the tile size (64).
     /// </summary>
     public int PixelsPerIndex { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether this sprite supports horizontal and
+    /// vertical flipping.
+    /// </summary>
+    /// <remarks>
+    /// Some games may not support this feature of the segments.
+    /// </remarks>
+    public bool SupportsFlipping { get; init; }
 }
