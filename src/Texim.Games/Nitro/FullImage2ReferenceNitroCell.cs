@@ -203,6 +203,11 @@ public class FullImage2ReferenceNitroCell :
                     // in case the color we get from the imported image comes from the bottom layer.
                     // If the overlayed images are same, take the color from drawing only the segment (no overlays)
                     subImage.Pixels[idx++] = referenceSegmentImage.Pixels[segmentIdx];
+                } else if (referenceImage.Pixels[segmentIdx].Alpha != 0 && referenceSegmentImage.Pixels[segmentIdx].Alpha == 0) {
+                    // If the original pixel with overlays is NOT transparent
+                    // but drawing only this segment (without overlays) is transparent.
+                    // then the pixel of our image is coming from a bottom layer, so ignore it for now.
+                    subImage.Pixels[idx++] = referenceSegmentImage.Pixels[segmentIdx];
                 } else {
                     subImage.Pixels[idx++] = image.Pixels[fullIndex];
                 }
