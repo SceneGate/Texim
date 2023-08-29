@@ -25,6 +25,20 @@ using Texim.Sprites;
 public record FullImage2ReferenceNitroCellParams : FullImage2SpriteParams
 {
     /// <summary>
+    /// Gets the file path (without extension) to write the original
+    /// and new images of layers that don't re-use the original image pixels
+    /// to debug the algorithm.
+    /// </summary>
+    public string DebugNewLayersPath { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether to prioritize new pixels in the
+    /// top layers (e.g. text over clean button) or put then in
+    /// the bottom layers (e.g. top layer is yellow border with transparent body).
+    /// </summary>
+    public bool ImportTopToBottom { get; init; } = true;
+
+    /// <summary>
     /// Gets the cell to use to copy the metadata into the new.
     /// </summary>
     public Cell ReferenceCell { get; init; }

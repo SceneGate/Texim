@@ -21,7 +21,6 @@ namespace Texim.Games.Nitro;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
@@ -112,6 +111,13 @@ public class FullImage2ReferenceNitroCell :
                 segmentTiles = parameters.Image.Pixels.GetSegmentPixels(segment, parameters.PixelsPerIndex);
                 paletteIdx = segment.PaletteIndex;
             } else {
+                if (!string.IsNullOrEmpty(parameters.DebugNewLayersPath)) {
+                    var image2Bitmap = new FullImage2Bitmap();
+                    image2Bitmap.Convert(originalLayeredSegmentImage).Stream.WriteTo($"{parameters.DebugNewLayersPath}_{i}_originalLayered.png");
+                    image2Bitmap.Convert(originalSegmentImage).Stream.WriteTo($"{parameters.DebugNewLayersPath}_{i}_originalSegment.png");
+                    image2Bitmap.Convert(segmentImage).Stream.WriteTo($"{parameters.DebugNewLayersPath}_{i}_new.png");
+                }
+
                 // ... if they don't, then we quantize the new segment.
                 var quantization = new FixedPaletteTileQuantization(
                     parameters.Palettes,
@@ -203,10 +209,13 @@ public class FullImage2ReferenceNitroCell :
                     // in case the color we get from the imported image comes from the bottom layer.
                     // If the overlayed images are same, take the color from drawing only the segment (no overlays)
                     subImage.Pixels[idx++] = referenceSegmentImage.Pixels[segmentIdx];
-                } else if (referenceImage.Pixels[segmentIdx].Alpha != 0 && referenceSegmentImage.Pixels[segmentIdx].Alpha == 0) {
+                } else if (!parameters.ImportTopToBottom
+                    && referenceImage.Pixels[segmentIdx].Alpha != 0 && referenceSegmentImage.Pixels[segmentIdx].Alpha == 0) {
                     // If the original pixel with overlays is NOT transparent
                     // but drawing only this segment (without overlays) is transparent.
                     // then the pixel of our image is coming from a bottom layer, so ignore it for now.
+                    // BUT this has the side effect that if the NEW top layer has new pixels in transparent areas...
+                    // ... they are going to be put in the bottom layer which before was clean...
                     subImage.Pixels[idx++] = referenceSegmentImage.Pixels[segmentIdx];
                 } else {
                     subImage.Pixels[idx++] = image.Pixels[fullIndex];
