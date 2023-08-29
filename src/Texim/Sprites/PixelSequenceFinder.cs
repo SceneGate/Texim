@@ -20,6 +20,7 @@
 namespace Texim.Sprites;
 
 using System;
+using System.Drawing;
 using Texim.Pixels;
 
 public static class PixelSequenceFinder
@@ -41,12 +42,43 @@ public static class PixelSequenceFinder
                 continue;
             }
 
-            // TODO: try again flipping the sequence.
-            // In that case we may want to change the return type to a class.
             foundPos = -1;
         }
 
         return foundPos;
+    }
+
+    public static (int TileIdx, bool HorizontalFlip, bool VerticalFlip) SearchFlipping(
+        ReadOnlySpan<IndexedPixel> pixels,
+        Span<IndexedPixel> sequence,
+        int blockSize,
+        Size sequenceSize)
+    {
+        int tileIndex = Search(pixels, sequence, blockSize);
+        if (tileIndex != -1) {
+            return (tileIndex, false, false);
+        }
+
+        sequence.FlipHorizontal(sequenceSize);
+        tileIndex = Search(pixels, sequence, blockSize);
+        if (tileIndex != -1) {
+            return (tileIndex, true, false);
+        }
+
+        sequence.FlipVertical(sequenceSize);
+        tileIndex = Search(pixels, sequence, blockSize);
+        if (tileIndex != -1) {
+            return (tileIndex, true, true);
+        }
+
+        sequence.FlipHorizontal(sequenceSize);
+        tileIndex = Search(pixels, sequence, blockSize);
+        if (tileIndex != -1) {
+            return (tileIndex, false, true);
+        }
+
+        sequence.FlipVertical(sequenceSize);
+        return (-1, false, false);
     }
 
     private static bool HasSequence(

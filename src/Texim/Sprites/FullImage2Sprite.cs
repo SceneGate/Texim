@@ -102,8 +102,10 @@ public class FullImage2Sprite :
         newSegment.PaletteIndex = paletteIndex;
 
         var segmentSize = new Size(segmentStructure.Width, segmentStructure.Height);
-        var (tileIndex, horizontalFlip, verticalFlip) = SearchTile(segmentTiles, segmentSize);
-        if (tileIndex == -1) {
+        var existingTiles = CollectionsMarshal.AsSpan(Parameters.PixelSequences);
+        var tileSearch = PixelSequenceFinder.SearchFlipping(existingTiles, segmentTiles, Parameters.MinimumPixelsPerSegment, segmentSize);
+
+        if (tileSearch.TileIdx == -1) {
             if (segmentTiles.Length < Parameters.MinimumPixelsPerSegment) {
                 int paddingPixelNum = Parameters.MinimumPixelsPerSegment - segmentTiles.Length;
                 segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
@@ -113,46 +115,12 @@ public class FullImage2Sprite :
             newSegment.TileIndex = Parameters.PixelSequences.Count / Parameters.PixelsPerIndex;
             Parameters.PixelSequences.AddRange(segmentTiles);
         } else {
-            newSegment.TileIndex = tileIndex / Parameters.PixelsPerIndex;
+            newSegment.TileIndex = tileSearch.TileIdx / Parameters.PixelsPerIndex;
         }
 
-        newSegment.HorizontalFlip = horizontalFlip;
-        newSegment.VerticalFlip = verticalFlip;
+        newSegment.HorizontalFlip = tileSearch.HorizontalFlip;
+        newSegment.VerticalFlip = tileSearch.VerticalFlip;
 
         return newSegment;
-    }
-
-    private (int TileIdx, bool HorizontalFlip, bool VerticalFlip) SearchTile(Span<IndexedPixel> segmentTiles, Size segmentSize)
-    {
-        var existingTiles = CollectionsMarshal.AsSpan(Parameters.PixelSequences);
-
-        // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
-        // and put the start index in the OAM.
-        // Even if the image is not tiled, the OAM saves the index divided by tiles.
-        int tileIndex = PixelSequenceFinder.Search(existingTiles, segmentTiles, Parameters.MinimumPixelsPerSegment);
-        if (tileIndex != -1) {
-            return (tileIndex, false, false);
-        }
-
-        segmentTiles.FlipHorizontal(segmentSize);
-        tileIndex = PixelSequenceFinder.Search(existingTiles, segmentTiles, Parameters.MinimumPixelsPerSegment);
-        if (tileIndex != -1) {
-            return (tileIndex, true, false);
-        }
-
-        segmentTiles.FlipVertical(segmentSize);
-        tileIndex = PixelSequenceFinder.Search(existingTiles, segmentTiles, Parameters.MinimumPixelsPerSegment);
-        if (tileIndex != -1) {
-            return (tileIndex, true, true);
-        }
-
-        segmentTiles.FlipHorizontal(segmentSize);
-        tileIndex = PixelSequenceFinder.Search(existingTiles, segmentTiles, Parameters.MinimumPixelsPerSegment);
-        if (tileIndex != -1) {
-            return (tileIndex, false, true);
-        }
-
-        segmentTiles.FlipVertical(segmentSize);
-        return (-1, false, false);
     }
 }

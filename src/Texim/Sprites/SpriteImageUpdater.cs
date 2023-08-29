@@ -20,6 +20,7 @@
 namespace Texim.Sprites;
 
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Texim.Pixels;
@@ -48,24 +49,32 @@ public class SpriteImageUpdater :
             // Now find unique pixels.
             // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
             // and put the start index in the OAM.
-            int tileIndex = PixelSequenceFinder.Search(
-                CollectionsMarshal.AsSpan(parameters.PixelSequences),
-                segmentTiles,
-                parameters.MinimumPixelsPerSegment);
-            if (tileIndex == -1) {
-                if (segmentTiles.Length < parameters.MinimumPixelsPerSegment) {
-                    int paddingPixelNum = parameters.MinimumPixelsPerSegment - segmentTiles.Length;
-                    segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
-                }
-
-                // Add sequence to the pixels.
-                segment.TileIndex = parameters.PixelSequences.Count / parameters.PixelsPerIndex;
-                parameters.PixelSequences.AddRange(segmentTiles);
-            } else {
-                segment.TileIndex = tileIndex / parameters.PixelsPerIndex;
-            }
+            AssignImageToSegment(segment, segmentTiles);
         }
 
         return source;
+    }
+
+    protected virtual void AssignImageToSegment(IImageSegment segment, IndexedPixel[] segmentTiles)
+    {
+        var segmentSize = new Size(segment.Width, segment.Height);
+        var existingTiles = CollectionsMarshal.AsSpan(parameters.PixelSequences);
+        var tileSearch = PixelSequenceFinder.SearchFlipping(existingTiles, segmentTiles, parameters.MinimumPixelsPerSegment, segmentSize);
+
+        if (tileSearch.TileIdx == -1) {
+            if (segmentTiles.Length < parameters.MinimumPixelsPerSegment) {
+                int paddingPixelNum = parameters.MinimumPixelsPerSegment - segmentTiles.Length;
+                segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
+            }
+
+            // Add sequence to the pixels.
+            segment.TileIndex = parameters.PixelSequences.Count / parameters.PixelsPerIndex;
+            parameters.PixelSequences.AddRange(segmentTiles);
+        } else {
+            segment.TileIndex = tileSearch.TileIdx / parameters.PixelsPerIndex;
+        }
+
+        segment.HorizontalFlip = tileSearch.HorizontalFlip;
+        segment.VerticalFlip = tileSearch.VerticalFlip;
     }
 }
