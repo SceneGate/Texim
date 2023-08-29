@@ -50,7 +50,7 @@ public static class PixelSequenceFinder
 
     public static (int TileIdx, bool HorizontalFlip, bool VerticalFlip) SearchFlipping(
         ReadOnlySpan<IndexedPixel> pixels,
-        Span<IndexedPixel> sequence,
+        ReadOnlySpan<IndexedPixel> sequence,
         int blockSize,
         Size sequenceSize)
     {
@@ -59,25 +59,30 @@ public static class PixelSequenceFinder
             return (tileIndex, false, false);
         }
 
-        sequence.FlipHorizontal(sequenceSize);
-        tileIndex = Search(pixels, sequence, blockSize);
+        // Create a copy so we don't modify the originals
+        // anyway as we set the flag to flip, we shouldn't return/modify the pixels
+        // we are going to write.
+        var testSequence = sequence.ToArray().AsSpan();
+
+        testSequence.FlipHorizontal(sequenceSize);
+        tileIndex = Search(pixels, testSequence, blockSize);
         if (tileIndex != -1) {
             return (tileIndex, true, false);
         }
 
-        sequence.FlipVertical(sequenceSize);
-        tileIndex = Search(pixels, sequence, blockSize);
+        testSequence.FlipVertical(sequenceSize);
+        tileIndex = Search(pixels, testSequence, blockSize);
         if (tileIndex != -1) {
             return (tileIndex, true, true);
         }
 
-        sequence.FlipHorizontal(sequenceSize);
-        tileIndex = Search(pixels, sequence, blockSize);
+        testSequence.FlipHorizontal(sequenceSize);
+        tileIndex = Search(pixels, testSequence, blockSize);
         if (tileIndex != -1) {
             return (tileIndex, false, true);
         }
 
-        sequence.FlipVertical(sequenceSize);
+        testSequence.FlipVertical(sequenceSize);
         return (-1, false, false);
     }
 
