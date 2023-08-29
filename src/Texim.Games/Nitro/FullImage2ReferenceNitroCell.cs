@@ -205,10 +205,9 @@ public class FullImage2ReferenceNitroCell :
                     subImage.Pixels[idx++] = referenceSegmentImage.Pixels[segmentIdx];
                 } else {
                     subImage.Pixels[idx++] = image.Pixels[fullIndex];
-
-                    // Set processed pixels as transparent
                 }
 
+                // Set processed pixels as transparent
                 processedImage.Pixels[fullIndex] = new Rgb(22, 8, 93, 0);
             }
         }
@@ -245,14 +244,15 @@ public class FullImage2ReferenceNitroCell :
 
     private IImageSegment AssignImageToSegment(IImageSegment segmentStructure, IndexedPixel[] segmentTiles, byte paletteIndex)
     {
-        var newSegment = new ImageSegment(segmentStructure);
+        var newSegment = new ObjectAttributeMemory(segmentStructure);
 
         // We only support one palette per segment.
         newSegment.PaletteIndex = paletteIndex;
 
         var segmentSize = new Size(segmentStructure.Width, segmentStructure.Height);
-        var (tileIndex, horizontalFlip, verticalFlip) = SearchTile(segmentTiles, segmentSize);
-        if (tileIndex == -1) {
+        var existingTiles = CollectionsMarshal.AsSpan(parameters.PixelSequences);
+        var tileSearch = PixelSequenceFinder.SearchFlipping(existingTiles, segmentTiles, parameters.MinimumPixelsPerSegment, segmentSize);
+        if (tileSearch.TileIdx == -1) {
             if (segmentTiles.Length < parameters.MinimumPixelsPerSegment) {
                 int paddingPixelNum = parameters.MinimumPixelsPerSegment - segmentTiles.Length;
                 segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
@@ -262,53 +262,17 @@ public class FullImage2ReferenceNitroCell :
             newSegment.TileIndex = parameters.PixelSequences.Count / parameters.PixelsPerIndex;
             parameters.PixelSequences.AddRange(segmentTiles);
         } else {
-            newSegment.TileIndex = tileIndex / parameters.PixelsPerIndex;
+            newSegment.TileIndex = tileSearch.TileIdx / parameters.PixelsPerIndex;
         }
 
-        newSegment.HorizontalFlip = horizontalFlip;
-        newSegment.VerticalFlip = verticalFlip;
+        newSegment.HorizontalFlip = tileSearch.HorizontalFlip;
+        newSegment.VerticalFlip = tileSearch.VerticalFlip;
 
-        var nitroCell = new ObjectAttributeMemory(newSegment);
-
-        nitroCell.PaletteMode = parameters.Has8bppDepth
+        newSegment.PaletteMode = parameters.Has8bppDepth
                 ? NitroPaletteMode.Palette256x1
                 : NitroPaletteMode.Palette16x16;
 
-        return nitroCell;
-    }
-
-    private (int TileIdx, bool HorizontalFlip, bool VerticalFlip) SearchTile(Span<IndexedPixel> segmentTiles, Size segmentSize)
-    {
-        var existingTiles = CollectionsMarshal.AsSpan(parameters.PixelSequences);
-
-        // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
-        // and put the start index in the OAM.
-        // Even if the image is not tiled, the OAM saves the index divided by tiles.
-        int tileIndex = PixelSequenceFinder.Search(existingTiles, segmentTiles, parameters.MinimumPixelsPerSegment);
-        if (tileIndex != -1) {
-            return (tileIndex, false, false);
-        }
-
-        segmentTiles.FlipHorizontal(segmentSize);
-        tileIndex = PixelSequenceFinder.Search(existingTiles, segmentTiles, parameters.MinimumPixelsPerSegment);
-        if (tileIndex != -1) {
-            return (tileIndex, true, false);
-        }
-
-        segmentTiles.FlipVertical(segmentSize);
-        tileIndex = PixelSequenceFinder.Search(existingTiles, segmentTiles, parameters.MinimumPixelsPerSegment);
-        if (tileIndex != -1) {
-            return (tileIndex, true, true);
-        }
-
-        segmentTiles.FlipHorizontal(segmentSize);
-        tileIndex = PixelSequenceFinder.Search(existingTiles, segmentTiles, parameters.MinimumPixelsPerSegment);
-        if (tileIndex != -1) {
-            return (tileIndex, false, true);
-        }
-
-        segmentTiles.FlipVertical(segmentSize);
-        return (-1, false, false);
+        return newSegment;
     }
 
     private sealed class CompareNonTransparentPixels : IEqualityComparer<Rgb>
