@@ -74,9 +74,15 @@ namespace Texim.Formats
                             $"#{pixel.PaletteIndex} has {palette.Length}");
                     }
 
-                    SixRgb color = (pixel.Alpha != 255)
-                        ? new SixRgb(palette[pixel.Index].R, palette[pixel.Index].G, palette[pixel.Index].B, pixel.Alpha)
-                        : palette[pixel.Index];
+                    SixRgb color;
+                    if (parameters.FirstColorAsTransparent && pixel.Index == 0) {
+                        color = new SixRgb(palette[pixel.Index].R, palette[pixel.Index].G, palette[pixel.Index].B, 0);
+                    } else if (pixel.Alpha != 255) {
+                        color = new SixRgb(palette[pixel.Index].R, palette[pixel.Index].G, palette[pixel.Index].B, pixel.Alpha);
+                    } else {
+                        color = palette[pixel.Index];
+                    }
+
                     bitmap[x, y] = color;
                 }
             }

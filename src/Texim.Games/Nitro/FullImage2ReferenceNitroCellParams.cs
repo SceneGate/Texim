@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+// Copyright (c) 2023 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,20 +17,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Formats
+namespace Texim.Games.Nitro;
+
+using Texim.Images;
+using Texim.Sprites;
+
+public record FullImage2ReferenceNitroCellParams : FullImage2SpriteParams
 {
-    using SixLabors.ImageSharp.Formats;
-    using SixLabors.ImageSharp.Formats.Png;
-    using Texim.Palettes;
+    /// <summary>
+    /// Gets the cell to use to copy the metadata into the new.
+    /// </summary>
+    public Cell ReferenceCell { get; init; }
 
-    public class IndexedImageBitmapParams
-    {
-        public IImageEncoder Encoder { get; set; } = new PngEncoder();
+    /// <summary>
+    /// Gets a value indicating whether the cell image has the format 8 bits per pixel
+    /// or 4 bits per pixel.
+    /// </summary>
+    public bool Has8bppDepth { get; init; }
 
-        public IPalette Palette { get; set; }
-
-        public IPaletteCollection Palettes { get; set; }
-
-        public bool FirstColorAsTransparent { get; set; } = false;
-    }
+    /// <summary>
+    /// Gets the image to update in the sprite.
+    /// </summary>
+    public IIndexedImage Image { get; init; }
 }

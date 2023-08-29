@@ -26,15 +26,20 @@ namespace Texim.Images
     using Yarhl.FileFormat;
 
     public class Indexed2FullImage :
-        IInitializer<IPalette>, IInitializer<IPaletteCollection>, IConverter<IIndexedImage, FullImage>
+        IInitializer<IPalette>,
+        IInitializer<IPaletteCollection>,
+        IInitializer<(IPaletteCollection Palettes, bool FirstColorAsTransparent)>,
+        IConverter<IIndexedImage, FullImage>
     {
         private readonly PaletteCollection palettes = new PaletteCollection();
+        private bool firstColorAsTransparent;
 
         public void Initialize(IPalette parameters)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
+            firstColorAsTransparent = false;
             palettes.Palettes.Clear();
             palettes.Palettes.Add(parameters);
         }
@@ -44,8 +49,19 @@ namespace Texim.Images
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
+            firstColorAsTransparent = false;
             palettes.Palettes.Clear();
             palettes.Palettes.Add(parameters.Palettes);
+        }
+
+        public void Initialize((IPaletteCollection Palettes, bool FirstColorAsTransparent) parameters)
+        {
+            ArgumentNullException.ThrowIfNull(parameters);
+            ArgumentNullException.ThrowIfNull(parameters.Palettes);
+
+            palettes.Palettes.Clear();
+            palettes.Palettes.Add(parameters.Palettes.Palettes);
+            firstColorAsTransparent = parameters.FirstColorAsTransparent;
         }
 
         public FullImage Convert(IIndexedImage source)
@@ -61,7 +77,11 @@ namespace Texim.Images
                 }
 
                 var color = palettes.Palettes[pixel.PaletteIndex].Colors[pixel.Index];
-                image.Pixels[i] = (pixel.Alpha == 255) ? color : new Rgb(color, pixel.Alpha);
+                if (firstColorAsTransparent && pixel.Index == 0) {
+                    image.Pixels[i] = color.WithAlpha(0);
+                } else {
+                    image.Pixels[i] = (pixel.Alpha == 255) ? color : new Rgb(color, pixel.Alpha);
+                }
             }
 
             return image;

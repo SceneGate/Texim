@@ -72,6 +72,9 @@ namespace Texim.Colors
 
         public byte Alpha { get; init; }
 
+        public readonly Rgb WithAlpha(byte alpha) =>
+            new Rgb(Red, Green, Blue, alpha);
+
         public readonly System.Drawing.Color ToColor() =>
             System.Drawing.Color.FromArgb(Alpha, Red, Green, Blue);
 
