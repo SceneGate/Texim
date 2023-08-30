@@ -23,6 +23,11 @@ using Texim.Sprites;
 
 public record FullImage2NitroCellParams : FullImage2SpriteParams
 {
+    public FullImage2NitroCellParams()
+    {
+        Segmentation = new NitroImageSegmentation();
+    }
+
     /// <summary>
     /// Gets the cell to use to copy the metadata into the new.
     /// </summary>

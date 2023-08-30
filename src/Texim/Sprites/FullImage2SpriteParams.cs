@@ -65,7 +65,7 @@ public record FullImage2SpriteParams
     /// Gets the algorithm to segment the image.
     /// By default, the one that works for Nintendo DS.
     /// </summary>
-    public IImageSegmentation Segmentation { get; init; } = new ImageSegmentation();
+    public IImageSegmentation Segmentation { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether this sprite supports horizontal and

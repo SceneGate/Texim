@@ -17,18 +17,19 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Games.Nitro;
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Texim.Colors;
 using Texim.Images;
+using Texim.Sprites;
 
 /// <summary>
 /// Image segmentation algorithm for Nintendo DS.
 /// </summary>
-public class ImageSegmentation : IImageSegmentation
+public class NitroImageSegmentation : IImageSegmentation
 {
     // First value is the limit and the second is the side.
     // From limit to side there must be non-transparent pixels to set it.
@@ -38,6 +39,10 @@ public class ImageSegmentation : IImageSegmentation
     };
 
     private readonly int[,] splitMode = Modes[1];
+
+    public int CanvasWidth { get; set; } = 512;
+
+    public int CanvasHeight { get; set; } = 256;
 
     public (Sprite Sprite, FullImage TrimmedImage) Segment(FullImage frame)
     {
@@ -87,8 +92,8 @@ public class ImageSegmentation : IImageSegmentation
 
         if (width != 0 && height != 0) {
             var segment = new ImageSegment {
-                CoordinateX = startX + x - 256,
-                CoordinateY = startY + y - 128,
+                CoordinateX = startX + x - (CanvasWidth / 2),
+                CoordinateY = startY + y - (CanvasHeight / 2),
                 Width = width,
                 Height = height,
                 Layer = 0,

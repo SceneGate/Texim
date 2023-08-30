@@ -39,12 +39,6 @@ public record FullImage2ReferenceNitroCellParams : FullImage2SpriteParams
     public bool ImportTopToBottom { get; init; } = true;
 
     /// <summary>
-    /// Gets a value indicating whether this sprite supports horizontal and
-    /// vertical flipping.
-    /// </summary>
-    public bool SupportsFlipping { get; init; } = true;
-
-    /// <summary>
     /// Gets the cell to use to copy the metadata into the new.
     /// </summary>
     public Cell ReferenceCell { get; init; }
