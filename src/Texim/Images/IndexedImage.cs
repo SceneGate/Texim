@@ -19,6 +19,7 @@
 // SOFTWARE.
 namespace Texim.Images
 {
+    using Texim.Formats;
     using Texim.Palettes;
     using Texim.Pixels;
 
@@ -59,6 +60,12 @@ namespace Texim.Images
         public FullImage CreateFullImage(IPaletteCollection palettes)
         {
             fullImageConverter.Initialize(palettes);
+            return fullImageConverter.Convert(this);
+        }
+
+        public FullImage CreateFullImage(IPaletteCollection palettes, bool firstColorAsTransparent)
+        {
+            fullImageConverter.Initialize((palettes, firstColorAsTransparent));
             return fullImageConverter.Convert(this);
         }
     }

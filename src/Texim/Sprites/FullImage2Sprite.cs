@@ -32,31 +32,33 @@ public class FullImage2Sprite :
     IInitializer<FullImage2SpriteParams>,
     IConverter<FullImage, ISprite>
 {
-    private FullImage2SpriteParams parameters;
+    protected FullImage2SpriteParams Parameters { get; private set; }
 
     public void Initialize(FullImage2SpriteParams parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
-        this.parameters = parameters;
+        Parameters = parameters;
     }
 
     public virtual ISprite Convert(FullImage source)
     {
         ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(parameters);
+        ArgumentNullException.ThrowIfNull(Parameters);
 
         // First segment the cell into smaller parts (OAMs).
         // FUTURE: Check if the image fits in the existing cells, if so, re-use
         // It's hard to segment properly our image as the original source image
         // would have proper size (not full canvas) and proper layers. If we can
         // re-use the original cells we will achieve better tile re-using.
-        (Sprite newSprite, _) = parameters.Segmentation.Segment(source);
+        (Sprite newSprite, _) = Parameters.Segmentation.Segment(source);
 
         // Now over its segments (OAMs), let's update its tile index and
         // finding if there are matching sequences. Add them the new to the NCGR image.
-        foreach (ImageSegment segment in newSprite.Segments.Cast<ImageSegment>()) {
+        for (int i = 0; i < newSprite.Segments.Count; i++) {
+            IImageSegment segment = newSprite.Segments[i];
+
             // Tiles are indexed pixels. We need to quantize first that section of the image.
-            FullImage segmentImage = source.SubImage(segment, parameters.RelativeCoordinates);
+            FullImage segmentImage = source.SubImage(segment, Parameters.RelativeCoordinates);
 
             // We simulate like the sub-image is a big tile for the quantization so it finds only one palette.
             // It will search for the best matching palette (e.g. cases of 16 palettes of 16 colors).
@@ -65,14 +67,11 @@ public class FullImage2Sprite :
             //    Recommendation is to order colors in palettes, so even if they find different indexes are same.
             // LIMITATION: We use the original palette, no new colors allowed.
             var quantization = new FixedPaletteTileQuantization(
-                parameters.Palettes,
+                Parameters.Palettes,
                 new Size(segment.Width, segment.Height),
                 segment.Width);
             quantization.FirstAsTransparent = true;
             var quantizationResult = (quantization.Quantize(segmentImage.Pixels) as FixedPaletteTileQuantizationResult)!;
-
-            // OAMs can have only one palette index, that's why we use a big tile.
-            segment.PaletteIndex = quantizationResult.PaletteIndexes[0];
 
             // We had to swizzle. We can't compare lineal pixels as there isn't
             // a constant "image width" that generates a valid sequence of lineal
@@ -80,35 +79,63 @@ public class FullImage2Sprite :
             // saves 0xFFFF as width. Having 8 as false width is the same as swizzling
             // tileSize.Width == imageWidth -> nop operation (but we need a copy).
             IndexedPixel[] segmentTiles;
-            if (parameters.IsImageTiled) {
+            if (Parameters.IsImageTiled) {
                 var segmentSwizzler = new TileSwizzling<IndexedPixel>(segment.Width);
                 segmentTiles = segmentSwizzler.Swizzle(quantizationResult.Pixels);
             } else {
                 segmentTiles = quantizationResult.Pixels;
             }
 
-            // Now find unique pixels.
-            // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
-            // and put the start index in the OAM.
-            // Even if the image is not tiled, the OAM saves the index divided by tiles.
-            int tileIndex = PixelSequenceFinder.Search(
-                CollectionsMarshal.AsSpan(parameters.PixelSequences),
-                segmentTiles,
-                parameters.MinimumPixelsPerSegment);
-            if (tileIndex == -1) {
-                if (segmentTiles.Length < parameters.MinimumPixelsPerSegment) {
-                    int paddingPixelNum = parameters.MinimumPixelsPerSegment - segmentTiles.Length;
-                    segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
-                }
-
-                // Add sequence to the pixels.
-                segment.TileIndex = parameters.PixelSequences.Count / parameters.PixelsPerIndex;
-                parameters.PixelSequences.AddRange(segmentTiles);
-            } else {
-                segment.TileIndex = tileIndex / parameters.PixelsPerIndex;
-            }
+            // Now find unique pixels and create new cell with metatada.
+            var newSegment = AssignImageToSegment(segment, segmentTiles, quantizationResult.PaletteIndexes[0]);
+            newSprite.Segments[i] = newSegment;
         }
 
         return newSprite;
+    }
+
+    protected virtual IImageSegment AssignImageToSegment(IImageSegment segmentStructure, IndexedPixel[] segmentTiles, byte paletteIndex)
+    {
+        var newSegment = new ImageSegment(segmentStructure);
+
+        // We only support one palette per segment.
+        newSegment.PaletteIndex = paletteIndex;
+
+        int tileIndex;
+        bool horizontalFlip = false;
+        bool verticalFlip = false;
+
+        var existingTiles = CollectionsMarshal.AsSpan(Parameters.PixelSequences);
+        if (Parameters.SupportsFlipping) {
+            var segmentSize = new Size(segmentStructure.Width, segmentStructure.Height);
+            (tileIndex, horizontalFlip, verticalFlip) = PixelSequenceFinder.SearchFlipping(
+                existingTiles,
+                segmentTiles,
+                Parameters.MinimumPixelsPerSegment,
+                segmentSize);
+        } else {
+            tileIndex = PixelSequenceFinder.Search(
+                existingTiles,
+                segmentTiles,
+                Parameters.MinimumPixelsPerSegment);
+        }
+
+        if (tileIndex == -1) {
+            if (segmentTiles.Length < Parameters.MinimumPixelsPerSegment) {
+                int paddingPixelNum = Parameters.MinimumPixelsPerSegment - segmentTiles.Length;
+                segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
+            }
+
+            // Add sequence to the pixels.
+            newSegment.TileIndex = Parameters.PixelSequences.Count / Parameters.PixelsPerIndex;
+            Parameters.PixelSequences.AddRange(segmentTiles);
+        } else {
+            newSegment.TileIndex = tileIndex / Parameters.PixelsPerIndex;
+        }
+
+        newSegment.HorizontalFlip = horizontalFlip;
+        newSegment.VerticalFlip = verticalFlip;
+
+        return newSegment;
     }
 }

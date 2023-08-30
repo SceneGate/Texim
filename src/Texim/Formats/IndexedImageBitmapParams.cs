@@ -30,5 +30,7 @@ namespace Texim.Formats
         public IPalette Palette { get; set; }
 
         public IPaletteCollection Palettes { get; set; }
+
+        public bool FirstColorAsTransparent { get; set; } = false;
     }
 }

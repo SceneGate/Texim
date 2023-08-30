@@ -20,6 +20,7 @@
 namespace Texim.Sprites;
 
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Texim.Pixels;
@@ -45,27 +46,62 @@ public class SpriteImageUpdater :
             // No need to swizzle because the next methods retrieves the tiles in the same format from the image.
             IndexedPixel[] segmentTiles = parameters.Image.Pixels.GetSegmentPixels(segment, parameters.PixelsPerIndex);
 
+            if (parameters.SupportsFlipping) {
+                // Apply the flipping so it doesn't break the next algo searching the data.
+                Span<IndexedPixel> spanSegment = segmentTiles;
+                if (segment.HorizontalFlip) {
+                    spanSegment.FlipHorizontal(new Size(segment.Width, segment.Height));
+                }
+
+                if (segment.VerticalFlip) {
+                    spanSegment.FlipVertical(new Size(segment.Width, segment.Height));
+                }
+            }
+
             // Now find unique pixels.
             // We don't need to find unique individual tiles but the full sequence of tiles of the OAM.
             // and put the start index in the OAM.
-            int tileIndex = PixelSequenceFinder.Search(
-                CollectionsMarshal.AsSpan(parameters.PixelSequences),
-                segmentTiles,
-                parameters.MinimumPixelsPerSegment);
-            if (tileIndex == -1) {
-                if (segmentTiles.Length < parameters.MinimumPixelsPerSegment) {
-                    int paddingPixelNum = parameters.MinimumPixelsPerSegment - segmentTiles.Length;
-                    segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
-                }
-
-                // Add sequence to the pixels.
-                segment.TileIndex = parameters.PixelSequences.Count / parameters.PixelsPerIndex;
-                parameters.PixelSequences.AddRange(segmentTiles);
-            } else {
-                segment.TileIndex = tileIndex / parameters.PixelsPerIndex;
-            }
+            AssignImageToSegment(segment, segmentTiles);
         }
 
         return source;
+    }
+
+    protected virtual void AssignImageToSegment(IImageSegment segment, IndexedPixel[] segmentTiles)
+    {
+        int tileIndex;
+        bool horizontalFlip = segment.HorizontalFlip;
+        bool verticalFlip = segment.VerticalFlip;
+
+        var existingTiles = CollectionsMarshal.AsSpan(parameters.PixelSequences);
+        if (parameters.SupportsFlipping) {
+            var segmentSize = new Size(segment.Width, segment.Height);
+            (tileIndex, horizontalFlip, verticalFlip) = PixelSequenceFinder.SearchFlipping(
+                existingTiles,
+                segmentTiles,
+                parameters.MinimumPixelsPerSegment,
+                segmentSize);
+        } else {
+            tileIndex = PixelSequenceFinder.Search(
+                existingTiles,
+                segmentTiles,
+                parameters.MinimumPixelsPerSegment);
+        }
+
+        if (tileIndex == -1) {
+            if (segmentTiles.Length < parameters.MinimumPixelsPerSegment) {
+                int paddingPixelNum = parameters.MinimumPixelsPerSegment - segmentTiles.Length;
+                segmentTiles = segmentTiles.Concat(new IndexedPixel[paddingPixelNum]).ToArray();
+            }
+
+            // Add sequence to the pixels.
+            segment.TileIndex = parameters.PixelSequences.Count / parameters.PixelsPerIndex;
+            parameters.PixelSequences.AddRange(segmentTiles);
+        } else {
+            segment.TileIndex = tileIndex / parameters.PixelsPerIndex;
+        }
+
+        segment.HorizontalFlip = horizontalFlip;
+        segment.VerticalFlip = verticalFlip;
     }
 }

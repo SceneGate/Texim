@@ -47,6 +47,15 @@ public class ObjectAttributeMemory : IImageSegment
         Mode = ObjectAttributeMemoryMode.Normal;
         IsMosaic = false;
         PaletteMode = NitroPaletteMode.Palette16x16;
+
+        if (other is ObjectAttributeMemory otherOam) {
+            HasRotationOrScaling = otherOam.HasRotationOrScaling;
+            RotationOrScalingGroup = otherOam.RotationOrScalingGroup;
+            HasDoubleSize = otherOam.HasDoubleSize;
+            IsDisabled = otherOam.IsDisabled;
+            Mode = otherOam.Mode;
+            IsMosaic = otherOam.IsMosaic;
+        }
     }
 
     public int Layer { get; set; }

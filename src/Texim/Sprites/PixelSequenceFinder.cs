@@ -20,6 +20,7 @@
 namespace Texim.Sprites;
 
 using System;
+using System.Drawing;
 using Texim.Pixels;
 
 public static class PixelSequenceFinder
@@ -41,12 +42,48 @@ public static class PixelSequenceFinder
                 continue;
             }
 
-            // TODO: try again flipping the sequence.
-            // In that case we may want to change the return type to a class.
             foundPos = -1;
         }
 
         return foundPos;
+    }
+
+    public static (int TileIdx, bool HorizontalFlip, bool VerticalFlip) SearchFlipping(
+        ReadOnlySpan<IndexedPixel> pixels,
+        ReadOnlySpan<IndexedPixel> sequence,
+        int blockSize,
+        Size sequenceSize)
+    {
+        int tileIndex = Search(pixels, sequence, blockSize);
+        if (tileIndex != -1) {
+            return (tileIndex, false, false);
+        }
+
+        // Create a copy so we don't modify the originals
+        // anyway as we set the flag to flip, we shouldn't return/modify the pixels
+        // we are going to write.
+        var testSequence = sequence.ToArray().AsSpan();
+
+        testSequence.FlipHorizontal(sequenceSize);
+        tileIndex = Search(pixels, testSequence, blockSize);
+        if (tileIndex != -1) {
+            return (tileIndex, true, false);
+        }
+
+        testSequence.FlipVertical(sequenceSize);
+        tileIndex = Search(pixels, testSequence, blockSize);
+        if (tileIndex != -1) {
+            return (tileIndex, true, true);
+        }
+
+        testSequence.FlipHorizontal(sequenceSize);
+        tileIndex = Search(pixels, testSequence, blockSize);
+        if (tileIndex != -1) {
+            return (tileIndex, false, true);
+        }
+
+        testSequence.FlipVertical(sequenceSize);
+        return (-1, false, false);
     }
 
     private static bool HasSequence(

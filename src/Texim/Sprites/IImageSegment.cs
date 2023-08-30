@@ -35,9 +35,9 @@ public interface IImageSegment : IFormat
 
     int TileIndex { get; set; }
 
-    bool HorizontalFlip { get; }
+    bool HorizontalFlip { get; set; }
 
-    bool VerticalFlip { get; }
+    bool VerticalFlip { get; set; }
 
     byte PaletteIndex { get; }
 }

@@ -17,44 +17,46 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Games.Nitro;
 
-using System.Collections.Generic;
 using Texim.Images;
-using Texim.Pixels;
+using Texim.Sprites;
 
-public record SpriteImageUpdaterParams
+public record FullImage2ReferenceNitroCellParams : FullImage2SpriteParams
 {
     /// <summary>
-    /// Gets the image to update in the sprite.
+    /// Gets the file path (without extension) to write the original
+    /// and new images of layers that don't re-use the original image pixels
+    /// to debug the algorithm.
     /// </summary>
-    public IIndexedImage Image { get; init; }
+    public string DebugNewLayersPath { get; init; }
 
     /// <summary>
-    /// Gets the sequence of tiles the converter will use to search and add
-    /// new pixels if not found.
+    /// Gets a value indicating whether to prioritize new pixels in the
+    /// top layers (e.g. text over clean button) or put then in
+    /// the bottom layers (e.g. top layer is yellow border with transparent body).
     /// </summary>
-    public List<IndexedPixel> PixelSequences { get; init; }
-
-    /// <summary>
-    /// Gets the minimum amount of pixels a sprite segment should have.
-    /// Usually this is the same as <see cref="PixelsPerIndex"/>, except in
-    /// NCER formats where it multiplies by a block size parameter.
-    /// </summary>
-    public int MinimumPixelsPerSegment { get; init; }
-
-    /// <summary>
-    /// Gets the amount of pixels each segment tile index increments.
-    /// Usually this is the tile size (64).
-    /// </summary>
-    public int PixelsPerIndex { get; init; }
+    public bool ImportTopToBottom { get; init; } = true;
 
     /// <summary>
     /// Gets a value indicating whether this sprite supports horizontal and
     /// vertical flipping.
     /// </summary>
-    /// <remarks>
-    /// Some games may not support this feature of the segments.
-    /// </remarks>
-    public bool SupportsFlipping { get; init; }
+    public bool SupportsFlipping { get; init; } = true;
+
+    /// <summary>
+    /// Gets the cell to use to copy the metadata into the new.
+    /// </summary>
+    public Cell ReferenceCell { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether the cell image has the format 8 bits per pixel
+    /// or 4 bits per pixel.
+    /// </summary>
+    public bool Has8bppDepth { get; init; }
+
+    /// <summary>
+    /// Gets the image to update in the sprite.
+    /// </summary>
+    public IIndexedImage Image { get; init; }
 }

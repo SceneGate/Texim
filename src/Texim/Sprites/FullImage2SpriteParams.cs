@@ -66,4 +66,13 @@ public record FullImage2SpriteParams
     /// By default, the one that works for Nintendo DS.
     /// </summary>
     public IImageSegmentation Segmentation { get; init; } = new ImageSegmentation();
+
+    /// <summary>
+    /// Gets a value indicating whether this sprite supports horizontal and
+    /// vertical flipping.
+    /// </summary>
+    /// <remarks>
+    /// Some games may not support this feature of the segments.
+    /// </remarks>
+    public bool SupportsFlipping { get; init; }
 }

@@ -21,6 +21,23 @@ namespace Texim.Sprites;
 
 public class ImageSegment : IImageSegment
 {
+    public ImageSegment()
+    {
+    }
+
+    public ImageSegment(IImageSegment other)
+    {
+        Layer = other.Layer;
+        CoordinateX = other.CoordinateX;
+        CoordinateY = other.CoordinateY;
+        Width = other.Width;
+        Height = other.Height;
+        TileIndex = other.TileIndex;
+        HorizontalFlip = other.HorizontalFlip;
+        VerticalFlip = other.VerticalFlip;
+        PaletteIndex = other.PaletteIndex;
+    }
+
     public int Layer { get; set; }
 
     public int CoordinateX { get; set; }

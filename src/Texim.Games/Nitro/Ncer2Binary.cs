@@ -63,6 +63,7 @@ public class Ncer2Binary : NitroSerializer<Ncer>
         }
 
         if (model.HasCellExtendedInfo) {
+            writer.WritePadding(0, 4);
             uint extendedOffset = (uint)(writer.Stream.Position - sectionPos);
             writer.Stream.PushToPosition(sectionPos + 0x14);
             writer.Write(extendedOffset);

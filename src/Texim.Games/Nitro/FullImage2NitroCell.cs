@@ -22,6 +22,7 @@ namespace Texim.Games.Nitro;
 using System;
 using System.Linq;
 using Texim.Images;
+using Texim.Pixels;
 using Texim.Sprites;
 using Yarhl.FileFormat;
 
@@ -53,13 +54,18 @@ public class FullImage2NitroCell :
             Height = newSprite.Height,
         };
 
-        // Add missing info specific to OAMs.
-        foreach (var segment in newCell.Segments.OfType<ObjectAttributeMemory>()) {
-            segment.PaletteMode = parameters.Has8bppDepth
+        return newCell;
+    }
+
+    protected override IImageSegment AssignImageToSegment(IImageSegment segmentStructure, IndexedPixel[] segmentTiles, byte paletteIndex)
+    {
+        var baseCell = base.AssignImageToSegment(segmentStructure, segmentTiles, paletteIndex);
+        var nitroCell = new ObjectAttributeMemory(baseCell);
+
+        nitroCell.PaletteMode = parameters.Has8bppDepth
                 ? NitroPaletteMode.Palette256x1
                 : NitroPaletteMode.Palette16x16;
-        }
 
-        return newCell;
+        return nitroCell;
     }
 }

@@ -42,6 +42,15 @@ public class ImageSegmentation : IImageSegmentation
     public (Sprite Sprite, FullImage TrimmedImage) Segment(FullImage frame)
     {
         (int startX, int startY, FullImage trimmed) = TrimImage(frame);
+        if (trimmed is null) {
+            var emptySprite = new Sprite {
+                Width = 0,
+                Height = 0,
+                Segments = new Collection<IImageSegment>(),
+            };
+            var emptyImage = new FullImage(0, 0);
+            return (emptySprite, emptyImage);
+        }
 
         var segments = CreateObjects(trimmed, startX, startY, 0, 0, trimmed.Height);
 
@@ -190,6 +199,10 @@ public class ImageSegmentation : IImageSegmentation
         // Get border points to get dimensions
         int xStart = SearchNoTransparentPoint(image, 1);
         int yStart = SearchNoTransparentPoint(image, 0);
+        if (xStart == -1 && yStart == -1) {
+            return (-1, -1, null);
+        }
+
         int width = SearchNoTransparentPoint(image, 2) - xStart + 1;
         int height = SearchNoTransparentPoint(image, 3) - yStart + 1;
 
