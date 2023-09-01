@@ -58,6 +58,9 @@ public class Sprite2IndexedImage :
         (int relativeX, int relativeY) = parameters.RelativeCoordinates switch {
             SpriteRelativeCoordinatesKind.TopLeft => (0, 0),
             SpriteRelativeCoordinatesKind.Center => (source.Width / 2, source.Height / 2),
+            SpriteRelativeCoordinatesKind.Reset =>
+                (-1 * source.Segments.Min(s => s.CoordinateX),
+                -1 * source.Segments.Min(s => s.CoordinateY)),
             _ => throw new FormatException("Unknown relative position"),
         };
 

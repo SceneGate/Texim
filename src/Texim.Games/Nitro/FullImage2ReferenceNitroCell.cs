@@ -190,7 +190,7 @@ public class FullImage2ReferenceNitroCell :
         int startY = segment.CoordinateY + relativeY;
         var subImage = new FullImage(segment.Width, segment.Height);
 
-        CompareNonTransparentPixels nonTransparentComparer = new();
+        CompareNonTransparentPixels transparentComparer = new();
 
         int idx = 0;
         for (int y = 0; y < segment.Height; y++) {
@@ -198,27 +198,34 @@ public class FullImage2ReferenceNitroCell :
                 int segmentIdx = idx;
                 int fullIndex = ((startY + y) * image.Width) + startX + x;
 
+                Rgb referenceSegmentPixel = referenceSegmentImage.Pixels[segmentIdx];
+                Rgb referenceOverlayedPixel = referenceImage.Pixels[segmentIdx];
+                Rgb newOverlayedPixel = image.Pixels[fullIndex];
+
                 int canvasX = x + segment.CoordinateX;
                 int canvasY = y + segment.CoordinateY;
                 if (IsPixelFromTopSegments(canvasX, canvasY, topSegments, segmentsPixelBuffer, pixelsPerIndex)) {
                     // As it's hidden, take the original color
                     // we could also take the one from the image setting alpha to 0
-                    subImage.Pixels[idx++] = referenceSegmentImage.Pixels[segmentIdx];
-                } else if (nonTransparentComparer.Equals(image.Pixels[fullIndex], referenceImage.Pixels[segmentIdx])) {
+                    subImage.Pixels[idx++] = referenceSegmentPixel;
+                } else if (transparentComparer.Equals(newOverlayedPixel, referenceOverlayedPixel)) {
                     // This allows to set it as transparent as the original
                     // in case the color we get from the imported image comes from the bottom layer.
                     // If the overlayed images are same, take the color from drawing only the segment (no overlays)
-                    subImage.Pixels[idx++] = referenceSegmentImage.Pixels[segmentIdx];
+                    subImage.Pixels[idx++] = referenceSegmentPixel;
                 } else if (!parameters.ImportTopToBottom
-                    && referenceImage.Pixels[segmentIdx].Alpha != 0 && referenceSegmentImage.Pixels[segmentIdx].Alpha == 0) {
+                    && referenceOverlayedPixel.Alpha != 0 && referenceSegmentPixel.Alpha == 0) {
                     // If the original pixel with overlays is NOT transparent
                     // but drawing only this segment (without overlays) is transparent.
                     // then the pixel of our image is coming from a bottom layer, so ignore it for now.
                     // BUT this has the side effect that if the NEW top layer has new pixels in transparent areas...
                     // ... they are going to be put in the bottom layer which before was clean...
-                    subImage.Pixels[idx++] = referenceSegmentImage.Pixels[segmentIdx];
+                    subImage.Pixels[idx++] = referenceSegmentPixel;
+                // } else if (newOverlayedPixel == bottomLayerPixel) { // then... transparent
+                // check if our pixel is identical to the first bottom non transparent layer from original
+                // then, we set it to transparent and we will take it later (bottom first)
                 } else {
-                    subImage.Pixels[idx++] = image.Pixels[fullIndex];
+                    subImage.Pixels[idx++] = newOverlayedPixel;
                 }
 
                 // Set processed pixels as transparent
