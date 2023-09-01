@@ -17,6 +17,7 @@
     <PackageReference Include="Yarhl" />
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="BitMiracle.LibTiff.NET" />
   </ItemGroup>
 
 </Project>

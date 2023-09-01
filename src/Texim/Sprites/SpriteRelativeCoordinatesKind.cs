@@ -23,4 +23,5 @@ public enum SpriteRelativeCoordinatesKind
 {
     TopLeft,
     Center,
+    Reset,
 }
