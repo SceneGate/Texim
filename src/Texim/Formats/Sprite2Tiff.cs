@@ -28,7 +28,7 @@ using Texim.Colors;
 using Texim.Sprites;
 using Yarhl.FileFormat;
 
-public class Sprite2Tiff<T> : IConverter<ISprite, TiffImage>
+public class Sprite2Tiff : IConverter<ISprite, TiffImage>
 {
     private readonly Sprite2TiffParams parameters;
 

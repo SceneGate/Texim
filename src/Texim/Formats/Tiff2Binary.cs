@@ -42,10 +42,6 @@ public class Tiff2Binary : IConverter<TiffImage, BinaryFormat>
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        if (!source.MainImage?.IsIndexed ?? false) {
-            throw new FormatException("Invalid pixel format");
-        }
-
         var memoryStream = new MemoryStream();
         var tiff = Tiff.ClientOpen("output", "w", memoryStream, new TiffStream());
 
@@ -110,7 +106,7 @@ public class Tiff2Binary : IConverter<TiffImage, BinaryFormat>
         Assert(tiff.SetField(TiffTag.YRESOLUTION, 100.0));
         Assert(tiff.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.INCH));
         Assert(tiff.SetField(TiffTag.PHOTOMETRIC, Photometric.PALETTE));
-        Assert(tiff.SetField(TiffTag.EXTRASAMPLES, 1, (short)ExtraSample.UNASSALPHA));
+        Assert(tiff.SetField(TiffTag.EXTRASAMPLES, 1, new short[] { (short)ExtraSample.UNASSALPHA }));
 
         Assert(tiff.SetField(TiffTag.XPOSITION, page.X / 100.0));
         Assert(tiff.SetField(TiffTag.YPOSITION, page.Y / 100.0));
@@ -153,7 +149,7 @@ public class Tiff2Binary : IConverter<TiffImage, BinaryFormat>
         Assert(tiff.SetField(TiffTag.XRESOLUTION, 100.0));
         Assert(tiff.SetField(TiffTag.YRESOLUTION, 100.0));
         Assert(tiff.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.INCH));
-        Assert(tiff.SetField(TiffTag.EXTRASAMPLES, 1, (short)ExtraSample.UNASSALPHA));
+        Assert(tiff.SetField(TiffTag.EXTRASAMPLES, 1, new short[] { (short)ExtraSample.UNASSALPHA }));
         Assert(tiff.SetField(TiffTag.PHOTOMETRIC, Photometric.RGB));
 
         Assert(tiff.SetField(TiffTag.XPOSITION, page.X / 100.0));
@@ -192,7 +188,7 @@ public class Tiff2Binary : IConverter<TiffImage, BinaryFormat>
         Assert(tiff.SetField(TiffTag.XRESOLUTION, 100.0));
         Assert(tiff.SetField(TiffTag.YRESOLUTION, 100.0));
         Assert(tiff.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.INCH));
-        Assert(tiff.SetField(TiffTag.EXTRASAMPLES, 1, (short)ExtraSample.UNASSALPHA));
+        Assert(tiff.SetField(TiffTag.EXTRASAMPLES, 1, new short[] { (short)ExtraSample.UNASSALPHA }));
 
         Assert(tiff.SetField(TiffTag.XPOSITION, 0 / 100.0));
         Assert(tiff.SetField(TiffTag.YPOSITION, 0 / 100.0));
