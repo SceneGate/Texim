@@ -29,10 +29,14 @@ using Texim.Pixels;
 using Yarhl.FileFormat;
 using Yarhl.IO;
 
-public class IndexedTiffImage2Binary : IConverter<TiffImage, BinaryFormat>
+public class Tiff2Binary : IConverter<TiffImage, BinaryFormat>
 {
-    private const int SamplesPerPixel = 2; // palette index + alpha
-    private const int BitsPerSample = 8; // 8-bits per palette idx (max 256 colors in palette)
+    private const int IndexedSamplesPerPixel = 2; // palette index + alpha
+    private const int RgbaSamplesPerPixel = 4; // red, green, blue and alpha
+
+    // 8-bits per palette idx (max 256 colors in palette)
+    // or 256 values per component max.
+    private const int BitsPerSample = 8;
 
     public BinaryFormat Convert(TiffImage source)
     {
@@ -47,10 +51,15 @@ public class IndexedTiffImage2Binary : IConverter<TiffImage, BinaryFormat>
 
         int outputPages = source.Pages.Count + 1;
         foreach (TiffPage page in source.Pages) {
-            WritePage(tiff, page, outputPages);
+            if (page.IsIndexed) {
+                WriteIndexedPage(tiff, page, outputPages);
+            } else {
+                WriteRgbPage(tiff, page, outputPages);
+            }
         }
 
-        WriteBgPage(tiff, source.MainImage.Width, source.MainImage.Height, outputPages);
+        bool isIndexed = source.Pages.Any(p => p.IsIndexed);
+        WriteBgPage(tiff, isIndexed, source.MainImage.ColorMap, source.MainImage.Width, source.MainImage.Height, outputPages);
 
         _ = tiff.Flush();
 
@@ -74,10 +83,10 @@ public class IndexedTiffImage2Binary : IConverter<TiffImage, BinaryFormat>
         }
     }
 
-    private void WriteColorMap(Tiff tiff, Rgb[] colorMap)
+    private static void WriteColorMap(Tiff tiff, Rgb[] colorMap)
     {
         // The colormap size must mach 1 << bitsPerSample
-        int requiredColors = 1 << BitsPerSample;
+        const int requiredColors = 1 << BitsPerSample;
         int missingColors = requiredColors - colorMap.Length;
         Rgb[] tiffColorMap = colorMap.Concat(new Rgb[missingColors]).ToArray();
 
@@ -88,11 +97,11 @@ public class IndexedTiffImage2Binary : IConverter<TiffImage, BinaryFormat>
             tiffColorMap.Select(c => MapTo16Bits(c.Blue)).ToArray()));
     }
 
-    private void WritePage(Tiff tiff, TiffPage page, int totalPages)
+    private static void WriteIndexedPage(Tiff tiff, TiffPage page, int totalPages)
     {
         Assert(tiff.SetField(TiffTag.IMAGEWIDTH, page.Width));
         Assert(tiff.SetField(TiffTag.IMAGELENGTH, page.Height));
-        Assert(tiff.SetField(TiffTag.SAMPLESPERPIXEL, SamplesPerPixel));
+        Assert(tiff.SetField(TiffTag.SAMPLESPERPIXEL, IndexedSamplesPerPixel));
         Assert(tiff.SetField(TiffTag.BITSPERSAMPLE, BitsPerSample));
         Assert(tiff.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT));
         Assert(tiff.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG));
@@ -113,7 +122,7 @@ public class IndexedTiffImage2Binary : IConverter<TiffImage, BinaryFormat>
         // so this method will write all palettes as a single one always.
         WriteColorMap(tiff, page.ColorMap);
 
-        byte[] buffer = new byte[SamplesPerPixel * page.Width];
+        byte[] buffer = new byte[IndexedSamplesPerPixel * page.Width];
         for (int h = 0; h < page.Height; h++) {
             for (int w = 0; w < page.Width; w++) {
                 int idx = w + (h * page.Width);
@@ -122,8 +131,8 @@ public class IndexedTiffImage2Binary : IConverter<TiffImage, BinaryFormat>
                 int indexInBigPalette = pixel.Index + (pixel.PaletteIndex * 16);
                 byte alpha = (pixel.Index == 0) ? (byte)0 : pixel.Alpha;
 
-                buffer[w * SamplesPerPixel] = (byte)indexInBigPalette;
-                buffer[(w * SamplesPerPixel) + 1] = alpha;
+                buffer[w * IndexedSamplesPerPixel] = (byte)indexInBigPalette;
+                buffer[(w * IndexedSamplesPerPixel) + 1] = alpha;
             }
 
             Assert(tiff.WriteScanline(buffer, h));
@@ -132,11 +141,50 @@ public class IndexedTiffImage2Binary : IConverter<TiffImage, BinaryFormat>
         Assert(tiff.WriteDirectory());
     }
 
-    private void WriteBgPage(Tiff tiff, int width, int height, int totalPages)
+    private static void WriteRgbPage(Tiff tiff, TiffPage page, int totalPages)
     {
+        Assert(tiff.SetField(TiffTag.IMAGEWIDTH, page.Width));
+        Assert(tiff.SetField(TiffTag.IMAGELENGTH, page.Height));
+        Assert(tiff.SetField(TiffTag.SAMPLESPERPIXEL, RgbaSamplesPerPixel));
+        Assert(tiff.SetField(TiffTag.BITSPERSAMPLE, BitsPerSample));
+        Assert(tiff.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT));
+        Assert(tiff.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG));
+        Assert(tiff.SetField(TiffTag.ROWSPERSTRIP, tiff.DefaultStripSize(0)));
+        Assert(tiff.SetField(TiffTag.XRESOLUTION, 100.0));
+        Assert(tiff.SetField(TiffTag.YRESOLUTION, 100.0));
+        Assert(tiff.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.INCH));
+        Assert(tiff.SetField(TiffTag.EXTRASAMPLES, 1, (short)ExtraSample.UNASSALPHA));
+        Assert(tiff.SetField(TiffTag.PHOTOMETRIC, Photometric.RGB));
+
+        Assert(tiff.SetField(TiffTag.XPOSITION, page.X / 100.0));
+        Assert(tiff.SetField(TiffTag.YPOSITION, page.Y / 100.0));
+        Assert(tiff.SetField(TiffTag.SUBFILETYPE, FileType.PAGE));
+        Assert(tiff.SetField(TiffTag.PAGENUMBER, page.Id, totalPages));
+        Assert(tiff.SetField(TiffTag.PAGENAME, Encoding.ASCII.GetBytes($"Segment {page.Id}")));
+
+        byte[] buffer = new byte[RgbaSamplesPerPixel * page.Width];
+        for (int h = 0; h < page.Height; h++) {
+            for (int w = 0; w < page.Width; w++) {
+                int idx = w + (h * page.Width);
+                buffer[w * RgbaSamplesPerPixel] = page.RgbPixels[idx].Red;
+                buffer[(w * RgbaSamplesPerPixel) + 1] = page.RgbPixels[idx].Green;
+                buffer[(w * RgbaSamplesPerPixel) + 2] = page.RgbPixels[idx].Blue;
+                buffer[(w * RgbaSamplesPerPixel) + 3] = page.RgbPixels[idx].Alpha;
+            }
+
+            Assert(tiff.WriteScanline(buffer, h));
+        }
+
+        Assert(tiff.WriteDirectory());
+    }
+
+    private static void WriteBgPage(Tiff tiff, bool isIndexed, Rgb[] palette, int width, int height, int totalPages)
+    {
+        int samplesPerPixel = isIndexed ? IndexedSamplesPerPixel : RgbaSamplesPerPixel;
+
         Assert(tiff.SetField(TiffTag.IMAGEWIDTH, width));
         Assert(tiff.SetField(TiffTag.IMAGELENGTH, height));
-        Assert(tiff.SetField(TiffTag.SAMPLESPERPIXEL, SamplesPerPixel));
+        Assert(tiff.SetField(TiffTag.SAMPLESPERPIXEL, samplesPerPixel));
         Assert(tiff.SetField(TiffTag.BITSPERSAMPLE, BitsPerSample));
         Assert(tiff.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT));
         Assert(tiff.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG));
@@ -152,10 +200,14 @@ public class IndexedTiffImage2Binary : IConverter<TiffImage, BinaryFormat>
         Assert(tiff.SetField(TiffTag.PAGENUMBER, totalPages - 1, totalPages));
         Assert(tiff.SetField(TiffTag.PAGENAME, Encoding.ASCII.GetBytes("Background - IGNORED")));
 
-        Assert(tiff.SetField(TiffTag.PHOTOMETRIC, Photometric.PALETTE));
-        WriteColorMap(tiff, new Rgb[] { new Rgb(0, 0, 0) });
+        if (isIndexed) {
+            Assert(tiff.SetField(TiffTag.PHOTOMETRIC, Photometric.PALETTE));
+            WriteColorMap(tiff, palette);
+        } else {
+            Assert(tiff.SetField(TiffTag.PHOTOMETRIC, Photometric.RGB));
+        }
 
-        byte[] buffer = new byte[SamplesPerPixel * width];
+        byte[] buffer = new byte[samplesPerPixel * width];
         for (int h = 0; h < height; h++) {
             Assert(tiff.WriteScanline(buffer, h));
         }

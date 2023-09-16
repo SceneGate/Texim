@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using Texim.Colors;
 using Texim.Sprites;
 using Yarhl.FileFormat;
 
@@ -91,6 +92,8 @@ public class Sprite2Tiff<T> : IConverter<ISprite, TiffImage>
             RelativeCoordinates = SpriteRelativeCoordinatesKind.Reset,
         });
 
+        Rgb[] fullPalette = parameters.Palettes.Palettes.SelectMany(p => p.Colors).ToArray();
+
         var tiff = new TiffImage();
         for (int i = 0; i < segmentGroups.Count; i++) {
             var layerSprite = new Sprite {
@@ -111,7 +114,7 @@ public class Sprite2Tiff<T> : IConverter<ISprite, TiffImage>
 
             if (parameters.ExportAsIndexedImage) {
                 page.IndexedPixels = layerIndexedImage.Pixels;
-                page.ColorMap = parameters.Palettes.Palettes[segmentGroups[i].Segments[0].PaletteIndex].Colors.ToArray();
+                page.ColorMap = fullPalette;
             } else {
                 page.RgbPixels = layerIndexedImage.CreateFullImage(parameters.Palettes).Pixels;
             }
