@@ -21,9 +21,14 @@ namespace Texim.Formats;
 
 using System.Collections.ObjectModel;
 using System.Linq;
+using Yarhl.FileFormat;
 
-public class TiffImage
+public class TiffImage : IFormat
 {
+    public int CanvasWidth { get; set; }
+
+    public int CanvasHeight { get; set; }
+
     public TiffPage MainImage => Pages.FirstOrDefault();
 
     public Collection<TiffPage> Pages { get; init; } = new();

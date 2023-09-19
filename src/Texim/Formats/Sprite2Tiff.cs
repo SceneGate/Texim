@@ -95,6 +95,9 @@ public class Sprite2Tiff : IConverter<ISprite, TiffImage>
         Rgb[] fullPalette = parameters.Palettes.Palettes.SelectMany(p => p.Colors).ToArray();
 
         var tiff = new TiffImage();
+        tiff.CanvasWidth = source.Width;
+        tiff.CanvasHeight = source.Height;
+
         for (int i = 0; i < segmentGroups.Count; i++) {
             var layerSprite = new Sprite {
                 Width = segmentGroups[i].Bounds.Width,

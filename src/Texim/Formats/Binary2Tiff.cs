@@ -20,6 +20,7 @@
 namespace Texim.Formats;
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using BitMiracle.LibTiff.Classic;
 using Texim.Colors;
@@ -38,21 +39,28 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
         using var tiff = Tiff.ClientOpen("sprite", "r", source.Stream, new TiffStream());
         var image = new TiffImage();
 
+        var pages = new List<TiffPage>();
         do {
             byte[] encodedName = tiff.GetFieldDefaulted(TiffTag.PAGENAME)?[0].GetBytes();
             if (encodedName is not null && Encoding.ASCII.GetString(encodedName) == BackgroundName) {
+                image.CanvasWidth = GetFieldSingle(tiff, TiffTag.IMAGEWIDTH).ToInt();
+                image.CanvasHeight = GetFieldSingle(tiff, TiffTag.IMAGELENGTH).ToInt();
                 continue;
             }
 
             object pixelsType = tiff.GetField(TiffTag.PHOTOMETRIC)[0].Value;
             if (pixelsType is Photometric.PALETTE) {
-                image.Pages.Add(ReadIndexedPage(tiff));
+                pages.Add(ReadIndexedPage(tiff));
             } else if (pixelsType is Photometric.RGB) {
-                image.Pages.Add(ReadRgbPage(tiff));
+                pages.Add(ReadRgbPage(tiff));
             } else {
                 throw new FormatException($"Pixel type not supported: {pixelsType}");
             }
         } while (tiff.ReadDirectory());
+
+        // TIF layers are reversed from our standard.
+        pages.Reverse();
+        image.Pages.Add(pages);
 
         return image;
     }
@@ -92,8 +100,9 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
             throw new NotSupportedException($"Invalid bits per sample: {bitsPerSample}");
         }
 
-        object extraSamples = GetFieldSingle(tiff, TiffTag.EXTRASAMPLES).Value;
-        if (extraSamples is not ExtraSample.UNASSALPHA) {
+        FieldValue[] extraSamples = tiff.GetField(TiffTag.EXTRASAMPLES)
+            ?? throw new FormatException("Expected to find field EXTRASAMPLES");
+        if (extraSamples.Length != 2 && extraSamples[0].ToInt() != 1 && extraSamples[1].Value is not ExtraSample.UNASSALPHA) {
             throw new NotSupportedException($"Invalid extra samples: {extraSamples}");
         }
 
@@ -107,13 +116,13 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
             throw new NotSupportedException($"Planar not supported: {planar}");
         }
 
-        int xRes = GetFieldSingle(tiff, TiffTag.XRESOLUTION).ToInt();
-        int xPos = GetFieldSingle(tiff, TiffTag.XPOSITION).ToInt();
-        page.X = xPos * xRes;
+        float xRes = GetFieldSingle(tiff, TiffTag.XRESOLUTION).ToFloat();
+        float xPos = GetFieldSingle(tiff, TiffTag.XPOSITION).ToFloat();
+        page.X = (int)(xPos * xRes);
 
-        int yRes = GetFieldSingle(tiff, TiffTag.YRESOLUTION).ToInt();
-        int yPos = GetFieldSingle(tiff, TiffTag.YPOSITION).ToInt();
-        page.Y = yPos * yRes;
+        float yRes = GetFieldSingle(tiff, TiffTag.YRESOLUTION).ToFloat();
+        float yPos = GetFieldSingle(tiff, TiffTag.YPOSITION).ToFloat();
+        page.Y = (int)(yPos * yRes);
 
         page.IsIndexed = false;
         page.RgbPixels = new Rgb[page.Width * page.Height];
@@ -152,8 +161,9 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
             throw new NotSupportedException($"Invalid bits per sample: {bitsPerSample}");
         }
 
-        object extraSamples = GetFieldSingle(tiff, TiffTag.EXTRASAMPLES).Value;
-        if (extraSamples is not ExtraSample.UNASSALPHA) {
+        FieldValue[] extraSamples = tiff.GetField(TiffTag.EXTRASAMPLES)
+            ?? throw new FormatException("Expected to find field EXTRASAMPLES");
+        if (extraSamples.Length != 2 && extraSamples[0].ToInt() != 1 && extraSamples[1].Value is not ExtraSample.UNASSALPHA) {
             throw new NotSupportedException($"Invalid extra samples: {extraSamples}");
         }
 
@@ -167,13 +177,13 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
             throw new NotSupportedException($"Planar not supported: {planar}");
         }
 
-        int xRes = GetFieldSingle(tiff, TiffTag.XRESOLUTION).ToInt();
-        int xPos = GetFieldSingle(tiff, TiffTag.XPOSITION).ToInt();
-        page.X = xPos * xRes;
+        float xRes = GetFieldSingle(tiff, TiffTag.XRESOLUTION).ToFloat();
+        float xPos = GetFieldSingle(tiff, TiffTag.XPOSITION).ToFloat();
+        page.X = (int)(xPos * xRes);
 
-        int yRes = GetFieldSingle(tiff, TiffTag.YRESOLUTION).ToInt();
-        int yPos = GetFieldSingle(tiff, TiffTag.YPOSITION).ToInt();
-        page.Y = yPos * yRes;
+        float yRes = GetFieldSingle(tiff, TiffTag.YRESOLUTION).ToFloat();
+        float yPos = GetFieldSingle(tiff, TiffTag.YPOSITION).ToFloat();
+        page.Y = (int)(yPos * yRes);
 
         page.IsIndexed = true;
         page.IndexedPixels = new IndexedPixel[page.Width * page.Height];

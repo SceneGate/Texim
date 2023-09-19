@@ -55,7 +55,7 @@ public class Tiff2Binary : IConverter<TiffImage, BinaryFormat>
         }
 
         bool isIndexed = source.Pages.Any(p => p.IsIndexed);
-        WriteBgPage(tiff, isIndexed, source.MainImage.ColorMap, source.MainImage.Width, source.MainImage.Height, outputPages);
+        WriteBgPage(tiff, isIndexed, source.MainImage.ColorMap, source.CanvasWidth, source.CanvasHeight, outputPages);
 
         _ = tiff.Flush();
 
