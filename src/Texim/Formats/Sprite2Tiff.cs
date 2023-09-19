@@ -118,6 +118,7 @@ public class Sprite2Tiff : IConverter<ISprite, TiffImage>
             if (parameters.ExportAsIndexedImage) {
                 page.IndexedPixels = layerIndexedImage.Pixels;
                 page.ColorMap = fullPalette;
+                page.IsIndexed = true;
             } else {
                 page.RgbPixels = layerIndexedImage.CreateFullImage(parameters.Palettes).Pixels;
             }

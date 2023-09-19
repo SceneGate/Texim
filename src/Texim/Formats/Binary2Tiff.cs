@@ -206,8 +206,8 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
         }
 
         short[] reds = colorMapFields[0].ToShortArray();
-        short[] blues = colorMapFields[0].ToShortArray();
-        short[] greens = colorMapFields[0].ToShortArray();
+        short[] blues = colorMapFields[1].ToShortArray();
+        short[] greens = colorMapFields[2].ToShortArray();
         page.ColorMap = new Rgb[reds.Length];
         for (int i = 0; i < reds.Length; i++) {
             page.ColorMap[i] = new Rgb(
@@ -221,7 +221,7 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
 
     private static byte MapTo8Bits(int num)
     {
-        const int maxRangeCurrent = short.MaxValue;
+        const int maxRangeCurrent = ushort.MaxValue;
         const uint maxRangeNext = byte.MaxValue;
 
         num &= maxRangeCurrent;
