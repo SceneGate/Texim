@@ -32,12 +32,32 @@ public class FullImage2NitroCell :
 {
     private FullImage2NitroCellParams parameters;
 
+    private int rotationScalingGroup;
+    private bool hasDoubleSize;
+    private bool isDisabled;
+    private bool isMosaic;
+    private ObjectAttributeMemoryMode memoryMode;
+
     public void Initialize(FullImage2NitroCellParams parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
         this.parameters = parameters;
         base.Initialize(parameters);
+
+        // We can only guess the original metadata if every original OAMs have it
+        // otherwise, as original and new OAMs may differ, it's hard to know.
+        var originalOams = parameters.ReferenceCell.Segments.Cast<ObjectAttributeMemory>().ToArray();
+        rotationScalingGroup = originalOams.DistinctBy(o => o.RotationOrScalingGroup).Count() == 1
+            ? originalOams[0].RotationOrScalingGroup : -1;
+        hasDoubleSize = originalOams.DistinctBy(obj => obj.HasDoubleSize).Count() == 1
+            && originalOams[0].HasDoubleSize;
+        isDisabled = originalOams.DistinctBy(obj => obj.IsDisabled).Count() == 1
+            && originalOams[0].IsDisabled;
+        isMosaic = originalOams.DistinctBy(obj => obj.IsMosaic).Count() == 1
+            && originalOams[0].IsMosaic;
+        memoryMode = originalOams.DistinctBy(o => o.Mode).Count() == 1
+            ? originalOams[0].Mode : ObjectAttributeMemoryMode.Normal;
     }
 
     public override ISprite Convert(FullImage source)
@@ -65,6 +85,13 @@ public class FullImage2NitroCell :
         nitroCell.PaletteMode = parameters.Has8bppDepth
                 ? NitroPaletteMode.Palette256x1
                 : NitroPaletteMode.Palette16x16;
+
+        nitroCell.RotationOrScalingGroup = (rotationScalingGroup != -1) ? (byte)rotationScalingGroup : (byte)0;
+        nitroCell.HasRotationOrScaling = rotationScalingGroup != -1;
+        nitroCell.HasDoubleSize = hasDoubleSize;
+        nitroCell.IsMosaic = isMosaic;
+        nitroCell.IsDisabled = isDisabled;
+        nitroCell.Mode = memoryMode;
 
         return nitroCell;
     }
