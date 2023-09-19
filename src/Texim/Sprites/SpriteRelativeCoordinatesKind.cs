@@ -19,6 +19,9 @@
 // SOFTWARE.
 namespace Texim.Sprites;
 
+using System;
+
+[Obsolete("Use always 0,0 for simplicity")]
 public enum SpriteRelativeCoordinatesKind
 {
     TopLeft,

@@ -25,9 +25,9 @@ public interface IImageSegment : IFormat
 {
     int Layer { get; }
 
-    int CoordinateX { get; }
+    int CoordinateX { get; set; }
 
-    int CoordinateY { get; }
+    int CoordinateY { get; set; }
 
     int Width { get; }
 

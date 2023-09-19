@@ -44,10 +44,13 @@ public class NitroImageSegmentation : IImageSegmentation
 
     public int CanvasHeight { get; set; } = 256;
 
+    public bool SkipTrimming { get; set; }
+
+    public SpriteRelativeCoordinatesKind RelativeCoordinates { get; set; } = SpriteRelativeCoordinatesKind.Center;
+
     public (Sprite Sprite, FullImage TrimmedImage) Segment(FullImage frame)
     {
-        (int startX, int startY, FullImage trimmed) = TrimImage(frame);
-        if (trimmed is null) {
+        if (SearchNoTransparentPoint(frame, 0) == -1) {
             var emptySprite = new Sprite {
                 Width = 0,
                 Height = 0,
@@ -57,15 +60,23 @@ public class NitroImageSegmentation : IImageSegmentation
             return (emptySprite, emptyImage);
         }
 
-        var segments = CreateObjects(trimmed, startX, startY, 0, 0, trimmed.Height);
+        FullImage objImage;
+        int startX = 0, startY = 0;
+        if (SkipTrimming) {
+            objImage = frame;
+        } else {
+            (startX, startY, objImage) = TrimImage(frame);
+        }
+
+        var segments = CreateObjects(objImage, startX, startY, 0, 0, objImage.Height);
 
         // Return new frame
         var sprite = new Sprite {
             Segments = new Collection<IImageSegment>(segments),
-            Width = trimmed.Width,
-            Height = trimmed.Height,
+            Width = objImage.Width,
+            Height = objImage.Height,
         };
-        return (sprite, trimmed);
+        return (sprite, objImage);
     }
 
     private List<IImageSegment> CreateObjects(FullImage frame, int startX, int startY, int x, int y, int maxHeight)
@@ -73,11 +84,15 @@ public class NitroImageSegmentation : IImageSegmentation
         var segments = new List<IImageSegment>();
 
         // Go to first non-transparent pixel
-        int newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
-        int newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
+        int newX = x, newY = y;
+        if (!SkipTrimming) {
+            newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
+            newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
 
-        if (newY == -1 || newX == -1) {
-            return segments;
+            // Only transparent pixels at this point.
+            if (newY == -1 || newX == -1) {
+                return segments;
+            }
         }
 
         int diffX = newX - x;
@@ -88,16 +103,26 @@ public class NitroImageSegmentation : IImageSegmentation
         diffY -= diffY % 8;
         y = diffY + y;
 
+        // Reach the end of the image
+        if (startX + x == frame.Width && startY + y == frame.Height) {
+            return segments;
+        }
+
         (int width, int height) = GetObjectSize(frame, x, y, frame.Width, maxHeight - diffY);
 
         if (width != 0 && height != 0) {
             var segment = new ImageSegment {
-                CoordinateX = startX + x - (CanvasWidth / 2),
-                CoordinateY = startY + y - (CanvasHeight / 2),
+                CoordinateX = startX + x,
+                CoordinateY = startY + y,
                 Width = width,
                 Height = height,
                 Layer = 0,
             };
+            if (RelativeCoordinates == SpriteRelativeCoordinatesKind.Center) {
+                segment.CoordinateX -= CanvasWidth / 2;
+                segment.CoordinateY -= CanvasHeight / 2;
+            }
+
             segments.Add(segment);
         } else {
             // If everything is transparent
