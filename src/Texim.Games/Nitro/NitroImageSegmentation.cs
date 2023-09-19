@@ -31,8 +31,11 @@ using Texim.Sprites;
 /// </summary>
 public class NitroImageSegmentation : IImageSegmentation
 {
+    // We define two modes but only use the second one so far (75% non-transparent)
+    // For each mode there is a list of tries for width and height.
     // First value is the limit and the second is the side.
     // From limit to side there must be non-transparent pixels to set it.
+    // So that it's worthier a bigger cell than two small ones.
     private static readonly int[][,] Modes = {
         new int[,] { { 32, 64 }, { 16, 32 }, { 8, 16 }, { 0, 8 } }, // 50%
         new int[,] { { 48, 64 }, { 24, 32 }, { 8, 16 }, { 0, 8 } }, // 75%
@@ -108,7 +111,15 @@ public class NitroImageSegmentation : IImageSegmentation
             return segments;
         }
 
-        (int width, int height) = GetObjectSize(frame, x, y, frame.Width, maxHeight - diffY);
+        int width, height;
+
+        // If our cell is already valid, do not split further.
+        if (IsValidSize(frame.Width, maxHeight - diffY)) {
+            width = frame.Width;
+            height = maxHeight - diffY;
+        } else {
+            (width, height) = GetObjectSize(frame, x, y, frame.Width, maxHeight - diffY);
+        }
 
         if (width != 0 && height != 0) {
             var segment = new ImageSegment {
@@ -205,23 +216,27 @@ public class NitroImageSegmentation : IImageSegmentation
         Justification = "Readability of the algorithm")]
     private static bool IsValidSize(int width, int height)
     {
-        if (width < 0 || width > 64 || width % 8 != 0) {
-            return false;
-        }
+        return (width, height) switch {
+            // Square mode
+            (8, 8) => true,
+            (16, 16) => true,
+            (32, 32) => true,
+            (64, 64) => true,
 
-        if (height < 0 || height > 64 || height % 8 != 0) {
-            return false;
-        }
+            // Rectangle horizontal
+            (16, 8) => true,
+            (32, 8) => true,
+            (32, 16) => true,
+            (64, 32) => true,
 
-        if (width == 64 && (height == 8 || height == 16)) {
-            return false;
-        }
+            // Rectangle vertical
+            (8, 16) => true,
+            (8, 32) => true,
+            (16, 32) => true,
+            (32, 64) => true,
 
-        if ((width == 8 || width == 16) && height == 64) {
-            return false;
-        }
-
-        return true;
+            _ => false,
+        };
     }
 
     private static (int X, int Y, FullImage Trimmed) TrimImage(FullImage image)

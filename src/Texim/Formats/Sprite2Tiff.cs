@@ -136,12 +136,12 @@ public class Sprite2Tiff : IConverter<ISprite, TiffImage>
             return false;
         }
 
-        var segmentBounds = new Rectangle(segment.CoordinateX, segment.CoordinateY, segment.Width, segment.Height);
-        if (IntersectsWithLayer(segment)) {
+        var segmentBounds = CreateRectangle(segment);
+        if (IntersectsWithLayer(segmentBounds)) {
             return false;
         }
 
-        if (!IsAdjacentWithLayer(segment)) {
+        if (!IsAdjacentWithLayer(segmentBounds)) {
             return false;
         }
 
@@ -156,21 +156,28 @@ public class Sprite2Tiff : IConverter<ISprite, TiffImage>
         return true;
     }
 
-    private bool IntersectsWithLayer(IImageSegment segment)
+    private bool IntersectsWithLayer(Rectangle segmentBounds)
     {
-        var segmentBounds = CreateRectangle(segment);
         return layerSegments.Exists(s => CreateRectangle(s).IntersectsWith(segmentBounds));
     }
 
-    private bool IsAdjacentWithLayer(IImageSegment segment)
+    private bool IsAdjacentWithLayer(Rectangle segmentBounds)
     {
-        static bool IsAdjacent(Rectangle rect1, Rectangle rect2) =>
-            (rect1.Left == rect2.Right)
-            || (rect1.Top == rect2.Bottom)
-            || (rect1.Right == rect2.Left)
-            || (rect1.Bottom == rect2.Top);
+        static bool IsAdjacent(Rectangle rect1, Rectangle rect2)
+        {
+            if ((rect1.Left == rect2.Right) || (rect1.Right == rect2.Left)) {
+                return ((rect1.Top <= rect2.Top) && (rect1.Bottom >= rect2.Bottom)) ||
+                    ((rect2.Top <= rect1.Top) && (rect2.Bottom >= rect1.Bottom));
+            }
 
-        var segmentBounds = CreateRectangle(segment);
+            if ((rect1.Top == rect2.Bottom) || (rect1.Bottom == rect2.Top)) {
+                return ((rect1.Left <= rect2.Left) && (rect1.Right >= rect2.Right)) ||
+                    ((rect2.Left <= rect1.Left) && (rect2.Right >= rect1.Right));
+            }
+
+            return false;
+        }
+
         return layerSegments.Exists(s => IsAdjacent(CreateRectangle(s), segmentBounds));
     }
 }

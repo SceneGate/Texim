@@ -32,7 +32,8 @@ public class FullImage2NitroCell :
 {
     private FullImage2NitroCellParams parameters;
 
-    private int rotationScalingGroup;
+    private bool hasRotationScaling;
+    private byte rotationScalingGroup;
     private bool hasDoubleSize;
     private bool isDisabled;
     private bool isMosaic;
@@ -48,8 +49,10 @@ public class FullImage2NitroCell :
         // We can only guess the original metadata if every original OAMs have it
         // otherwise, as original and new OAMs may differ, it's hard to know.
         var originalOams = parameters.ReferenceCell.Segments.Cast<ObjectAttributeMemory>().ToArray();
+        hasRotationScaling = originalOams.DistinctBy(o => o.HasRotationOrScaling).Count() == 1
+            && originalOams[0].HasRotationOrScaling;
         rotationScalingGroup = originalOams.DistinctBy(o => o.RotationOrScalingGroup).Count() == 1
-            ? originalOams[0].RotationOrScalingGroup : -1;
+            ? originalOams[0].RotationOrScalingGroup : (byte)0;
         hasDoubleSize = originalOams.DistinctBy(obj => obj.HasDoubleSize).Count() == 1
             && originalOams[0].HasDoubleSize;
         isDisabled = originalOams.DistinctBy(obj => obj.IsDisabled).Count() == 1
@@ -86,8 +89,8 @@ public class FullImage2NitroCell :
                 ? NitroPaletteMode.Palette256x1
                 : NitroPaletteMode.Palette16x16;
 
-        nitroCell.RotationOrScalingGroup = (rotationScalingGroup != -1) ? (byte)rotationScalingGroup : (byte)0;
-        nitroCell.HasRotationOrScaling = rotationScalingGroup != -1;
+        nitroCell.HasRotationOrScaling = hasRotationScaling;
+        nitroCell.RotationOrScalingGroup = rotationScalingGroup;
         nitroCell.HasDoubleSize = hasDoubleSize;
         nitroCell.IsMosaic = isMosaic;
         nitroCell.IsDisabled = isDisabled;
