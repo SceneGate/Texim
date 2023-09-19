@@ -31,8 +31,11 @@ using Texim.Sprites;
 /// </summary>
 public class NitroImageSegmentation : IImageSegmentation
 {
+    // We define two modes but only use the second one so far (75% non-transparent)
+    // For each mode there is a list of tries for width and height.
     // First value is the limit and the second is the side.
     // From limit to side there must be non-transparent pixels to set it.
+    // So that it's worthier a bigger cell than two small ones.
     private static readonly int[][,] Modes = {
         new int[,] { { 32, 64 }, { 16, 32 }, { 8, 16 }, { 0, 8 } }, // 50%
         new int[,] { { 48, 64 }, { 24, 32 }, { 8, 16 }, { 0, 8 } }, // 75%
@@ -44,10 +47,13 @@ public class NitroImageSegmentation : IImageSegmentation
 
     public int CanvasHeight { get; set; } = 256;
 
+    public bool SkipTrimming { get; set; }
+
+    public SpriteRelativeCoordinatesKind RelativeCoordinates { get; set; } = SpriteRelativeCoordinatesKind.Center;
+
     public (Sprite Sprite, FullImage TrimmedImage) Segment(FullImage frame)
     {
-        (int startX, int startY, FullImage trimmed) = TrimImage(frame);
-        if (trimmed is null) {
+        if (SearchNoTransparentPoint(frame, 0) == -1) {
             var emptySprite = new Sprite {
                 Width = 0,
                 Height = 0,
@@ -57,15 +63,23 @@ public class NitroImageSegmentation : IImageSegmentation
             return (emptySprite, emptyImage);
         }
 
-        var segments = CreateObjects(trimmed, startX, startY, 0, 0, trimmed.Height);
+        FullImage objImage;
+        int startX = 0, startY = 0;
+        if (SkipTrimming) {
+            objImage = frame;
+        } else {
+            (startX, startY, objImage) = TrimImage(frame);
+        }
+
+        var segments = CreateObjects(objImage, startX, startY, 0, 0, objImage.Height);
 
         // Return new frame
         var sprite = new Sprite {
             Segments = new Collection<IImageSegment>(segments),
-            Width = trimmed.Width,
-            Height = trimmed.Height,
+            Width = objImage.Width,
+            Height = objImage.Height,
         };
-        return (sprite, trimmed);
+        return (sprite, objImage);
     }
 
     private List<IImageSegment> CreateObjects(FullImage frame, int startX, int startY, int x, int y, int maxHeight)
@@ -73,11 +87,15 @@ public class NitroImageSegmentation : IImageSegmentation
         var segments = new List<IImageSegment>();
 
         // Go to first non-transparent pixel
-        int newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
-        int newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
+        int newX = x, newY = y;
+        if (!SkipTrimming) {
+            newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
+            newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
 
-        if (newY == -1 || newX == -1) {
-            return segments;
+            // Only transparent pixels at this point.
+            if (newY == -1 || newX == -1) {
+                return segments;
+            }
         }
 
         int diffX = newX - x;
@@ -88,16 +106,34 @@ public class NitroImageSegmentation : IImageSegmentation
         diffY -= diffY % 8;
         y = diffY + y;
 
-        (int width, int height) = GetObjectSize(frame, x, y, frame.Width, maxHeight - diffY);
+        // Reach the end of the image
+        if (startX + x == frame.Width && startY + y == frame.Height) {
+            return segments;
+        }
+
+        int width, height;
+
+        // If our cell is already valid, do not split further.
+        if (IsValidSize(frame.Width, maxHeight - diffY)) {
+            width = frame.Width;
+            height = maxHeight - diffY;
+        } else {
+            (width, height) = GetObjectSize(frame, x, y, frame.Width, maxHeight - diffY);
+        }
 
         if (width != 0 && height != 0) {
             var segment = new ImageSegment {
-                CoordinateX = startX + x - (CanvasWidth / 2),
-                CoordinateY = startY + y - (CanvasHeight / 2),
+                CoordinateX = startX + x,
+                CoordinateY = startY + y,
                 Width = width,
                 Height = height,
                 Layer = 0,
             };
+            if (RelativeCoordinates == SpriteRelativeCoordinatesKind.Center) {
+                segment.CoordinateX -= CanvasWidth / 2;
+                segment.CoordinateY -= CanvasHeight / 2;
+            }
+
             segments.Add(segment);
         } else {
             // If everything is transparent
@@ -180,23 +216,27 @@ public class NitroImageSegmentation : IImageSegmentation
         Justification = "Readability of the algorithm")]
     private static bool IsValidSize(int width, int height)
     {
-        if (width < 0 || width > 64 || width % 8 != 0) {
-            return false;
-        }
+        return (width, height) switch {
+            // Square mode
+            (8, 8) => true,
+            (16, 16) => true,
+            (32, 32) => true,
+            (64, 64) => true,
 
-        if (height < 0 || height > 64 || height % 8 != 0) {
-            return false;
-        }
+            // Rectangle horizontal
+            (16, 8) => true,
+            (32, 8) => true,
+            (32, 16) => true,
+            (64, 32) => true,
 
-        if (width == 64 && (height == 8 || height == 16)) {
-            return false;
-        }
+            // Rectangle vertical
+            (8, 16) => true,
+            (8, 32) => true,
+            (16, 32) => true,
+            (32, 64) => true,
 
-        if ((width == 8 || width == 16) && height == 64) {
-            return false;
-        }
-
-        return true;
+            _ => false,
+        };
     }
 
     private static (int X, int Y, FullImage Trimmed) TrimImage(FullImage image)

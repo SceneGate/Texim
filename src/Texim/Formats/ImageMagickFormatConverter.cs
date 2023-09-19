@@ -1,4 +1,4 @@
-// Copyright (c) 2022 SceneGate
+// Copyright (c) 2023 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,14 +17,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Formats;
 
 using System;
+using ImageMagick;
+using Yarhl.FileFormat;
+using Yarhl.IO;
 
-[Obsolete("Use always 0,0 for simplicity")]
-public enum SpriteRelativeCoordinatesKind
+public class ImageMagickFormatConverter : IConverter<IBinary, BinaryFormat>
 {
-    TopLeft,
-    Center,
-    Reset,
+    private readonly bool isLayered;
+    private readonly MagickFormat outputFormat;
+
+    public ImageMagickFormatConverter(bool isLayered, MagickFormat outputFormat)
+    {
+        this.isLayered = isLayered;
+        this.outputFormat = outputFormat;
+    }
+
+    public BinaryFormat Convert(IBinary source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        BinaryFormat outputBinary = new();
+
+        if (isLayered) {
+            using var image = new MagickImageCollection(source.Stream);
+            image.Write(outputBinary.Stream, outputFormat);
+        } else {
+            using var image = new MagickImage(source.Stream);
+            image.Write(outputBinary.Stream, outputFormat);
+        }
+
+        return outputBinary;
+    }
 }

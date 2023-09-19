@@ -18,6 +18,7 @@
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="SixLabors.ImageSharp" />
     <PackageReference Include="BitMiracle.LibTiff.NET" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" />
   </ItemGroup>
 
 </Project>

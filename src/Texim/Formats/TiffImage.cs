@@ -1,4 +1,4 @@
-// Copyright (c) 2022 SceneGate
+// Copyright (c) 2023 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,14 +17,19 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Formats;
 
-using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Yarhl.FileFormat;
 
-[Obsolete("Use always 0,0 for simplicity")]
-public enum SpriteRelativeCoordinatesKind
+public class TiffImage : IFormat
 {
-    TopLeft,
-    Center,
-    Reset,
+    public int CanvasWidth { get; set; }
+
+    public int CanvasHeight { get; set; }
+
+    public TiffPage MainImage => Pages.FirstOrDefault();
+
+    public Collection<TiffPage> Pages { get; init; } = new();
 }

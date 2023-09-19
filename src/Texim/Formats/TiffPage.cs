@@ -1,4 +1,4 @@
-// Copyright (c) 2022 SceneGate
+// Copyright (c) 2023 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -17,14 +17,32 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace Texim.Sprites;
+namespace Texim.Formats;
 
-using System;
+using Texim.Colors;
+using Texim.Pixels;
 
-[Obsolete("Use always 0,0 for simplicity")]
-public enum SpriteRelativeCoordinatesKind
+public class TiffPage
 {
-    TopLeft,
-    Center,
-    Reset,
+    public int Id { get; set; }
+
+    public string Name { get; set; }
+
+    public int X { get; set; }
+
+    public int Y { get; set; }
+
+    public int Width { get; set; }
+
+    public int Height { get; set; }
+
+    public Rgb[] RgbPixels { get; set; }
+
+    public Rgb[] ColorMap { get; set; }
+
+    public IndexedPixel[] IndexedPixels { get; set; }
+
+    // Considered an interface but it will cause boxing which the design of the API tries to avoid.
+    // https://stackoverflow.com/questions/53889573/array-of-structs-inheriting-interface-appear-to-be-reference-types
+    public bool IsIndexed { get; set; }
 }

@@ -70,5 +70,5 @@ public class Sprite2TiffParams
     /// <summary>
     /// Gets or sets the size of the tiles when the image is tiled.
     /// </summary>
-    public Size TileSize { get; set; }
+    public Size TileSize { get; set; } = new Size(8, 8);
 }
