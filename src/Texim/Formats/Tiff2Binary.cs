@@ -124,11 +124,8 @@ public class Tiff2Binary : IConverter<TiffImage, BinaryFormat>
                 int idx = w + (h * page.Width);
 
                 IndexedPixel pixel = page.IndexedPixels[idx];
-                int indexInBigPalette = pixel.Index + (pixel.PaletteIndex * 16);
-                byte alpha = (pixel.Index == 0) ? (byte)0 : pixel.Alpha;
-
-                buffer[w * IndexedSamplesPerPixel] = (byte)indexInBigPalette;
-                buffer[(w * IndexedSamplesPerPixel) + 1] = alpha;
+                buffer[w * IndexedSamplesPerPixel] = (byte)pixel.Index;
+                buffer[(w * IndexedSamplesPerPixel) + 1] = (pixel.Index == 0) ? (byte)0 : pixel.Alpha;
             }
 
             Assert(tiff.WriteScanline(buffer, h));

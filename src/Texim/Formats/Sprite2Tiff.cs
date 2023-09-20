@@ -25,6 +25,8 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using Texim.Colors;
+using Texim.Palettes;
+using Texim.Pixels;
 using Texim.Sprites;
 using Yarhl.FileFormat;
 
@@ -116,6 +118,7 @@ public class Sprite2Tiff : IConverter<ISprite, TiffImage>
             tiff.Pages.Add(page);
 
             if (parameters.ExportAsIndexedImage) {
+                ConvertToFullIndex(layerIndexedImage.Pixels, parameters.Palettes);
                 page.IndexedPixels = layerIndexedImage.Pixels;
                 page.ColorMap = fullPalette;
                 page.IsIndexed = true;
@@ -125,6 +128,16 @@ public class Sprite2Tiff : IConverter<ISprite, TiffImage>
         }
 
         return tiff;
+    }
+
+    private static void ConvertToFullIndex(IndexedPixel[] pixels, IPaletteCollection palettes)
+    {
+        for (int i = 0; i < pixels.Length; i++) {
+            int paletteIdx = palettes.Palettes.Take(pixels[i].PaletteIndex).Sum(p => p.Colors.Count);
+            int pixelIdx = paletteIdx + pixels[i].Index;
+
+            pixels[i] = new IndexedPixel((short)pixelIdx, pixels[i].Alpha, 0);
+        }
     }
 
     private static Rectangle CreateRectangle(IImageSegment segment) =>
