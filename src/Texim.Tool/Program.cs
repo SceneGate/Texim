@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 SceneGate
+// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ namespace Texim.Tool
 
     public static class Program
     {
-        public static Task<int> Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             var root = new RootCommand("Proof-of-concept library and tool for image formats") {
                 NitroCommandLine.CreateCommand(),
@@ -39,7 +39,7 @@ namespace Texim.Tool
                 DarkoCommandLine.CreateCommand(),
             };
 
-            return root.InvokeAsync(args);
+            return await root.InvokeAsync(args).ConfigureAwait(false);
         }
     }
 }

@@ -93,7 +93,7 @@ namespace Texim.Colors
         public byte[] Encode(IEnumerable<Rgb> colors)
         {
             var colorList = colors.ToArray();
-            byte[] data = new byte[colorList.Length];
+            byte[] data = new byte[colorList.Length * 4];
             for (int i = 0; i < colorList.Length; i++) {
                 data[i * 4] = colorList[i].Red;
                 data[(i * 4) + 1] = colorList[i].Green;

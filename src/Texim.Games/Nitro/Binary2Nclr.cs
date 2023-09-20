@@ -27,6 +27,7 @@ namespace Texim.Games.Nitro
 
     public class Binary2Nclr : NitroDeserializer<Nclr>
     {
+        private Rgb[] colors;
         private int[] paletteIndexes;
 
         protected override string Stamp => "NCLR";
@@ -42,20 +43,29 @@ namespace Texim.Games.Nitro
 
         protected override void PostProcessing(Nclr model)
         {
-            var colors = model.Palettes[0].Colors;
+            // Now we will try to split it according to the texture format.
             int colorsPerPalette = (model.TextureFormat == NitroTextureFormat.Indexed4Bpp) ? 16 : 256;
             int numPalettes = (paletteIndexes == null)
-                ? (int)Math.Ceiling((float)colors.Count / colorsPerPalette)
-                : paletteIndexes.Length;
+                ? (int)Math.Ceiling((float)colors.Length / colorsPerPalette)
+                : paletteIndexes.Max() + 1;
 
-            model.Palettes.Clear();
+            // If there is a PCMP section, then re-order the palettes.
+            // It could be that the target index is higher than the number of
+            // palettes, in that case some may be null.
             for (int i = 0; i < numPalettes; i++) {
                 int paletteIdx = (paletteIndexes == null)
                     ? i
                     : Array.IndexOf(paletteIndexes, i);
+                if (paletteIdx == -1) {
+                    // It could be with PCMP that some indexes are not present having empty palettes at that position.
+                    // This allow to put a given NCLR palette at a higher index in RAM.
+                    model.Palettes.Add(new Palette());
+                    continue;
+                }
+
                 int colorIdx = paletteIdx * colorsPerPalette;
-                int numColors = (colorIdx + colorsPerPalette) > colors.Count
-                    ? (colors.Count - colorIdx)
+                int numColors = (colorIdx + colorsPerPalette) > colors.Length
+                    ? (colors.Length - colorIdx)
                     : colorsPerPalette;
 
                 var paletteColors = colors.Skip(colorIdx).Take(numColors);
@@ -78,9 +88,8 @@ namespace Texim.Games.Nitro
             uint dataOffset = reader.ReadUInt32();
             reader.Stream.Position = sectionPos + dataOffset;
 
-            var colorsData = reader.ReadBytes(paletteSize);
-            var colors = Bgr555.Instance.Decode(colorsData);
-            model.Palettes.Add(new Palette(colors));
+            byte[] colorsData = reader.ReadBytes(paletteSize);
+            colors = Bgr555.Instance.Decode(colorsData);
         }
 
         private void ReadPcmp(DataReader reader)
@@ -93,6 +102,9 @@ namespace Texim.Games.Nitro
             reader.Stream.Position = sectionPos + dataOffset;
             paletteIndexes = new int[numPalettes];
             for (int i = 0; i < numPalettes; i++) {
+                // It's the index in the target (RAM) palette area
+                // for i = 2, a value of 5 means copy the NCLR palette #2 into
+                // RAM Palette area position #5.
                 paletteIndexes[i] = reader.ReadInt16();
             }
         }

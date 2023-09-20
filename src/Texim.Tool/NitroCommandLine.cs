@@ -50,7 +50,7 @@ namespace Texim.Tool
             var exportPalette = new Command("export_palette", "Export Nitro files into an image") {
                 new Option<string>("--input", "nitro palette file", ArgumentArity.ExactlyOne),
                 new Option<string>("--output", "Output file", ArgumentArity.ExactlyOne),
-                new Option<StandardPaletteFormat>("format", "Output format", ArgumentArity.ZeroOrOne),
+                new Option<StandardPaletteFormat>("--format", "Output format", ArgumentArity.ZeroOrOne),
             };
             exportPalette.Handler = CommandHandler.Create<string, string, StandardPaletteFormat>(ExportPalette);
 
@@ -59,7 +59,7 @@ namespace Texim.Tool
                 new Option<string>("--ncgr", "nitro pixel file", ArgumentArity.ExactlyOne),
                 new Option<string>("--nscr", "nitro screen file", ArgumentArity.ZeroOrOne),
                 new Option<string>("--output", "Output file", ArgumentArity.ExactlyOne),
-                new Option<StandardImageFormat>("format", "Output image format", ArgumentArity.ZeroOrOne),
+                new Option<StandardImageFormat>("--format", "Output image format", ArgumentArity.ZeroOrOne),
             };
             exportImage.Handler = CommandHandler.Create<string, string, string, string, StandardImageFormat>(ExportImage);
 
@@ -68,7 +68,7 @@ namespace Texim.Tool
                 new Option<string>("--ncgr", "nitro pixel file", ArgumentArity.ExactlyOne),
                 new Option<string>("--ncer", "nitro cell file", ArgumentArity.ZeroOrOne),
                 new Option<string>("--output", "Output folder", ArgumentArity.ExactlyOne),
-                new Option<StandardImageFormat>("format", "Output image format", ArgumentArity.ZeroOrOne),
+                new Option<StandardImageFormat>("--format", "Output image format", ArgumentArity.ZeroOrOne),
                 new Option<int>("--cell", () => -1, "optional cell to export only"),
             };
             exportSprite.Handler =
@@ -152,10 +152,10 @@ namespace Texim.Tool
             string extension;
             IConverter<IPalette, BinaryFormat> converter;
             if (format == StandardPaletteFormat.Png) {
-                extension = ".png";
+                extension = "png";
                 converter = new Palette2Bitmap();
             } else if (format == StandardPaletteFormat.Riff) {
-                extension = ".pal";
+                extension = "pal";
                 converter = new Palette2BinaryRiff();
             } else {
                 throw new FormatException("Unknown output format");
@@ -163,6 +163,10 @@ namespace Texim.Tool
 
             string name = Path.GetFileNameWithoutExtension(input);
             for (int i = 0; i < nclr.Palettes.Count; i++) {
+                if (nclr.Palettes[i].Colors.Count == 0) {
+                    continue;
+                }
+
                 using BinaryFormat outputStream = converter.Convert(nclr.Palettes[i]);
 
                 string outputPath = Path.Combine(output, $"{name}_{i}.{extension}");
