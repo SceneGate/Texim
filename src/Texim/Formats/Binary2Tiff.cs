@@ -85,58 +85,40 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
 
     private static TiffPage ReadRgbPage(Tiff tiff)
     {
-        var page = new TiffPage();
+        var pageMetadata = ReadPageMetadata(tiff);
 
-        page.Width = GetFieldSingle(tiff, TiffTag.IMAGEWIDTH).ToInt();
-        page.Height = GetFieldSingle(tiff, TiffTag.IMAGELENGTH).ToInt();
+        var page = new TiffPage {
+            Width = pageMetadata.Width,
+            Height = pageMetadata.Height,
+            X = pageMetadata.PositionX,
+            Y = pageMetadata.PositionY,
+            IsIndexed = false,
+            RgbPixels = new Rgb[pageMetadata.Width * pageMetadata.Height],
+        };
 
-        int samplesPerPixel = GetFieldSingle(tiff, TiffTag.SAMPLESPERPIXEL).ToInt();
-        if (samplesPerPixel != 4) {
-            throw new NotSupportedException($"Invalid samples per pixel: {samplesPerPixel}");
+        if (pageMetadata.SamplesPerPixel != 4) {
+            throw new NotSupportedException($"Invalid samples per pixel: {pageMetadata.SamplesPerPixel}");
+        } else if (pageMetadata.BitsPerSample != 8) {
+            throw new NotSupportedException($"Invalid bits per sample: {pageMetadata.BitsPerSample}");
+        } else if (pageMetadata.ExtraSample is not ExtraSample.UNASSALPHA) {
+            throw new NotSupportedException($"Invalid extra samples: {pageMetadata.ExtraSample}");
+        } else if (pageMetadata.Orientation is not Orientation.TOPLEFT) {
+            throw new NotSupportedException($"Orientation not supported: {pageMetadata.Orientation}");
+        } else if (pageMetadata.PlanarConfig is not PlanarConfig.CONTIG) {
+            throw new NotSupportedException($"Planar not supported: {pageMetadata.PlanarConfig}");
         }
 
-        int bitsPerSample = GetFieldSingle(tiff, TiffTag.BITSPERSAMPLE).ToInt();
-        if (bitsPerSample != 8) {
-            throw new NotSupportedException($"Invalid bits per sample: {bitsPerSample}");
-        }
-
-        FieldValue[] extraSamples = tiff.GetField(TiffTag.EXTRASAMPLES)
-            ?? throw new FormatException("Expected to find field EXTRASAMPLES");
-        if (extraSamples.Length != 2 && extraSamples[0].ToInt() != 1 && extraSamples[1].Value is not ExtraSample.UNASSALPHA) {
-            throw new NotSupportedException($"Invalid extra samples: {extraSamples}");
-        }
-
-        object orientation = GetFieldSingle(tiff, TiffTag.ORIENTATION).Value;
-        if (orientation is not Orientation.TOPLEFT) {
-            throw new NotSupportedException($"Orientation not supported: {orientation}");
-        }
-
-        object planar = GetFieldSingle(tiff, TiffTag.PLANARCONFIG).Value;
-        if (planar is not PlanarConfig.CONTIG) {
-            throw new NotSupportedException($"Planar not supported: {planar}");
-        }
-
-        float xRes = GetFieldSingle(tiff, TiffTag.XRESOLUTION).ToFloat();
-        float xPos = GetFieldSingle(tiff, TiffTag.XPOSITION).ToFloat();
-        page.X = (int)(xPos * xRes);
-
-        float yRes = GetFieldSingle(tiff, TiffTag.YRESOLUTION).ToFloat();
-        float yPos = GetFieldSingle(tiff, TiffTag.YPOSITION).ToFloat();
-        page.Y = (int)(yPos * yRes);
-
-        page.IsIndexed = false;
-        page.RgbPixels = new Rgb[page.Width * page.Height];
-        byte[] row = new byte[samplesPerPixel * page.Width];
+        byte[] row = new byte[pageMetadata.SamplesPerPixel * page.Width];
         for (int y = 0; y < page.Height; y++) {
             _ = tiff.ReadScanline(row, y);
 
             for (int x = 0; x < page.Width; x++) {
                 int index = (y * page.Width) + x;
                 var color = new Rgb(
-                    row[x * samplesPerPixel],
-                    row[(x * samplesPerPixel) + 1],
-                    row[(x * samplesPerPixel) + 2],
-                    row[(x * samplesPerPixel) + 3]);
+                    row[x * pageMetadata.SamplesPerPixel],
+                    row[(x * pageMetadata.SamplesPerPixel) + 1],
+                    row[(x * pageMetadata.SamplesPerPixel) + 2],
+                    row[(x * pageMetadata.SamplesPerPixel) + 3]);
                 page.RgbPixels[index] = color;
             }
         }
@@ -146,56 +128,38 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
 
     private static TiffPage ReadIndexedPage(Tiff tiff)
     {
-        var page = new TiffPage();
+        var pageMetadata = ReadPageMetadata(tiff);
 
-        page.Width = GetFieldSingle(tiff, TiffTag.IMAGEWIDTH).ToInt();
-        page.Height = GetFieldSingle(tiff, TiffTag.IMAGELENGTH).ToInt();
+        var page = new TiffPage {
+            Width = pageMetadata.Width,
+            Height = pageMetadata.Height,
+            X = pageMetadata.PositionX,
+            Y = pageMetadata.PositionY,
+            IsIndexed = true,
+            IndexedPixels = new IndexedPixel[pageMetadata.Width * pageMetadata.Height],
+        };
 
-        int samplesPerPixel = GetFieldSingle(tiff, TiffTag.SAMPLESPERPIXEL).ToInt();
-        if (samplesPerPixel != 2) {
-            throw new NotSupportedException($"Invalid samples per pixel: {samplesPerPixel}");
+        if (pageMetadata.SamplesPerPixel != 2) {
+            throw new NotSupportedException($"Invalid samples per pixel: {pageMetadata.SamplesPerPixel}");
+        } else if (pageMetadata.BitsPerSample != 8) {
+            throw new NotSupportedException($"Invalid bits per sample: {pageMetadata.BitsPerSample}");
+        } else if (pageMetadata.ExtraSample is not ExtraSample.UNASSALPHA) {
+            throw new NotSupportedException($"Invalid extra samples: {pageMetadata.ExtraSample}");
+        } else if (pageMetadata.Orientation is not Orientation.TOPLEFT) {
+            throw new NotSupportedException($"Orientation not supported: {pageMetadata.Orientation}");
+        } else if (pageMetadata.PlanarConfig is not PlanarConfig.CONTIG) {
+            throw new NotSupportedException($"Planar not supported: {pageMetadata.PlanarConfig}");
         }
 
-        int bitsPerSample = GetFieldSingle(tiff, TiffTag.BITSPERSAMPLE).ToInt();
-        if (bitsPerSample != 8) {
-            throw new NotSupportedException($"Invalid bits per sample: {bitsPerSample}");
-        }
-
-        FieldValue[] extraSamples = tiff.GetField(TiffTag.EXTRASAMPLES)
-            ?? throw new FormatException("Expected to find field EXTRASAMPLES");
-        if (extraSamples.Length != 2 && extraSamples[0].ToInt() != 1 && extraSamples[1].Value is not ExtraSample.UNASSALPHA) {
-            throw new NotSupportedException($"Invalid extra samples: {extraSamples}");
-        }
-
-        object orientation = GetFieldSingle(tiff, TiffTag.ORIENTATION).Value;
-        if (orientation is not Orientation.TOPLEFT) {
-            throw new NotSupportedException($"Orientation not supported: {orientation}");
-        }
-
-        object planar = GetFieldSingle(tiff, TiffTag.PLANARCONFIG).Value;
-        if (planar is not PlanarConfig.CONTIG) {
-            throw new NotSupportedException($"Planar not supported: {planar}");
-        }
-
-        float xRes = GetFieldSingle(tiff, TiffTag.XRESOLUTION).ToFloat();
-        float xPos = GetFieldSingle(tiff, TiffTag.XPOSITION).ToFloat();
-        page.X = (int)(xPos * xRes);
-
-        float yRes = GetFieldSingle(tiff, TiffTag.YRESOLUTION).ToFloat();
-        float yPos = GetFieldSingle(tiff, TiffTag.YPOSITION).ToFloat();
-        page.Y = (int)(yPos * yRes);
-
-        page.IsIndexed = true;
-        page.IndexedPixels = new IndexedPixel[page.Width * page.Height];
-        byte[] row = new byte[samplesPerPixel * page.Width];
+        byte[] row = new byte[pageMetadata.SamplesPerPixel * page.Width];
         for (int y = 0; y < page.Height; y++) {
             _ = tiff.ReadScanline(row, y);
 
             for (int x = 0; x < page.Width; x++) {
                 int index = (y * page.Width) + x;
                 var pixel = new IndexedPixel(
-                    row[x * samplesPerPixel],
-                    row[(x * samplesPerPixel) + 1]);
+                    row[x * pageMetadata.SamplesPerPixel],
+                    row[(x * pageMetadata.SamplesPerPixel) + 1]);
                 page.IndexedPixels[index] = pixel;
             }
         }
@@ -219,6 +183,38 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
         return page;
     }
 
+    private static PageMetadata ReadPageMetadata(Tiff tiff)
+    {
+        int width = GetFieldSingle(tiff, TiffTag.IMAGEWIDTH).ToInt();
+        int height = GetFieldSingle(tiff, TiffTag.IMAGELENGTH).ToInt();
+
+        int samplesPerPixel = GetFieldSingle(tiff, TiffTag.SAMPLESPERPIXEL).ToInt();
+        int bitsPerSample = GetFieldSingle(tiff, TiffTag.BITSPERSAMPLE).ToInt();
+
+        FieldValue[] extraSamples = tiff.GetField(TiffTag.EXTRASAMPLES)
+            ?? throw new FormatException("Expected to find field EXTRASAMPLES");
+        if (extraSamples.Length != 2 && extraSamples[0].ToInt() != 1 && extraSamples[1].Value is not ExtraSample.UNASSALPHA) {
+            throw new NotSupportedException($"Invalid extra samples: {extraSamples}");
+        }
+
+        var extraSample = (ExtraSample)extraSamples[1].Value;
+
+        var orientation = (Orientation)GetFieldSingle(tiff, TiffTag.ORIENTATION).Value;
+        var planar = (PlanarConfig)GetFieldSingle(tiff, TiffTag.PLANARCONFIG).Value;
+
+        float xRes = GetFieldSingle(tiff, TiffTag.XRESOLUTION).ToFloat();
+        FieldValue[] xPosField = tiff.GetField(TiffTag.XPOSITION);
+        float xPos = (xPosField?.Length == 1) ? xPosField[0].ToFloat() : 0.0f;
+        int x = (int)(xPos * xRes);
+
+        float yRes = GetFieldSingle(tiff, TiffTag.YRESOLUTION).ToFloat();
+        FieldValue[] yPosField = tiff.GetField(TiffTag.YPOSITION);
+        float yPos = (yPosField?.Length == 1) ? yPosField[0].ToFloat() : 0.0f;
+        int y = (int)(yPos * yRes);
+
+        return new PageMetadata(width, height, samplesPerPixel, bitsPerSample, extraSample, orientation, planar, x, y);
+    }
+
     private static byte MapTo8Bits(int num)
     {
         const int maxRangeCurrent = ushort.MaxValue;
@@ -228,4 +224,15 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
         double result = num * maxRangeNext / (double)maxRangeCurrent;
         return (byte)Math.Round(result);
     }
+
+    private sealed record PageMetadata(
+        int Width,
+        int Height,
+        int SamplesPerPixel,
+        int BitsPerSample,
+        ExtraSample ExtraSample,
+        Orientation Orientation,
+        PlanarConfig PlanarConfig,
+        int PositionX,
+        int PositionY);
 }

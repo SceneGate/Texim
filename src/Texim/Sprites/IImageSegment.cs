@@ -23,15 +23,15 @@ using Yarhl.FileFormat;
 
 public interface IImageSegment : IFormat
 {
-    int Layer { get; }
+    int Layer { get; set; }
 
     int CoordinateX { get; set; }
 
     int CoordinateY { get; set; }
 
-    int Width { get; }
+    int Width { get; set; }
 
-    int Height { get; }
+    int Height { get; set; }
 
     int TileIndex { get; set; }
 
@@ -39,5 +39,5 @@ public interface IImageSegment : IFormat
 
     bool VerticalFlip { get; set; }
 
-    byte PaletteIndex { get; }
+    byte PaletteIndex { get; set; }
 }
