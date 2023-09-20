@@ -113,6 +113,10 @@ namespace Texim.Processing
 
         private int GetTilePaletteDistance(ReadOnlySpan<Rgb> tile, Rgb[] palette)
         {
+            if (palette.Length == 0) {
+                return int.MaxValue;
+            }
+
             int totalDistance = 0;
             for (int i = 0; i < tile.Length; i++) {
                 int distance;

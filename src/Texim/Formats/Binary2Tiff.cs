@@ -193,11 +193,11 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
 
         FieldValue[] extraSamples = tiff.GetField(TiffTag.EXTRASAMPLES)
             ?? throw new FormatException("Expected to find field EXTRASAMPLES");
-        if (extraSamples.Length != 2 && extraSamples[0].ToInt() != 1 && extraSamples[1].Value is not ExtraSample.UNASSALPHA) {
+        if (extraSamples.Length != 2 && extraSamples[0].ToInt() != 1) {
             throw new NotSupportedException($"Invalid extra samples: {extraSamples}");
         }
 
-        var extraSample = (ExtraSample)extraSamples[1].Value;
+        var extraSample = (ExtraSample)extraSamples[1].ToShortArray()[0];
 
         var orientation = (Orientation)GetFieldSingle(tiff, TiffTag.ORIENTATION).Value;
         var planar = (PlanarConfig)GetFieldSingle(tiff, TiffTag.PLANARCONFIG).Value;

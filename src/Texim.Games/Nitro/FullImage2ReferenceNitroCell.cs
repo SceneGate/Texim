@@ -69,7 +69,7 @@ public class FullImage2ReferenceNitroCell :
             RelativeCoordinates = parameters.RelativeCoordinates,
         });
         FullImage originalSpriteImage = sprite2Image.Convert(parameters.ReferenceCell)
-            .CreateFullImage(parameters.Palettes);
+            .CreateFullImage(parameters.Palettes, true);
 
         ImageSegment2IndexedImage segment2Indexed = new ImageSegment2IndexedImage();
         segment2Indexed.Initialize(new ImageSegment2IndexedImageParams {

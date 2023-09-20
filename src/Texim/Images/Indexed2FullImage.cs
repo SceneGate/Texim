@@ -76,10 +76,12 @@ namespace Texim.Images
                     throw new FormatException("Missing palettes");
                 }
 
-                var color = palettes.Palettes[pixel.PaletteIndex].Colors[pixel.Index];
                 if (firstColorAsTransparent && pixel.Index == 0) {
-                    image.Pixels[i] = color.WithAlpha(0);
+                    // Color may not exists as it could be a
+                    // generated transparent pixel with not associated palette.
+                    image.Pixels[i] = new Rgb(0, 0, 0, 0);
                 } else {
+                    var color = palettes.Palettes[pixel.PaletteIndex].Colors[pixel.Index];
                     image.Pixels[i] = (pixel.Alpha == 255) ? color : new Rgb(color, pixel.Alpha);
                 }
             }
