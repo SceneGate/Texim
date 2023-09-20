@@ -31,17 +31,19 @@ using Texim.Sprites;
 /// </summary>
 public class NitroImageSegmentation : IImageSegmentation
 {
-    // We define two modes but only use the second one so far (75% non-transparent)
-    // For each mode there is a list of tries for width and height.
-    // First value is the limit and the second is the side.
-    // From limit to side there must be non-transparent pixels to set it.
-    // So that it's worthier a bigger cell than two small ones.
-    private static readonly int[][,] Modes = {
-        new int[,] { { 32, 64 }, { 16, 32 }, { 8, 16 }, { 0, 8 } }, // 50%
-        new int[,] { { 48, 64 }, { 24, 32 }, { 8, 16 }, { 0, 8 } }, // 75%
-    };
+    private sealed record SplitSize(int TransparentLimit, int Size);
 
-    private readonly int[,] splitMode = Modes[1];
+    // List of tries for width and height.
+    // The algorithm search a size where from the limit border to the size border
+    // there are non-transparent pixels. Otherwise, tries a smaller size to avoid
+    // having large mostly transparent OAMs (the DS has a limit of # OAMs on memory).
+    // The limits are so if half is transparent means it worth getting the next smaller size.
+    private static readonly SplitSize[] SplitMode = new[] {
+        new SplitSize(32, 64),
+        new SplitSize(16, 32),
+        new SplitSize(8, 16),
+        new SplitSize(0, 8),
+    };
 
     public int CanvasWidth { get; set; } = 512;
 
@@ -87,15 +89,12 @@ public class NitroImageSegmentation : IImageSegmentation
         var segments = new List<IImageSegment>();
 
         // Go to first non-transparent pixel
-        int newX = x, newY = y;
-        if (!SkipTrimming) {
-            newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
-            newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
+        int newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
+        int newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
 
-            // Only transparent pixels at this point.
-            if (newY == -1 || newX == -1) {
-                return segments;
-            }
+        // Only transparent pixels at this point.
+        if (newY == -1 || newX == -1) {
+            return segments;
         }
 
         int diffX = newX - x;
@@ -112,16 +111,18 @@ public class NitroImageSegmentation : IImageSegmentation
         }
 
         int width, height;
+        bool foundValidSize;
 
         // If our cell is already valid, do not split further.
         if (IsValidSize(frame.Width, maxHeight - diffY)) {
             width = frame.Width;
             height = maxHeight - diffY;
+            foundValidSize = true;
         } else {
-            (width, height) = GetObjectSize(frame, x, y, frame.Width, maxHeight - diffY);
+            (width, height, foundValidSize) = GetObjectSize(frame, x, y, frame.Width, maxHeight - diffY);
         }
 
-        if (width != 0 && height != 0) {
+        if (foundValidSize) {
             var segment = new ImageSegment {
                 CoordinateX = startX + x,
                 CoordinateY = startY + y,
@@ -135,10 +136,6 @@ public class NitroImageSegmentation : IImageSegmentation
             }
 
             segments.Add(segment);
-        } else {
-            // If everything is transparent
-            width = splitMode[0, 1];  // Max width
-            height = splitMode[0, 1]; // Max height
         }
 
         // Go to right
@@ -155,7 +152,7 @@ public class NitroImageSegmentation : IImageSegmentation
         return segments;
     }
 
-    private (int Width, int Height) GetObjectSize(
+    private (int Width, int Height, bool IsValid) GetObjectSize(
         FullImage frame,
         int x,
         int y,
@@ -168,46 +165,57 @@ public class NitroImageSegmentation : IImageSegmentation
 
         // Try to get a valid object size
         // The problem is the width can get fixed to 64 and in that case the height can not be 8 or 16.
-        while (height == 0 && minWidthConstraint < this.splitMode.GetLength(0)) {
+        // That's why we try to get a width and then a height, if non valid, try to find next smaller width.
+        while (height == 0 && minWidthConstraint < SplitMode.Length) {
             // Get object width
             width = 0;
-            for (int i = minWidthConstraint; i < this.splitMode.GetLength(0) && width == 0; i++) {
-                if (this.splitMode[i, 1] > maxWidth - x) {
+            for (int i = minWidthConstraint; i < SplitMode.Length && width == 0; i++) {
+                if (SplitMode[i].Size > maxWidth - x) {
                     continue;
                 }
 
-                int xRange = this.splitMode[i, 1] - this.splitMode[i, 0];
-                if (!IsTransparent(frame, x + this.splitMode[i, 0], xRange, y, maxHeight)) {
-                    width = this.splitMode[i, 1];
+                // If it's not transparent from the limit to the end size, found it!
+                int nonTransparentRange = SplitMode[i].Size - SplitMode[i].TransparentLimit;
+                if (!IsTransparent(frame, x + SplitMode[i].TransparentLimit, nonTransparentRange, y, maxHeight)) {
+                    width = SplitMode[i].Size;
                 }
             }
 
-            // Everything is transparent, skip
+            // Everything is transparent, skip like it were a valid OAM (so we can split further)
+            // We use the higher allowed width.
             if (width == 0) {
-                return (width, height);
+                return (SplitMode[minWidthConstraint].Size, maxHeight, false);
             }
 
             // Get object height
             height = 0;
-            for (int i = 0; i < this.splitMode.GetLength(0) && height == 0; i++) {
-                if (this.splitMode[i, 1] > maxHeight) {
+            for (int i = 0; i < SplitMode.Length && height == 0; i++) {
+                if (SplitMode[i].Size > maxHeight) {
                     continue;
                 }
 
-                if (!IsValidSize(width, this.splitMode[i, 1])) {
+                if (!IsValidSize(width, SplitMode[i].Size)) {
                     continue;
                 }
 
-                int yRange = this.splitMode[i, 1] - this.splitMode[i, 0];
-                if (!IsTransparent(frame, x, width, y + this.splitMode[i, 0], yRange)) {
-                    height = this.splitMode[i, 1];
+                int nonTransparentRange = SplitMode[i].Size - SplitMode[i].TransparentLimit;
+                if (!IsTransparent(frame, x, width, y + SplitMode[i].TransparentLimit, nonTransparentRange)) {
+                    height = SplitMode[i].Size;
                 }
             }
 
             minWidthConstraint++;
         }
 
-        return (width, height);
+        // This can happen if we can't trim the image to preserve layer positions.
+        // In that case we can't find a valid OAM size starting at the left
+        // that it's not 100% transparent. The smaller 8x8 at the left is transparent.
+        // We report the smaller OAM to skip it and try at another pos.
+        if (height == 0) {
+            return (width, 8, false);
+        }
+
+        return (width, height, true);
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
