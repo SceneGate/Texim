@@ -89,12 +89,15 @@ public class NitroImageSegmentation : IImageSegmentation
         var segments = new List<IImageSegment>();
 
         // Go to first non-transparent pixel
-        int newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
-        int newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
+        int newX = x, newY = y;
+        if (!SkipTrimming) {
+            newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
+            newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
 
-        // Only transparent pixels at this point.
-        if (newY == -1 || newX == -1) {
-            return segments;
+            // Only transparent pixels at this point.
+            if (newY == -1 || newX == -1) {
+                return segments;
+            }
         }
 
         int diffX = newX - x;

@@ -33,7 +33,7 @@ namespace Texim.Images
 
         public IndexedPixel[] Pixels { get; init; }
 
-        public Collection<IPalette> Palettes { get; } = new Collection<IPalette>();
+        public Collection<IPalette> Palettes { get; init; } = new Collection<IPalette>();
 
         public FullImage CreateFullImage()
         {
