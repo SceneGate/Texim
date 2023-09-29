@@ -112,12 +112,14 @@ public class FullImage2Sprite :
                 existingTiles,
                 segmentTiles,
                 Parameters.MinimumPixelsPerSegment,
-                segmentSize);
+                segmentSize,
+                Parameters.Palettes.Palettes[paletteIndex]);
         } else {
             tileIndex = PixelSequenceFinder.Search(
                 existingTiles,
                 segmentTiles,
-                Parameters.MinimumPixelsPerSegment);
+                Parameters.MinimumPixelsPerSegment,
+                Parameters.Palettes.Palettes[paletteIndex]);
         }
 
         if (tileIndex == -1) {

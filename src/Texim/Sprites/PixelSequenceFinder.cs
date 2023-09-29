@@ -20,41 +20,45 @@
 namespace Texim.Sprites;
 
 using System;
+using System.Collections.ObjectModel;
 using System.Drawing;
+using Texim.Colors;
+using Texim.Palettes;
 using Texim.Pixels;
 
 public static class PixelSequenceFinder
 {
+    private const int IndexesCount = 256;
+
     public static int Search(
         ReadOnlySpan<IndexedPixel> pixels,
         ReadOnlySpan<IndexedPixel> sequence,
-        int blockSize)
+        int blockSize,
+        IPalette palette = null)
     {
-        int foundPos = -1;
-
-        for (int current = 0; current + blockSize <= pixels.Length && foundPos == -1; current += blockSize) {
-            if (current + sequence.Length > pixels.Length) {
-                break;
-            }
-
-            foundPos = current;
-            if (HasSequence(pixels, sequence, current)) {
-                continue;
-            }
-
-            foundPos = -1;
+        // It would be better to not have optional args
+        if (palette?.Colors.Count > IndexesCount) {
+            throw new ArgumentException($"Palettes with more than {IndexesCount} colors not supported");
         }
 
-        return foundPos;
+        bool[,] equivalentIndexes = palette is null ? null : InitializeEquivalentIndexes(palette.Colors);
+        return Search(pixels, sequence, blockSize, equivalentIndexes);
     }
 
     public static (int TileIdx, bool HorizontalFlip, bool VerticalFlip) SearchFlipping(
         ReadOnlySpan<IndexedPixel> pixels,
         ReadOnlySpan<IndexedPixel> sequence,
         int blockSize,
-        Size sequenceSize)
+        Size sequenceSize,
+        IPalette palette = null)
     {
-        int tileIndex = Search(pixels, sequence, blockSize);
+        if (palette?.Colors.Count > IndexesCount) {
+            throw new ArgumentException($"Palettes with more than {IndexesCount} colors not supported");
+        }
+
+        bool[,] equivalentIndexes = palette is null ? null : InitializeEquivalentIndexes(palette.Colors);
+
+        int tileIndex = Search(pixels, sequence, blockSize, equivalentIndexes);
         if (tileIndex != -1) {
             return (tileIndex, false, false);
         }
@@ -65,37 +69,81 @@ public static class PixelSequenceFinder
         var testSequence = sequence.ToArray().AsSpan();
 
         testSequence.FlipHorizontal(sequenceSize);
-        tileIndex = Search(pixels, testSequence, blockSize);
+        tileIndex = Search(pixels, testSequence, blockSize, equivalentIndexes);
         if (tileIndex != -1) {
             return (tileIndex, true, false);
         }
 
         testSequence.FlipVertical(sequenceSize);
-        tileIndex = Search(pixels, testSequence, blockSize);
+        tileIndex = Search(pixels, testSequence, blockSize, equivalentIndexes);
         if (tileIndex != -1) {
             return (tileIndex, true, true);
         }
 
         testSequence.FlipHorizontal(sequenceSize);
-        tileIndex = Search(pixels, testSequence, blockSize);
+        tileIndex = Search(pixels, testSequence, blockSize, equivalentIndexes);
         if (tileIndex != -1) {
             return (tileIndex, false, true);
         }
 
-        testSequence.FlipVertical(sequenceSize);
         return (-1, false, false);
+    }
+
+    private static bool[,] InitializeEquivalentIndexes(Collection<Rgb> colors)
+    {
+        bool[,] equivalentIndexes = new bool[IndexesCount, IndexesCount];
+
+        for (int i = 0; i < colors.Count; i++) {
+            Rgb currentColor = colors[i];
+
+            for (int j = 0; j < colors.Count; j++) {
+                equivalentIndexes[i, j] = colors[j].Equals(currentColor);
+            }
+        }
+
+        return equivalentIndexes;
+    }
+
+    private static int Search(
+        ReadOnlySpan<IndexedPixel> pixels,
+        ReadOnlySpan<IndexedPixel> sequence,
+        int blockSize,
+        bool[,] equivalentIndexes)
+    {
+        int foundPos = -1;
+
+        for (int current = 0; current + blockSize <= pixels.Length && foundPos == -1; current += blockSize) {
+            if (current + sequence.Length > pixels.Length) {
+                break;
+            }
+
+            foundPos = current;
+            if (HasSequence(pixels, sequence, current, equivalentIndexes)) {
+                continue;
+            }
+
+            foundPos = -1;
+        }
+
+        return foundPos;
     }
 
     private static bool HasSequence(
         ReadOnlySpan<IndexedPixel> pixels,
         ReadOnlySpan<IndexedPixel> sequence,
-        int startPos)
+        int startPos,
+        bool[,] equivalentColorIndexes = null)
     {
         bool hasSequence = true;
         for (int i = 0; i < sequence.Length && hasSequence; i++) {
-            if (pixels[startPos + i].Index != sequence[i].Index) {
-                hasSequence = false;
-            }
+            IndexedPixel inputPixel = sequence[i];
+            IndexedPixel exisitingPixel = pixels[startPos + i];
+
+            bool hasSameIndex = inputPixel.Index == exisitingPixel.Index;
+            bool hasEquivalentColor = hasSameIndex ||
+                equivalentColorIndexes?[inputPixel.Index, exisitingPixel.Index] == true;
+
+            hasSequence = hasSameIndex || hasEquivalentColor;
         }
 
         return hasSequence;

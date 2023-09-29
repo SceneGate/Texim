@@ -281,12 +281,14 @@ public class FullImage2ReferenceNitroCell :
                 existingTiles,
                 segmentTiles,
                 parameters.MinimumPixelsPerSegment,
-                segmentSize);
+                segmentSize,
+                parameters.Palettes.Palettes[paletteIndex]);
         } else {
             tileIndex = PixelSequenceFinder.Search(
                 existingTiles,
                 segmentTiles,
-                parameters.MinimumPixelsPerSegment);
+                parameters.MinimumPixelsPerSegment,
+                parameters.Palettes.Palettes[paletteIndex]);
         }
 
         if (tileIndex == -1) {
