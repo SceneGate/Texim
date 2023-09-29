@@ -41,8 +41,8 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
 
         var pages = new List<TiffPage>();
         do {
-            byte[] encodedName = tiff.GetFieldDefaulted(TiffTag.PAGENAME)?[0].GetBytes();
-            if (encodedName is not null && Encoding.ASCII.GetString(encodedName) == BackgroundName) {
+            string pageName = GetOptionalFieldString(tiff, TiffTag.PAGENAME);
+            if (pageName == BackgroundName) {
                 image.CanvasWidth = GetFieldSingle(tiff, TiffTag.IMAGEWIDTH).ToInt();
                 image.CanvasHeight = GetFieldSingle(tiff, TiffTag.IMAGELENGTH).ToInt();
                 continue;
@@ -63,6 +63,12 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
         image.Pages.Add(pages);
 
         return image;
+    }
+
+    private static string GetOptionalFieldString(Tiff tiff, TiffTag tag)
+    {
+        byte[] value = tiff.GetFieldDefaulted(tag)?[0].GetBytes();
+        return value is not null ? Encoding.ASCII.GetString(value) : string.Empty;
     }
 
     private static FieldValue GetFieldSingle(Tiff tiff, TiffTag tag)
@@ -88,6 +94,7 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
         var pageMetadata = ReadPageMetadata(tiff);
 
         var page = new TiffPage {
+            Name = pageMetadata.Name,
             Width = pageMetadata.Width,
             Height = pageMetadata.Height,
             X = pageMetadata.PositionX,
@@ -131,6 +138,7 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
         var pageMetadata = ReadPageMetadata(tiff);
 
         var page = new TiffPage {
+            Name = pageMetadata.Name,
             Width = pageMetadata.Width,
             Height = pageMetadata.Height,
             X = pageMetadata.PositionX,
@@ -185,6 +193,8 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
 
     private static PageMetadata ReadPageMetadata(Tiff tiff)
     {
+        string name = GetOptionalFieldString(tiff, TiffTag.PAGENAME);
+
         int width = GetFieldSingle(tiff, TiffTag.IMAGEWIDTH).ToInt();
         int height = GetFieldSingle(tiff, TiffTag.IMAGELENGTH).ToInt();
 
@@ -205,14 +215,14 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
         float xRes = GetFieldSingle(tiff, TiffTag.XRESOLUTION).ToFloat();
         FieldValue[] xPosField = tiff.GetField(TiffTag.XPOSITION);
         float xPos = (xPosField?.Length == 1) ? xPosField[0].ToFloat() : 0.0f;
-        int x = (int)(xPos * xRes);
+        int x = (int)Math.Round(xPos * xRes);
 
         float yRes = GetFieldSingle(tiff, TiffTag.YRESOLUTION).ToFloat();
         FieldValue[] yPosField = tiff.GetField(TiffTag.YPOSITION);
         float yPos = (yPosField?.Length == 1) ? yPosField[0].ToFloat() : 0.0f;
-        int y = (int)(yPos * yRes);
+        int y = (int)Math.Round(yPos * yRes);
 
-        return new PageMetadata(width, height, samplesPerPixel, bitsPerSample, extraSample, orientation, planar, x, y);
+        return new PageMetadata(name, width, height, samplesPerPixel, bitsPerSample, extraSample, orientation, planar, x, y);
     }
 
     private static byte MapTo8Bits(int num)
@@ -226,6 +236,7 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
     }
 
     private sealed record PageMetadata(
+        string Name,
         int Width,
         int Height,
         int SamplesPerPixel,
