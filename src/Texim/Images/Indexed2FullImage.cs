@@ -72,14 +72,15 @@ namespace Texim.Images
             var image = new FullImage(source.Width, source.Height);
             for (int i = 0; i < source.Pixels.Length; i++) {
                 IndexedPixel pixel = source.Pixels[i];
-                if (pixel.PaletteIndex > palettes.Palettes.Count) {
-                    throw new FormatException("Missing palettes");
-                }
 
                 if (firstColorAsTransparent && pixel.Index == 0) {
                     // Color may not exists as it could be a
                     // generated transparent pixel with not associated palette.
                     image.Pixels[i] = new Rgb(0, 0, 0, 0);
+                } else if (pixel.PaletteIndex >= palettes.Palettes.Count) {
+                    throw new FormatException($"Missing palette {pixel.PaletteIndex}. Count: {palettes.Palettes.Count}");
+                } else if (pixel.Index >= palettes.Palettes[pixel.PaletteIndex].Colors.Count) {
+                    throw new FormatException($"Missing color {pixel.Index}. Count: {palettes.Palettes[pixel.PaletteIndex].Colors.Count}");
                 } else {
                     var color = palettes.Palettes[pixel.PaletteIndex].Colors[pixel.Index];
                     image.Pixels[i] = (pixel.Alpha == 255) ? color : new Rgb(color, pixel.Alpha);

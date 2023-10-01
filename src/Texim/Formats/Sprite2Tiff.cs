@@ -123,7 +123,7 @@ public class Sprite2Tiff : IConverter<ISprite, TiffImage>
                 page.ColorMap = fullPalette;
                 page.IsIndexed = true;
             } else {
-                page.RgbPixels = layerIndexedImage.CreateFullImage(parameters.Palettes).Pixels;
+                page.RgbPixels = layerIndexedImage.CreateFullImage(parameters.Palettes, true).Pixels;
             }
         }
 
