@@ -88,16 +88,20 @@ public class NitroImageSegmentation : IImageSegmentation
     {
         var segments = new List<IImageSegment>();
 
-        // Go to first non-transparent pixel
-        int newX = x, newY = y;
-        if (!SkipTrimming) {
-            newX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
-            newY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
+        int firstNonTransX = SearchNoTransparentPoint(frame, 1, x, y, yEnd: y + maxHeight);
+        int firstNonTransY = SearchNoTransparentPoint(frame, 0, x, y, yEnd: y + maxHeight);
 
-            // Only transparent pixels at this point.
-            if (newY == -1 || newX == -1) {
-                return segments;
-            }
+        // Only transparent pixels at this point.
+        if (firstNonTransX == -1 || firstNonTransY == -1) {
+            return segments;
+        }
+
+        int newX = x, newY = y;
+
+        if (!SkipTrimming) {
+            // Go to first non-transparent pixel
+            newX = firstNonTransX;
+            newY = firstNonTransY;
         }
 
         int diffX = newX - x;
@@ -117,8 +121,8 @@ public class NitroImageSegmentation : IImageSegmentation
         bool foundValidSize;
 
         // If our cell is already valid, do not split further.
-        if (IsValidSize(frame.Width, maxHeight - diffY)) {
-            width = frame.Width;
+        if (IsValidSize(frame.Width - x, maxHeight - diffY)) {
+            width = frame.Width - x;
             height = maxHeight - diffY;
             foundValidSize = true;
         } else {
