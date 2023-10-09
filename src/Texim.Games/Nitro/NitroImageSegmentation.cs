@@ -173,7 +173,9 @@ public class NitroImageSegmentation : IImageSegmentation
             // Get object width
             width = 0;
             for (int i = minWidthConstraint; i < SplitMode.Length && width == 0; i++) {
-                if (SplitMode[i].Size > maxWidth - x) {
+                // If the potential segment is bigger than the remaining, check next size.
+                // Except if it's the latest (smaller).
+                if (i + 1 != SplitMode.Length && SplitMode[i].Size > maxWidth - x) {
                     continue;
                 }
 
@@ -193,7 +195,7 @@ public class NitroImageSegmentation : IImageSegmentation
             // Get object height
             height = 0;
             for (int i = 0; i < SplitMode.Length && height == 0; i++) {
-                if (SplitMode[i].Size > maxHeight) {
+                if (i + 1 != SplitMode.Length && SplitMode[i].Size > maxHeight) {
                     continue;
                 }
 
