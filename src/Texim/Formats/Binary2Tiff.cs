@@ -36,7 +36,12 @@ public class Binary2Tiff : IConverter<IBinary, TiffImage>
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        using var tiff = Tiff.ClientOpen("sprite", "r", source.Stream, new TiffStream());
+        // Need to make a copy because disposing tiff, dispose the stream
+        var inputStream = new DataStream();
+        source.Stream.WriteTo(inputStream);
+        inputStream.Position = 0;
+
+        using var tiff = Tiff.ClientOpen("sprite", "r", inputStream, new TiffStream());
         var image = new TiffImage();
 
         var pages = new List<TiffPage>();
