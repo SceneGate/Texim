@@ -26,25 +26,29 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
 
-    public class PaletteCollection2ContainerBitmap :
-        IInitializer<IImageEncoder>, IConverter<IPaletteCollection, NodeContainerFormat>
+    public class PaletteCollection2ContainerBitmap : IConverter<IPaletteCollection, NodeContainerFormat>
     {
-        private IImageEncoder encoder = new PngEncoder();
+        private readonly IImageEncoder encoder;
 
-        public void Initialize(IImageEncoder parameters)
+        public PaletteCollection2ContainerBitmap()
         {
+            encoder = new PngEncoder();
+        }
+
+        public PaletteCollection2ContainerBitmap(IImageEncoder parameters)
+        {
+            ArgumentNullException.ThrowIfNull(parameters);
             encoder = parameters;
         }
 
         public NodeContainerFormat Convert(IPaletteCollection source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             var container = new NodeContainerFormat();
             for (int i = 0; i < source.Palettes.Count; i++) {
                 var child = new Node($"Palette {i}", source.Palettes[i])
-                    .TransformWith<Palette2Bitmap, IImageEncoder>(encoder);
+                    .TransformWith(new Palette2Bitmap(encoder));
                 container.Root.Add(child);
             }
 

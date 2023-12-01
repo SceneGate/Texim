@@ -25,8 +25,6 @@ namespace Texim.Images
 
     public class IndexedImage : IIndexedImage
     {
-        private static Indexed2FullImage fullImageConverter = new Indexed2FullImage();
-
         public IndexedImage()
         {
         }
@@ -53,19 +51,19 @@ namespace Texim.Images
 
         public FullImage CreateFullImage(IPalette palette)
         {
-            fullImageConverter.Initialize(palette);
+            var fullImageConverter = new Indexed2FullImage(palette);
             return fullImageConverter.Convert(this);
         }
 
         public FullImage CreateFullImage(IPaletteCollection palettes)
         {
-            fullImageConverter.Initialize(palettes);
+            var fullImageConverter = new Indexed2FullImage(palettes);
             return fullImageConverter.Convert(this);
         }
 
         public FullImage CreateFullImage(IPaletteCollection palettes, bool firstColorAsTransparent)
         {
-            fullImageConverter.Initialize((palettes, firstColorAsTransparent));
+            var fullImageConverter = new Indexed2FullImage(palettes, firstColorAsTransparent);
             return fullImageConverter.Convert(this);
         }
     }

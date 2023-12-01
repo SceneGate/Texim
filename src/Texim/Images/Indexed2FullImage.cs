@@ -25,49 +25,36 @@ namespace Texim.Images
     using Texim.Pixels;
     using Yarhl.FileFormat;
 
-    public class Indexed2FullImage :
-        IInitializer<IPalette>,
-        IInitializer<IPaletteCollection>,
-        IInitializer<(IPaletteCollection Palettes, bool FirstColorAsTransparent)>,
-        IConverter<IIndexedImage, FullImage>
+    public class Indexed2FullImage : IConverter<IIndexedImage, FullImage>
     {
-        private readonly PaletteCollection palettes = new PaletteCollection();
-        private bool firstColorAsTransparent;
+        private readonly PaletteCollection palettes;
+        private readonly bool firstColorAsTransparent;
 
-        public void Initialize(IPalette parameters)
+        public Indexed2FullImage(IPalette palette)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
+            ArgumentNullException.ThrowIfNull(palette);
             firstColorAsTransparent = false;
-            palettes.Palettes.Clear();
-            palettes.Palettes.Add(parameters);
+            palettes = new PaletteCollection(palette);
         }
 
-        public void Initialize(IPaletteCollection parameters)
+        public Indexed2FullImage(IPaletteCollection palettes)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
+            ArgumentNullException.ThrowIfNull(palettes);
             firstColorAsTransparent = false;
-            palettes.Palettes.Clear();
-            palettes.Palettes.Add(parameters.Palettes);
+            this.palettes = new PaletteCollection(palettes.Palettes);
         }
 
-        public void Initialize((IPaletteCollection Palettes, bool FirstColorAsTransparent) parameters)
+        public Indexed2FullImage(IPaletteCollection palettes, bool firstColorAsTransparent)
         {
-            ArgumentNullException.ThrowIfNull(parameters);
-            ArgumentNullException.ThrowIfNull(parameters.Palettes);
+            ArgumentNullException.ThrowIfNull(palettes);
 
-            palettes.Palettes.Clear();
-            palettes.Palettes.Add(parameters.Palettes.Palettes);
-            firstColorAsTransparent = parameters.FirstColorAsTransparent;
+            this.palettes = new PaletteCollection(palettes.Palettes);
+            this.firstColorAsTransparent = firstColorAsTransparent;
         }
 
         public FullImage Convert(IIndexedImage source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             var image = new FullImage(source.Width, source.Height);
             for (int i = 0; i < source.Pixels.Length; i++) {

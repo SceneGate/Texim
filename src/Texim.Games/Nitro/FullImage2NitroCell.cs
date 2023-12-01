@@ -24,27 +24,24 @@ using System.Linq;
 using Texim.Images;
 using Texim.Pixels;
 using Texim.Sprites;
-using Yarhl.FileFormat;
 
-public class FullImage2NitroCell :
-    FullImage2Sprite,
-    IInitializer<FullImage2NitroCellParams>
+public class FullImage2NitroCell : FullImage2Sprite
 {
-    private FullImage2NitroCellParams parameters;
+    private readonly FullImage2NitroCellParams parameters;
 
-    private bool hasRotationScaling;
-    private byte rotationScalingGroup;
-    private bool hasDoubleSize;
-    private bool isDisabled;
-    private bool isMosaic;
-    private ObjectAttributeMemoryMode memoryMode;
+    private readonly bool hasRotationScaling;
+    private readonly byte rotationScalingGroup;
+    private readonly bool hasDoubleSize;
+    private readonly bool isDisabled;
+    private readonly bool isMosaic;
+    private readonly ObjectAttributeMemoryMode memoryMode;
 
-    public void Initialize(FullImage2NitroCellParams parameters)
+    public FullImage2NitroCell(FullImage2NitroCellParams parameters)
+        : base(parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
         this.parameters = parameters;
-        base.Initialize(parameters);
 
         // We can only guess the original metadata if every original OAMs have it
         // otherwise, as original and new OAMs may differ, it's hard to know.

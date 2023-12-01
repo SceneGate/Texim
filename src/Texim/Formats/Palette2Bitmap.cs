@@ -28,22 +28,26 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class Palette2Bitmap :
-       IInitializer<IImageEncoder>, IConverter<IPalette, BinaryFormat>
+    public class Palette2Bitmap : IConverter<IPalette, BinaryFormat>
     {
         private const int ColorsPerRow = 16;
         private const int ZoomSize = 10;
-        private IImageEncoder encoder = new PngEncoder();
+        private readonly IImageEncoder encoder;
 
-        public void Initialize(IImageEncoder parameters)
+        public Palette2Bitmap()
         {
+            encoder = new PngEncoder();
+        }
+
+        public Palette2Bitmap(IImageEncoder parameters)
+        {
+            ArgumentNullException.ThrowIfNull(parameters);
             encoder = parameters;
         }
 
         public BinaryFormat Convert(IPalette source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             var colors = source.Colors;
 

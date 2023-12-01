@@ -24,17 +24,18 @@ namespace Texim.Compressions.Nitro
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class RawBinary2ScreenMap :
-        IInitializer<RawScreenMapParams>, IConverter<IBinary, ScreenMap>
+    public class RawBinary2ScreenMap : IConverter<IBinary, ScreenMap>
     {
-        private RawScreenMapParams parameters = RawScreenMapParams.Default;
+        private readonly RawScreenMapParams parameters;
 
-        public void Initialize(RawScreenMapParams parameters)
+        public RawBinary2ScreenMap()
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            parameters = RawScreenMapParams.Default;
+        }
 
-            this.parameters = parameters;
+        public RawBinary2ScreenMap(RawScreenMapParams parameters)
+        {
+            this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
         public ScreenMap Convert(IBinary source)

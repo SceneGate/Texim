@@ -33,13 +33,11 @@ using Texim.Processing;
 using Texim.Sprites;
 using Yarhl.FileFormat;
 
-public class FullImage2ReferenceNitroCell :
-    IConverter<FullImage, ISprite>,
-    IInitializer<FullImage2ReferenceNitroCellParams>
+public class FullImage2ReferenceNitroCell : IConverter<FullImage, ISprite>
 {
-    private FullImage2ReferenceNitroCellParams parameters;
+    private readonly FullImage2ReferenceNitroCellParams parameters;
 
-    public void Initialize(FullImage2ReferenceNitroCellParams parameters)
+    public FullImage2ReferenceNitroCell(FullImage2ReferenceNitroCellParams parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
@@ -49,7 +47,6 @@ public class FullImage2ReferenceNitroCell :
     public ISprite Convert(FullImage source)
     {
         ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(parameters);
 
         var newSprite = new Cell(parameters.ReferenceCell, Array.Empty<IImageSegment>()) {
             Width = parameters.ReferenceCell.Width,
@@ -62,8 +59,7 @@ public class FullImage2ReferenceNitroCell :
         };
 
         // Gets the original final image, so we can compare overlayed pixels
-        var sprite2Image = new Sprite2IndexedImage();
-        sprite2Image.Initialize(new Sprite2IndexedImageParams {
+        var sprite2Image = new Sprite2IndexedImage(new Sprite2IndexedImageParams {
             FullImage = parameters.Image,
             IsTiled = parameters.IsImageTiled,
             RelativeCoordinates = parameters.RelativeCoordinates,
@@ -71,8 +67,7 @@ public class FullImage2ReferenceNitroCell :
         FullImage originalSpriteImage = sprite2Image.Convert(parameters.ReferenceCell)
             .CreateFullImage(parameters.Palettes, true);
 
-        ImageSegment2IndexedImage segment2Indexed = new ImageSegment2IndexedImage();
-        segment2Indexed.Initialize(new ImageSegment2IndexedImageParams {
+        ImageSegment2IndexedImage segment2Indexed = new ImageSegment2IndexedImage(new ImageSegment2IndexedImageParams {
             FullImage = parameters.Image,
             IsTiled = parameters.IsImageTiled,
         });

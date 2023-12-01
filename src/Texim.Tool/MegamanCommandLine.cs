@@ -67,8 +67,8 @@ public static class MegamanCommandLine
             string name = animation.Name;
             foreach (var frame in animation.Children) {
                 string outputFile = Path.Combine(output, name, $"{frame.Name}.png");
-                frame.TransformWith<Sprite2IndexedImage, Sprite2IndexedImageParams>(spriteParams)
-                    .TransformWith<IndexedImage2Bitmap, IndexedImageBitmapParams>(bitmapParams)
+                frame.TransformWith(new Sprite2IndexedImage(spriteParams))
+                    .TransformWith(new IndexedImage2Bitmap(bitmapParams))
                     .Stream.WriteTo(outputFile);
             }
         }

@@ -25,14 +25,12 @@ using Texim.Images;
 using Texim.Pixels;
 using Yarhl.FileFormat;
 
-public class Sprite2IndexedImage :
-    IInitializer<Sprite2IndexedImageParams>,
-    IConverter<ISprite, IndexedImage>
+public class Sprite2IndexedImage : IConverter<ISprite, IndexedImage>
 {
-    private readonly ImageSegment2IndexedImage segmentConverter = new();
-    private Sprite2IndexedImageParams parameters;
+    private readonly ImageSegment2IndexedImage segmentConverter;
+    private readonly Sprite2IndexedImageParams parameters;
 
-    public void Initialize(Sprite2IndexedImageParams parameters)
+    public Sprite2IndexedImage(Sprite2IndexedImageParams parameters)
     {
         this.parameters = parameters;
 
@@ -42,15 +40,13 @@ public class Sprite2IndexedImage :
             OutOfBoundsTileIndex = parameters.OutOfBoundsTileIndex,
             IsTiled = parameters.IsTiled,
         };
-        segmentConverter.Initialize(segmentParams);
+        segmentConverter = new ImageSegment2IndexedImage(segmentParams);
     }
 
     public IndexedImage Convert(ISprite source)
     {
         if (source is null)
             throw new ArgumentNullException(nameof(source));
-        if (parameters is null)
-            throw new InvalidOperationException("Missing initialization");
 
         var pixels = new IndexedPixel[source.Width * source.Height];
         Span<IndexedPixel> pixelsSpan = pixels;
