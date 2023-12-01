@@ -78,7 +78,7 @@ public static class DarkoCommandLine
         var quantization = new FixedPaletteQuantization(palette);
         var bitmapNode = NodeFactory.FromFile(output, FileOpenMode.Read)
             .TransformWith<Bitmap2FullImage>()
-            .TransformWith<FullImage2IndexedPalette, IQuantization>(quantization);
+            .TransformWith(new FullImage2IndexedPalette(quantization));
         var newPixels = bitmapNode.GetFormatAs<IIndexedImage>().Pixels;
 
         using var newStream = new DataStream();

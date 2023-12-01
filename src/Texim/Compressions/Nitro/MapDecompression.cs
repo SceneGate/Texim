@@ -25,15 +25,14 @@ namespace Texim.Compressions.Nitro
     using Yarhl.FileFormat;
 
     public class MapDecompression :
-        IInitializer<MapDecompressionParams>,
         IConverter<IIndexedImage, IndexedImage>,
         IConverter<IndexedPixel[], IndexedPixel[]>
     {
-        private System.Drawing.Size tileSize;
-        private IScreenMap map;
-        private int outOfBoundsIndex = -1;
+        private readonly System.Drawing.Size tileSize;
+        private readonly IScreenMap map;
+        private readonly int outOfBoundsIndex = -1;
 
-        public void Initialize(MapDecompressionParams parameters)
+        public MapDecompression(MapDecompressionParams parameters)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
@@ -47,8 +46,6 @@ namespace Texim.Compressions.Nitro
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (map == null)
-                throw new InvalidOperationException("Missing initialization");
 
             // It's easier if we swizzle again, with the compressed tiles
             var swizzling = new TileSwizzling<IndexedPixel>(tileSize, source.Width);

@@ -28,17 +28,15 @@ using Texim.Pixels;
 using Texim.Processing;
 using Yarhl.FileFormat;
 
-public class FullImage2Sprite :
-    IInitializer<FullImage2SpriteParams>,
-    IConverter<FullImage, ISprite>
+public class FullImage2Sprite : IConverter<FullImage, ISprite>
 {
-    protected FullImage2SpriteParams Parameters { get; private set; }
-
-    public void Initialize(FullImage2SpriteParams parameters)
+    public FullImage2Sprite(FullImage2SpriteParams parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
         Parameters = parameters;
     }
+
+    protected FullImage2SpriteParams Parameters { get; private set; }
 
     public virtual ISprite Convert(FullImage source)
     {

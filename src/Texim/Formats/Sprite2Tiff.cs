@@ -85,8 +85,7 @@ public class Sprite2Tiff : IConverter<ISprite, TiffImage>
             }
         }
 
-        var sprite2Image = new Sprite2IndexedImage();
-        sprite2Image.Initialize(new Sprite2IndexedImageParams {
+        var sprite2Image = new Sprite2IndexedImage(new Sprite2IndexedImageParams {
             FullImage = parameters.Image,
             IsTiled = parameters.IsTiled,
             TileSize = parameters.TileSize,

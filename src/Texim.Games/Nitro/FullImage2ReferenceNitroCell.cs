@@ -62,8 +62,7 @@ public class FullImage2ReferenceNitroCell :
         };
 
         // Gets the original final image, so we can compare overlayed pixels
-        var sprite2Image = new Sprite2IndexedImage();
-        sprite2Image.Initialize(new Sprite2IndexedImageParams {
+        var sprite2Image = new Sprite2IndexedImage(new Sprite2IndexedImageParams {
             FullImage = parameters.Image,
             IsTiled = parameters.IsImageTiled,
             RelativeCoordinates = parameters.RelativeCoordinates,
@@ -71,8 +70,7 @@ public class FullImage2ReferenceNitroCell :
         FullImage originalSpriteImage = sprite2Image.Convert(parameters.ReferenceCell)
             .CreateFullImage(parameters.Palettes, true);
 
-        ImageSegment2IndexedImage segment2Indexed = new ImageSegment2IndexedImage();
-        segment2Indexed.Initialize(new ImageSegment2IndexedImageParams {
+        ImageSegment2IndexedImage segment2Indexed = new ImageSegment2IndexedImage(new ImageSegment2IndexedImageParams {
             FullImage = parameters.Image,
             IsTiled = parameters.IsImageTiled,
         });

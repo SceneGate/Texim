@@ -24,23 +24,19 @@ using Texim.Images;
 using Texim.Pixels;
 using Yarhl.FileFormat;
 
-public class ImageSegment2IndexedImage :
-    IInitializer<ImageSegment2IndexedImageParams>,
-    IConverter<IImageSegment, IndexedImage>
+public class ImageSegment2IndexedImage : IConverter<IImageSegment, IndexedImage>
 {
-    private ImageSegment2IndexedImageParams parameters;
+    private readonly ImageSegment2IndexedImageParams parameters;
 
-    public void Initialize(ImageSegment2IndexedImageParams parameters)
+    public ImageSegment2IndexedImage(ImageSegment2IndexedImageParams parameters)
     {
+        ArgumentNullException.ThrowIfNull(parameters);
         this.parameters = parameters;
     }
 
     public IndexedImage Convert(IImageSegment source)
     {
-        if (source is null)
-            throw new ArgumentNullException(nameof(source));
-        if (parameters is null)
-            throw new InvalidOperationException("Missing initialization");
+        ArgumentNullException.ThrowIfNull(source);
 
         // If it was tiled swizzled, then convert to tiles so we can resolve the references
         IndexedPixel[] tiles = parameters.FullImage.Pixels;

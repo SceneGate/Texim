@@ -27,13 +27,16 @@ namespace Texim.Compressions.Nitro
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
 
-    public class MapCompression :
-        IInitializer<MapCompressionParams>, IConverter<IIndexedImage, NodeContainerFormat>
+    public class MapCompression : IConverter<IIndexedImage, NodeContainerFormat>
     {
-        private System.Drawing.Size tileSize = new System.Drawing.Size(8, 8);
-        private IIndexedImage mergeImage;
+        private readonly System.Drawing.Size tileSize = new System.Drawing.Size(8, 8);
+        private readonly IIndexedImage mergeImage;
 
-        public void Initialize(MapCompressionParams parameters)
+        public MapCompression()
+        {
+        }
+
+        public MapCompression(MapCompressionParams parameters)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));

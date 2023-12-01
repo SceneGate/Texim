@@ -25,17 +25,21 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class Palette2BinaryRiff :
-        IInitializer<bool>, IConverter<IPalette, BinaryFormat>
+    public class Palette2BinaryRiff : IConverter<IPalette, BinaryFormat>
     {
+        public Palette2BinaryRiff()
+        {
+            GimpCompatibility = false;
+        }
+
+        public Palette2BinaryRiff(bool gimpCompatibility)
+        {
+            GimpCompatibility = gimpCompatibility;
+        }
+
         public static int Version => 03_00;
 
         public bool GimpCompatibility { get; set; }
-
-        public void Initialize(bool parameters)
-        {
-            GimpCompatibility = parameters;
-        }
 
         public BinaryFormat Convert(IPalette source)
         {
