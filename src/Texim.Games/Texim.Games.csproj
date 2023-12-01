@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <Description>Image formats and converter for videogames.</Description>
@@ -13,7 +13,7 @@
 
     <ItemGroup>
         <None Include="../../docs/images/favicon-128.png" Pack="true" PackagePath="$(PackageIcon)" Visible="false" />
-        <None Include="../../docs/index.md" Pack="true" PackagePath="$(PackageReadmeFile)" />
+        <None Include="../../docs/index.md" Pack="true" Visible="False" PackagePath="$(PackageReadmeFile)" />
     </ItemGroup>
 
     <ItemGroup>

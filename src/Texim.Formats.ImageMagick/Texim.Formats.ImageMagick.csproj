@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Convert to ImageMagick formats with Texim.</Description>
+    <IsPackable>true</IsPackable>
+
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+
+    <!-- TODO -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../docs/images/favicon-128.png" Pack="true" PackagePath="$(PackageIcon)" Visible="false" />
+    <None Include="../../docs/index.md" Pack="true" Visible="False" PackagePath="$(PackageReadmeFile)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Texim\Texim.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" />
+  </ItemGroup>
+</Project>

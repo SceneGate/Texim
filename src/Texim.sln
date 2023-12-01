@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Texim.Formats.ImageMagick", "Texim.Formats.ImageMagick\Texim.Formats.ImageMagick.csproj", "{82B676D7-2FAE-420C-A819-2A10B12817A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,18 @@ Global
 		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x64.Build.0 = Release|Any CPU
 		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x86.ActiveCfg = Release|Any CPU
 		{E2110B39-9BAD-4894-A273-0F86C18AF955}.Release|x86.Build.0 = Release|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Debug|x64.Build.0 = Debug|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Debug|x86.Build.0 = Debug|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Release|x64.ActiveCfg = Release|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Release|x64.Build.0 = Release|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Release|x86.ActiveCfg = Release|Any CPU
+		{82B676D7-2FAE-420C-A819-2A10B12817A3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

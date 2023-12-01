@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <None Include="../../docs/images/favicon-128.png" Pack="true" PackagePath="$(PackageIcon)" Visible="false" />
-    <None Include="../../docs/index.md" Pack="true" PackagePath="$(PackageReadmeFile)" />
+    <None Include="../../docs/index.md" Pack="true" Visible="False" PackagePath="$(PackageReadmeFile)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,7 +25,6 @@
     <PackageReference Include="System.Drawing.Common" />
     <PackageReference Include="SixLabors.ImageSharp" />
     <PackageReference Include="BitMiracle.LibTiff.NET" />
-    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" />
   </ItemGroup>
 
 </Project>
