@@ -4,8 +4,10 @@
     <Description>Extensible library for image file format and conversings based on Yarhl.</Description>
     <IsPackable>true</IsPackable>
 
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
 
+    <!-- TODO -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <Nullable>disable</Nullable>
   </PropertyGroup>
 

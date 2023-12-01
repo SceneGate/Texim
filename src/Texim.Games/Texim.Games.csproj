@@ -4,8 +4,10 @@
         <Description>Image formats and converter for videogames.</Description>
         <IsPackable>true</IsPackable>
 
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
 
+        <!-- TODO -->
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <Nullable>disable</Nullable>
     </PropertyGroup>
 
