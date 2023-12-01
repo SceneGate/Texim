@@ -1,83 +1,67 @@
 {
-    "metadata": [
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [
+            "Texim/*.csproj",
+            "Texim.Games/*.csproj"
+          ],
+          "src": "../src"
+        }
+      ],
+      "dest": "api",
+      "includePrivateMembers": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false,
+      "noRestore": false,
+      "namespaceLayout": "flattened",
+      "memberLayout": "samePage",
+      "EnumSortOrder": "alphabetic",
+      "allowCompilationErrors": false
+    }
+  ],
+  "build": {
+    "content": [
       {
-        "src": [
-          {
-            "files": [
-              "Texim/bin/**/Texim.dll"
-            ],
-            "src": "../src"
-          }
-        ],
-        "dest": "api",
-        "filter": "filter_config.yml",
-        "disableGitFeatures": false,
-        "disableDefaultFilter": false
+        "files": [
+          "api/**.yml",
+          "api/index.md"
+        ]
+      },
+      { "files": "**/*.{md,yml}", "src": "articles", "dest": "docs" },
+      { "files": [ "toc.yml", "*.md" ] }
+    ],
+    "resource": [
+      {
+        "files": [ "**/images/**", "**/resources/**" ],
+        "exclude": [ "_site/**", "obj/**" ]
       }
     ],
-    "build": {
-      "content": [
-        {
-          "files": [ "api/**.yml", "dev/**" ]
-        },
-        {
-          "files": [ "toc.yml", "index.md" ]
-        },
-        {
-          "files": [ "guides/**" ]
-        },
-        {
-          "files": ["README.md", "CONTRIBUTING.md"],
-          "src": "../"
-        }
-      ],
-      "resource": [
-        {
-          "files": ["images/**"]
-        }
-      ],
-      "dest": "_site",
-      "globalMetadataFiles": ["global_metadata.json"],
-      "fileMetadataFiles": [],
-      "template": [
-        "default",
-        "statictoc",
-        "default-widescreen"
-      ],
-      "postProcessors": [],
-      "markdownEngineName": "markdig",
-      "noLangKeyword": false,
-      "keepFileLink": false,
-      "cleanupCacheHistory": false,
-      "disableGitFeatures": false,
-      "xrefService": [ "https://xref.docs.microsoft.com/query?uid={uid}" ]
+    "output": "_site",
+    "globalMetadata": {
+      "_appTitle": "Texim extensible image API",
+      "_appName": "Texim",
+      "_appFooter": "<span>Part of the <a href=\"https://github.com/SceneGate\" target=\"_blank\">SceneGate framework</a>. Docs made with <a href=\"https://dotnet.github.io/docfx\" target=\"_blank\">docfx</a></span>",
+      "_appLogoPath": "images/logo-50.png",
+      "_appFaviconPath": "images/favicon.ico",
+      "_enableSearch": true,
+      "_enableNewTab": true,
+      "_lang": "en"
     },
-    "pdf": {
-      "content": [
-        {
-          "files": [ "pdf/**" ]
-        },
-        {
-          "files": [ "api/**.yml" ],
-          "exclude": [ "**/toc.yml" ]
-        },
-        {
-          "files": [ "index.md" ]
-        },
-        {
-          "files": [ "guides/**" ],
-          "exclude": [ "**/toc.yml" ]
-        },
-        {
-          "files": ["README.md", "CONTRIBUTING.md"],
-          "src": "../"
-        }
-      ],
-      "resource": [
-        {
-          "files": ["images/**"]
-        }
-      ],
-      "dest": "_site_pdf"
+    "fileMetadataFiles": [],
+    "template": [
+      "default",
+      "modern",
+      "template"
+    ],
+    "postProcessors": [],
+    "keepFileLink": false,
+    "disableGitFeatures": false,
+    "sitemap": {
+      "baseUrl": "https://scenegate.github.io/Texim/",
+      "priority": 0.5,
+      "changefreq": "monthly"
     }
+  }
 }

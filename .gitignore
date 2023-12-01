@@ -1,19 +1,17 @@
-# Build outputs and IDEs
+# Build outputs
 obj/
 bin/
-artifacts/
-.vs/
-launchSettings.json
+build/artifacts/
+build/temp/
+/CHANGELOG.md
+/CHANGELOG.NEXT.md
 
-# Build system
-tools/
+# IDEs
+.vs/
+*.csproj.user
+launchSettings.json
 
 # Test results
 test_results/
 BenchmarkDotNet.Artifacts/
 resources/
-
-# Documentation output
-docs/_site
-docs/api
-docs/_site_pdf
