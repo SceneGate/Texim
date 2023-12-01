@@ -1,12 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Library</OutputType>
+        <Description>Image formats and converter for videogames.</Description>
+        <IsPackable>true</IsPackable>
+
         <TargetFramework>net6.0</TargetFramework>
+
+        <Nullable>disable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../../README.md" Pack="true" PackagePath="$(PackageReadmeFile)" />
+        <None Include="../../docs/images/favicon-128.png" Pack="true" PackagePath="$(PackageIcon)" Visible="false" />
+        <None Include="../../docs/index.md" Pack="true" PackagePath="$(PackageReadmeFile)" />
     </ItemGroup>
 
     <ItemGroup>

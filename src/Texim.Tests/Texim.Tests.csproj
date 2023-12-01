@@ -3,7 +3,10 @@
 
   <PropertyGroup>
     <Description>Texim unit tests.</Description>
+
     <TargetFrameworks>net6.0</TargetFrameworks>
+
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +21,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Colors\" />
-  </ItemGroup>
 </Project>
