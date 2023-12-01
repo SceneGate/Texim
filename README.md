@@ -85,6 +85,7 @@ The project has the following .NET libraries (NuGet packages via nuget.org). The
 libraries only support .NET LTS versions: **.NET 6.0** and **.NET 8.0**.
 
 - `Texim`: Image formats and converters API
+- `Texim.Formats.ImageMagick`: convert to ImageMagick supported formats.
 - `Texim.Games`: Format and converter implementations from games.
 
 The libraries are available from the Azure DevOps public feeds. To use them
