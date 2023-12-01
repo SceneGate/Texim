@@ -27,14 +27,14 @@ using Texim.Sprites;
 
 public class FullImage2NitroCell : FullImage2Sprite
 {
-    private FullImage2NitroCellParams parameters;
+    private readonly FullImage2NitroCellParams parameters;
 
-    private bool hasRotationScaling;
-    private byte rotationScalingGroup;
-    private bool hasDoubleSize;
-    private bool isDisabled;
-    private bool isMosaic;
-    private ObjectAttributeMemoryMode memoryMode;
+    private readonly bool hasRotationScaling;
+    private readonly byte rotationScalingGroup;
+    private readonly bool hasDoubleSize;
+    private readonly bool isDisabled;
+    private readonly bool isMosaic;
+    private readonly ObjectAttributeMemoryMode memoryMode;
 
     public FullImage2NitroCell(FullImage2NitroCellParams parameters)
         : base(parameters)

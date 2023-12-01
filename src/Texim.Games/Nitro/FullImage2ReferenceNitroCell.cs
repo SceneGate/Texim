@@ -33,13 +33,11 @@ using Texim.Processing;
 using Texim.Sprites;
 using Yarhl.FileFormat;
 
-public class FullImage2ReferenceNitroCell :
-    IConverter<FullImage, ISprite>,
-    IInitializer<FullImage2ReferenceNitroCellParams>
+public class FullImage2ReferenceNitroCell : IConverter<FullImage, ISprite>
 {
-    private FullImage2ReferenceNitroCellParams parameters;
+    private readonly FullImage2ReferenceNitroCellParams parameters;
 
-    public void Initialize(FullImage2ReferenceNitroCellParams parameters)
+    public FullImage2ReferenceNitroCell(FullImage2ReferenceNitroCellParams parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
@@ -49,7 +47,6 @@ public class FullImage2ReferenceNitroCell :
     public ISprite Convert(FullImage source)
     {
         ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(parameters);
 
         var newSprite = new Cell(parameters.ReferenceCell, Array.Empty<IImageSegment>()) {
             Width = parameters.ReferenceCell.Width,
