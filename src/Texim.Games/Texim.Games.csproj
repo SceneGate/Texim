@@ -1,17 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <Description>Image formats and converter for videogames.</Description>
         <IsPackable>true</IsPackable>
 
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
 
+        <!-- TODO -->
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <Nullable>disable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
         <None Include="../../docs/images/favicon-128.png" Pack="true" PackagePath="$(PackageIcon)" Visible="false" />
-        <None Include="../../docs/index.md" Pack="true" PackagePath="$(PackageReadmeFile)" />
+        <None Include="../../docs/index.md" Pack="true" Visible="False" PackagePath="$(PackageReadmeFile)" />
     </ItemGroup>
 
     <ItemGroup>

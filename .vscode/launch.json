@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Build",
-            "program": "${workspaceFolder}/src/Texim.Tool/bin/Debug/net6.0/Texim.Tool.dll",
+            "program": "${workspaceFolder}/src/Texim.Tool/bin/Debug/net8.0/Texim.Tool.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,

@@ -5,6 +5,7 @@
         {
           "files": [
             "Texim/*.csproj",
+            "Texim.Formats.ImageMagick/*.csproj",
             "Texim.Games/*.csproj"
           ],
           "src": "../src"
