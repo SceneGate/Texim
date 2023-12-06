@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,18 @@ namespace Texim.Formats
     public class IndexedImage2Bitmap : IConverter<IIndexedImage, BinaryFormat>
     {
         private readonly IndexedImageBitmapParams parameters;
+
+        public IndexedImage2Bitmap(IPalette palette)
+        {
+            ArgumentNullException.ThrowIfNull(palette);
+            parameters = new() { Palette = palette };
+        }
+
+        public IndexedImage2Bitmap(IPaletteCollection palettes)
+        {
+            ArgumentNullException.ThrowIfNull(palettes);
+            parameters = new() { Palettes = palettes };
+        }
 
         public IndexedImage2Bitmap(IndexedImageBitmapParams parameters)
         {

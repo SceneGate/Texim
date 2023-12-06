@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,12 +30,20 @@ namespace Texim.Compressions.Nitro
     {
         private readonly System.Drawing.Size tileSize;
         private readonly IScreenMap map;
-        private readonly int outOfBoundsIndex = -1;
+        private readonly int outOfBoundsIndex;
+
+        public MapDecompression(IScreenMap map)
+        {
+            ArgumentNullException.ThrowIfNull(map);
+
+            this.map = map;
+            tileSize = new System.Drawing.Size(8, 8);
+            outOfBoundsIndex = -1;
+        }
 
         public MapDecompression(MapDecompressionParams parameters)
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            ArgumentNullException.ThrowIfNull(parameters);
 
             tileSize = parameters.TileSize;
             map = parameters.Map;
