@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,14 +23,13 @@ namespace Texim.Games.JumpUltimateStars
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class Binary2Koma : IConverter<BinaryFormat, Koma>
+    public class Binary2Koma : IConverter<IBinary, Koma>
     {
         private const int EntrySize = 12;
 
-        public Koma Convert(BinaryFormat source)
+        public Koma Convert(IBinary source)
         {
-            if (source is null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             var koma = new Koma();
             var reader = new DataReader(source.Stream);

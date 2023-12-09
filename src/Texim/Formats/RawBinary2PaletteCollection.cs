@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class RawBinary2PaletteCollection : IConverter<BinaryFormat, PaletteCollection>
+    public class RawBinary2PaletteCollection : IConverter<IBinary, PaletteCollection>
     {
         private readonly RawPaletteParams parameters;
 
@@ -39,10 +39,9 @@ namespace Texim.Formats
             this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
         }
 
-        public PaletteCollection Convert(BinaryFormat source)
+        public PaletteCollection Convert(IBinary source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             var reader = new DataReader(source.Stream);
             source.Stream.Position = parameters.Offset;
@@ -62,7 +61,7 @@ namespace Texim.Formats
                 Rgb[] paletteColors;
                 if (i + parameters.ColorsPerPalette >= colors.Length) {
                     // Take the rest (there may be more than in the other palettes).
-                    paletteColors = colors.Slice(i).ToArray();
+                    paletteColors = colors[i..].ToArray();
                 } else {
                     paletteColors = colors.Slice(i, parameters.ColorsPerPalette).ToArray();
                 }

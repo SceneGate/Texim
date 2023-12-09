@@ -1,4 +1,4 @@
-// Copyright (c) 2021 SceneGate
+﻿// Copyright (c) 2021 SceneGate
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,12 +26,11 @@ namespace Texim.Formats
     using Yarhl.FileFormat;
     using Yarhl.IO;
 
-    public class Bitmap2FullImage : IConverter<BinaryFormat, FullImage>
+    public class Bitmap2FullImage : IConverter<IBinary, FullImage>
     {
-        public FullImage Convert(BinaryFormat source)
+        public FullImage Convert(IBinary source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            ArgumentNullException.ThrowIfNull(source);
 
             using var image = Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(source.Stream);
             var fullImage = new FullImage(image.Width, image.Height);
