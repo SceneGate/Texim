@@ -1,7 +1,7 @@
 <Project>
   <!-- Centralize dependency management -->
   <ItemGroup>
-    <PackageVersion Include="Yarhl" Version="4.0.0-preview.283" />
+    <PackageVersion Include="Yarhl" Version="4.0.0" />
     <PackageVersion Include="System.Drawing.Common" Version="8.0.0" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.0.2" />
     <PackageVersion Include="BitMiracle.LibTiff.NET" Version="2.4.649" />
